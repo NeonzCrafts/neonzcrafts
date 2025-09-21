@@ -5,18 +5,22 @@ const EMAILJS_PUBLIC_KEY = "CRkybtSL0tLoJJ71X";
 
 // The products for your store
 const PRODUCTS = [
-  // Your product
   { 
     id:'p1', 
     title:'Educational Geometric Shape Sorting & Stacking Toys for 1 2 3 Year Old, Montessori Toys for Toddlers, Preschool Educational Color Shape Learning Toy Gift for Kids Girls Boys', 
     price:219, 
-    image:'./51Vgahd2ZEL._AC_UF894,1000_QL80_FMwebp_.webp', 
+    // Now an array of images for the gallery
+    images:[
+      './51Vgahd2ZEL._AC_UF894,1000_QL80_FMwebp_.webp',
+      './61WMeKDIQGL._AC_SL1500_.jpg',
+      './61WjJh4UQ6L._AC_SL1500_.jpg'
+    ], 
     description:'A perfect educational toy for toddlers to learn colors, shapes, and improve motor skills. Made from safe, durable materials.' 
   }
 ];
 
-// Sample reviews (You can edit these later)
-const REVIEWS = [
+// Sample reviews (You can edit these or let customers add them)
+let REVIEWS = [
   { name: 'Priya S.', text: 'The product quality is amazing! I am so happy with my purchase.', rating: 5 },
   { name: 'Amit V.', text: 'Fast delivery and excellent customer service. Highly recommend!', rating: 5 },
   { name: 'Sneha R.', text: 'A great buy. The product exceeded my expectations.', rating: 4 }
@@ -26,6 +30,24 @@ const el = id=>document.getElementById(id);
 let cart = {};
 let addresses=[], selectedAddressIndex=null;
 
+// Load addresses from local storage on startup
+function loadAddresses(){
+  const savedAddresses = localStorage.getItem('addresses');
+  if(savedAddresses){
+    addresses = JSON.parse(savedAddresses);
+    selectedAddressIndex = localStorage.getItem('selectedAddressIndex');
+    // Display the user's name if an address is saved
+    el('user-display').textContent = `Welcome, ${addresses[0].name}!`;
+    el('user-display').classList.remove('hidden');
+    el('login-btn').textContent = "Log Out";
+  }
+}
+// Save addresses to local storage
+function saveAddresses(){
+  localStorage.setItem('addresses', JSON.stringify(addresses));
+  localStorage.setItem('selectedAddressIndex', selectedAddressIndex);
+}
+
 function formatPrice(v){ return Number(v).toFixed(2); }
 
 // ====== Product rendering ======
@@ -34,7 +56,8 @@ function renderProducts(){
   const grid=document.createElement('div'); grid.className='products-grid';
   PRODUCTS.forEach(p=>{
     const card=document.createElement('div'); card.className='card';
-    card.innerHTML=`<img src="${p.image}" alt="${p.title}"/><h3>${p.title}</h3><p>${p.description}</p><div class="price">₹${formatPrice(p.price)}</div><div style="margin-top:8px"><button class="small" data-id="${p.id}" onclick="showProductDetail('${p.id}')">View Details</button></div>`;
+    card.setAttribute('onclick', `showProductDetail('${p.id}')`); // Make entire card clickable
+    card.innerHTML=`<img src="${p.images[0]}" alt="${p.title}"/><h3>${p.title}</h3><p>${p.description}</p><div class="price">₹${formatPrice(p.price)}</div>`;
     grid.appendChild(card);
   });
   container.innerHTML='<h2>Products</h2>'; container.appendChild(grid);
@@ -49,10 +72,15 @@ function showProductDetail(id){
     el('product-detail').classList.remove('hidden');
 
     const contentDiv = el('product-detail-content');
+    
+    // Create the image gallery HTML
+    const galleryHtml = product.images.map(imgUrl => `<img src="${imgUrl}" alt="Product thumbnail" onclick="changeMainImage('${imgUrl}')">`).join('');
+    
     contentDiv.innerHTML = `
       <div class="product-details-container">
         <div class="product-image-section">
-          <img src="${product.image}" alt="${product.title}">
+          <img src="${product.images[0]}" alt="${product.title}" id="main-product-image">
+          <div class="thumbnail-gallery">${galleryHtml}</div>
         </div>
         <div class="product-info-section">
           <h2>${product.title}</h2>
@@ -68,6 +96,17 @@ function showProductDetail(id){
         </div>
       </div>
     `;
+    
+    // Set the first thumbnail as active
+    contentDiv.querySelector('.thumbnail-gallery img').classList.add('active');
+}
+
+function changeMainImage(imgUrl) {
+    el('main-product-image').src = imgUrl;
+    el('product-detail-content').querySelectorAll('.thumbnail-gallery img').forEach(img => {
+        img.classList.remove('active');
+    });
+    el('product-detail-content').querySelector(`img[src='${imgUrl}']`).classList.add('active');
 }
 
 function changeQtyOnDetail(change){
@@ -99,7 +138,7 @@ function updateCartUI(){
   else{
     items.forEach(it=>{
       const div=document.createElement('div'); div.className='cart-item';
-      div.innerHTML=`<img src="${it.image}" alt="${it.title}"><div style="flex:1"><div><strong>${it.title}</strong></div><div>₹${formatPrice(it.price)} × <span class="qty">${it.qty}</span></div><div class="cart-qty"><button class="small dec" data-id="${it.id}">-</button><button class="small inc" data-id="${it.id}">+</button><button class="small rem" data-id="${it.id}">Remove</button></div></div>`;
+      div.innerHTML=`<img src="${it.images[0]}" alt="${it.title}"><div style="flex:1"><div><strong>${it.title}</strong></div><div>₹${formatPrice(it.price)} × <span class="qty">${it.qty}</span></div><div class="cart-qty"><button class="small dec" data-id="${it.id}">-</button><button class="small inc" data-id="${it.id}">+</button><button class="small rem" data-id="${it.id}">Remove</button></div></div>`;
       itemsDiv.appendChild(div);
     });
     itemsDiv.querySelectorAll('.inc').forEach(b=>b.onclick=e=>changeQty(e.currentTarget.dataset.id,cart[e.currentTarget.dataset.id]+1));
@@ -126,7 +165,7 @@ function renderAddresses(){
     container.appendChild(div);
   });
   container.querySelectorAll('input[name="selected-address"]').forEach(r=>r.onchange=e=>selectedAddressIndex=parseInt(e.currentTarget.dataset.idx));
-  container.querySelectorAll('.remove-address').forEach(b=>b.onclick=e=>{ addresses.splice(parseInt(e.currentTarget.dataset.idx),1); if(selectedAddressIndex!==null && selectedAddressIndex>=addresses.length) selectedAddressIndex=addresses.length-1; renderAddresses(); });
+  container.querySelectorAll('.remove-address').forEach(b=>b.onclick=e=>{ addresses.splice(parseInt(e.currentTarget.dataset.id),1); if(selectedAddressIndex!==null && selectedAddressIndex>=addresses.length) selectedAddressIndex=addresses.length-1; renderAddresses(); });
 }
 
 // Add new address (using the form)
@@ -147,6 +186,28 @@ el('new-address-form').onsubmit=e=>{
   renderAddresses(); 
   el('new-address-form').classList.add('hidden');
   e.target.reset(); // Clear the form
+  saveAddresses(); // Save to local storage
+  el('user-display').textContent = `Welcome, ${name}!`;
+  el('user-display').classList.remove('hidden');
+  el('login-btn').textContent = "Log Out";
+};
+
+// Handle login button
+el('login-btn').onclick = () => {
+    if (el('login-btn').textContent === "Log Out") {
+        // Log out logic
+        localStorage.removeItem('addresses');
+        localStorage.removeItem('selectedAddressIndex');
+        addresses = [];
+        selectedAddressIndex = null;
+        el('user-display').textContent = "";
+        el('user-display').classList.add('hidden');
+        el('login-btn').textContent = "Log In";
+        alert("You have been logged out.");
+    } else {
+        // Show address form for "login"
+        el('add-address-btn').click();
+    }
 };
 
 // Render order summary
@@ -176,7 +237,7 @@ el('place-order-btn').onclick=()=>{
   .catch(err=>{ console.error(err); alert("Error sending order. Check EmailJS setup."); });
 };
 
-// ====== Review Rendering ======
+// ====== Review Rendering & Submission ======
 function renderReviews() {
   const container = el('reviews-container');
   container.innerHTML = '';
@@ -195,9 +256,40 @@ function renderReviews() {
   });
 }
 
+el('show-review-form-btn').onclick = () => {
+    el('add-review-form').classList.remove('hidden');
+    el('show-review-form-btn').classList.add('hidden');
+};
+
+el('cancel-review-btn').onclick = () => {
+    el('add-review-form').classList.add('hidden');
+    el('show-review-form-btn').classList.remove('hidden');
+};
+
+el('add-review-form').onsubmit = e => {
+    e.preventDefault();
+    const name = el('review-name').value;
+    const text = el('review-text').value;
+    const rating = parseInt(el('add-review-form').querySelector('input[name="rating"]:checked').value);
+    
+    // Add the new review to the array
+    REVIEWS.push({ name, text, rating });
+    
+    // Re-render the reviews section
+    renderReviews();
+    
+    // Hide the form and reset it
+    el('add-review-form').classList.add('hidden');
+    el('show-review-form-btn').classList.remove('hidden');
+    e.target.reset();
+};
+
 // Navigation
 document.addEventListener('DOMContentLoaded',()=>{
-  renderProducts(); updateCartUI(); renderReviews();
+  loadAddresses();
+  renderProducts(); 
+  updateCartUI(); 
+  renderReviews();
   el('view-products').onclick=()=>{ el('products').classList.remove('hidden'); el('cart').classList.add('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
   el('view-cart').onclick=()=>{ el('products').classList.add('hidden'); el('cart').classList.remove('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
   el('back-to-products').onclick=()=>{ el('product-detail').classList.add('hidden'); el('products').classList.remove('hidden'); };
