@@ -3,29 +3,43 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NeonzCrafts — Products</title>
+  <title>NeonzCrafts — Home</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="navbar">
     <div class="navbar-left">
-      <a class="brand" href="index.html" aria-label="NeonzCrafts homepage">NeonzCrafts</a>
+      <a class="brand" href="index.html">NeonzCrafts</a>
     </div>
     <div class="navbar-right">
+      <button id="theme-toggle" aria-label="Toggle theme" class="icon-btn">🌓</button>
       <a class="nav-icon" href="cart.html" aria-label="View cart">🛒 <span id="cart-count">0</span></a>
     </div>
   </header>
 
   <main class="container">
     <h1 class="page-title">Our Featured Product</h1>
-    <section id="products-panel" class="products-grid" aria-live="polite"></section>
+    <section id="products-panel" class="products-grid"></section>
+
+    <section class="about-section">
+      <h2>About NeonzCrafts</h2>
+      <p>Handmade • Crafted • Local — We design playful, educational toys that spark curiosity and
+      support early learning. Sustainable materials, safe finishes, and small-batch production.</p>
+    </section>
   </main>
 
   <footer class="site-footer">
     <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
   </footer>
 
-  <!-- ✅ JS moved to bottom -->
+  <!-- Product Modal -->
+  <div id="product-modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="modal-close">&times;</span>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
   <script src="script.js" defer></script>
 </body>
 </html>
