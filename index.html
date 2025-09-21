@@ -1,176 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>NeonzCrafts</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <meta charset="UTF-8">
+  <title>NeonzCrafts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <!-- EmailJS library -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
 </head>
 <body>
-    <header>
-        <div class="header-container">
-            <h1 class="store-name">NeonzCrafts</h1>
-            <nav class="nav-bar">
-                <button class="nav-link" id="view-products">Products</button>
-                <button class="nav-link" id="view-cart">Cart (<span id="cart-count">0</span>)</button>
-                <div class="user-actions">
-                    <span id="user-display" class="hidden"></span>
-                    <button class="small" id="login-btn">Log In</button>
-                </div>
-            </nav>
-        </div>
-    </header>
+  <!-- ================= NAVBAR ================= -->
+  <header class="navbar">
+    <h1>NeonzCrafts</h1>
+    <nav>
+      <button id="view-products">Products</button>
+      <button id="view-cart">Cart (<span id="cart-count">0</span>)</button>
+      <button id="login-btn">Log In</button>
+      <span id="user-display" class="hidden"></span>
+    </nav>
+  </header>
 
-    <section class="delivery-details-banner">
-        <div class="container">
-            <div class="location-info">
-                <span class="material-symbols-outlined">location_on</span>
-                <span id="location-text">Select a delivery location</span>
-                <button id="change-location-btn" class="small">Change</button>
-            </div>
-            <div id="delivery-info"></div>
-        </div>
-    </section>
+  <!-- ================= LOCATION BAR ================= -->
+  <section class="location-bar">
+    <span id="location-text">Select a delivery location</span>
+    <button id="change-location-btn">Change</button>
+    <span id="delivery-info"></span>
+  </section>
 
-    <main class="container">
-        <section id="products" class="panel">
-            <h2>Products</h2>
-            <div id="products-grid"></div>
-        </section>
+  <!-- ================= PRODUCTS PAGE ================= -->
+  <main id="products" class="panel">
+    <h2>Products</h2>
+    <div id="products-grid" class="grid">
+      <!-- Products dynamically inserted here -->
+    </div>
+  </main>
 
-        <section id="product-detail" class="panel hidden">
-            <button class="back-btn" id="back-to-products">← Back to Products</button>
-            <div id="product-detail-content"></div>
+  <!-- ================= ABOUT SECTION (homepage only) ================= -->
+  <section id="about">
+    <h2>About Our Store</h2>
+    <p><strong>Established:</strong> 21 September 2025<br>
+    <strong>Owner:</strong> SAVAI GIRI</p>
+    <p>
+      Welcome to NeonzCrafts, your destination for unique, handcrafted products. 
+      We are dedicated to providing high-quality items with a personal touch. 
+      Each piece is crafted with care to bring joy and color to your life. 
+      Thank you for supporting our small business!
+    </p>
+  </section>
 
-            <div class="product-reviews">
-                <h2>Customer Reviews</h2>
-                <div id="reviews-container" class="reviews-grid"></div>
+  <!-- ================= PRODUCT DETAIL ================= -->
+  <section id="product-detail" class="panel hidden">
+    <div id="product-detail-content">
+      <!-- Product details dynamically inserted -->
+    </div>
+    <button id="back-to-products">← Back to Products</button>
+  </section>
 
-                <form id="add-review-form" class="hidden">
-                    <h3>Add Your Review</h3>
-                    <input type="text" id="review-name" placeholder="Your Name" required>
-                    <textarea id="review-text" placeholder="Your review..." required></textarea>
-                    <div class="rating-stars">
-                        <input type="radio" id="star5" name="rating" value="5" checked><label for="star5">★</label>
-                        <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
-                        <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
-                        <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
-                        <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="small">Submit Review</button>
-                        <button type="button" class="small" id="cancel-review-btn">Cancel</button>
-                    </div>
-                </form>
+  <!-- ================= CART PAGE ================= -->
+  <section id="cart" class="panel hidden">
+    <h2>Your Cart</h2>
+    <div id="cart-items">
+      <!-- Cart items dynamically inserted -->
+    </div>
+    <p>Total: ₹<span id="cart-total">0.00</span></p>
+    <button id="checkout-btn" class="checkout-btn">Checkout</button>
+    <button id="back-to-products-from-cart">← Back</button>
+  </section>
 
-                <button class="small" id="toggle-review-form-btn">+ Add a Review</button>
-            </div>
-        </section>
+  <!-- ================= CHECKOUT PAGE ================= -->
+  <section id="checkout-form" class="panel hidden">
+    <h2>Checkout</h2>
 
-        <section id="cart" class="panel hidden">
-            <h2>Your Cart</h2>
-            <div id="cart-items"></div>
-            <div class="cart-summary">
-                <div class="total">Total: ₹<span id="cart-total">0.00</span></div>
-            </div>
-            <div class="cart-actions">
-                <button class="checkout-btn" id="checkout-btn">Checkout</button>
-                <button class="cancel-btn" id="back-to-products-from-cart">Back to Products</button>
-            </div>
-        </section>
+    <!-- Order summary -->
+    <div id="order-summary"></div>
 
-        <section id="checkout-form" class="panel hidden">
-            <h2>Checkout</h2>
-            <div class="checkout-sections">
-                <div class="address-section">
-                    <h3>Shipping Address</h3>
-                    <div id="addresses-container"></div>
-                    <button class="small" id="add-address-btn">+ Add New Address</button>
-                    <form id="new-address-form" class="hidden">
-                        <input type="text" id="address-name" placeholder="Full Name" required>
-                        <input type="tel" id="address-phone" placeholder="Mobile Number (10 digits)" pattern="[0-9]{10}" required>
-                        <input type="text" id="address-pincode" placeholder="Pincode (6 digits)" pattern="[0-9]{6}" required>
-                        <input type="text" id="address-city" placeholder="City" required>
-                        <input type="text" id="address-street" placeholder="House No, Colony, Street" required>
-                        <input type="text" id="address-landmark" placeholder="Landmark (optional)">
-                        <div class="form-actions">
-                            <button type="submit" class="small">Save Address</button>
-                            <button type="button" class="small" id="cancel-address-btn">Cancel</button>
-                        </div>
-                    </form>
-                </div>
+    <!-- Saved addresses -->
+    <div id="addresses-container"></div>
+    <button id="add-address-btn">+ Add Address</button>
 
-                <div class="order-summary-section">
-                    <h3>Order Summary</h3>
-                    <div id="order-summary"></div>
-                </div>
-            </div>
+    <!-- New address form -->
+    <form id="new-address-form" class="hidden">
+      <input id="address-name" placeholder="Full Name" required>
+      <input id="address-phone" placeholder="Phone" required>
+      <input id="address-pincode" placeholder="Pincode" required>
+      <input id="address-city" placeholder="City" required>
+      <input id="address-street" placeholder="Street" required>
+      <input id="address-landmark" placeholder="Landmark">
+      <button type="submit">Save</button>
+      <button id="cancel-address-btn">Cancel</button>
+    </form>
 
-            <div class="notes-section">
-                <h3>Order special instructions</h3>
-                <textarea id="order-notes" placeholder="e.g., Leave at the door, call before delivery."></textarea>
-            </div>
+    <!-- Notes -->
+    <textarea id="order-notes" placeholder="Order Notes (optional)"></textarea>
 
-            <div class="payment-section">
-                <h3>Payment Method</h3>
-                <div class="payment-option">
-                    <input type="radio" id="cod" name="payment-method" value="cod" checked>
-                    <label for="cod">Cash on Delivery (COD)</label>
-                </div>
-            </div>
+    <!-- Place order -->
+    <button id="place-order-btn" class="checkout-btn">Place Order</button>
+    <p id="order-success" class="hidden">✅ Order placed successfully!</p>
+  </section>
 
-            <button class="checkout-btn" id="place-order-btn">Place Order (COD)</button>
-            <button class="cancel-btn" id="cancel-checkout">Cancel</button>
-        </section>
-
-        <section id="about" class="panel">
-            <h2>About Our Store</h2>
-            <div class="about-content">
-                <p><strong>Established:</strong> 21 September 2025</p>
-                <p><strong>Owner:</strong> SAVAI GIRI</p>
-                <p>Welcome to NeonzCrafts, your destination for unique, handcrafted products. We are dedicated to providing high-quality items with a personal touch. Each piece is crafted with care to bring joy and color to your life. Thank you for supporting our small business!</p>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2025 NeonzCrafts. All rights reserved.</p>
-    </footer>
-
-    <div id="order-success" class="hidden" aria-hidden="true">
-      <div class="success-content" role="status" aria-live="polite">
-        <div class="tick-mark">✔</div>
-        <h2>Order Placed Successfully!</h2>
-        <p>You will be contacted shortly...</p>
-      </div>
+  <!-- ================= REVIEWS ================= -->
+  <section id="reviews">
+    <h2>Customer Reviews</h2>
+    <div id="reviews-container">
+      <!-- Reviews dynamically inserted -->
     </div>
 
-    <div id="location-popup" class="hidden">
-      <div class="location-popup-content">
-        <button id="close-location-popup" class="close-btn">×</button>
-        <h2>Select Delivery Address</h2>
-        <div class="location-options">
-          <div class="pincode-input-section">
-            <p>Use pincode to check delivery info</p>
-            <input type="text" id="pincode-input" placeholder="Enter pincode" pattern="[0-9]{6}">
-            <button id="pincode-submit">Submit</button>
-          </div>
-          <div class="separator"><span>OR</span></div>
-          <button id="use-current-location" class="location-button">
-            <span class="material-symbols-outlined">my_location</span>
-            <span>Use my current location</span>
-          </button>
-        </div>
+    <button id="toggle-review-form-btn">+ Add a Review</button>
+
+    <form id="add-review-form" class="hidden">
+      <input id="review-name" placeholder="Your Name">
+      <textarea id="review-text" placeholder="Your Review"></textarea>
+      <div>
+        Rating:
+        <label><input type="radio" name="rating" value="5" checked>5</label>
+        <label><input type="radio" name="rating" value="4">4</label>
+        <label><input type="radio" name="rating" value="3">3</label>
+        <label><input type="radio" name="rating" value="2">2</label>
+        <label><input type="radio" name="rating" value="1">1</label>
       </div>
-    </div>
-    <script src="script.js"></script>
+      <button type="submit">Submit</button>
+      <button id="cancel-review-btn">Cancel</button>
+    </form>
+  </section>
+
+  <!-- ================= LOCATION POPUP ================= -->
+  <div id="location-popup" class="popup hidden">
+    <h3>Select Location</h3>
+    <input id="pincode-input" placeholder="Enter Pincode">
+    <button id="pincode-submit">Submit</button>
+    <button id="use-current-location">Use Current Location</button>
+    <button id="close-location-popup">Close</button>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer>
+    <p>© 2025 NeonzCrafts. All rights reserved.</p>
+  </footer>
+
+  <!-- ================= SCRIPT ================= -->
+  <script src="script.js"></script>
 </body>
 </html>
