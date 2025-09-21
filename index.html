@@ -18,8 +18,8 @@
                 <a href="#products" class="nav-link" id="view-products">Products</a>
                 <a href="#cart" class="nav-link" id="view-cart">Cart (<span id="cart-count">0</span>)</a>
                 <div class="user-actions">
-                    <button class="small" id="login-btn">Log In</button>
                     <span id="user-display" class="hidden"></span>
+                    <button class="small" id="login-btn">Log In</button>
                 </div>
             </nav>
         </div>
@@ -33,6 +33,30 @@
         <section id="product-detail" class="panel hidden">
             <button class="back-btn" id="back-to-products">← Back to Products</button>
             <div id="product-detail-content"></div>
+
+            <div class="product-reviews">
+                <h2>Customer Reviews</h2>
+                <div id="reviews-container" class="reviews-grid"></div>
+                
+                <form id="add-review-form" class="hidden">
+                    <h3>Add Your Review</h3>
+                    <input type="text" id="review-name" placeholder="Your Name" required>
+                    <textarea id="review-text" placeholder="Your review..." required></textarea>
+                    <div class="rating-stars">
+                        <input type="radio" id="star5" name="rating" value="5" checked><label for="star5">★</label>
+                        <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                        <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
+                        <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                        <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="small">Submit Review</button>
+                        <button type="button" class="small" id="cancel-review-btn">Cancel</button>
+                    </div>
+                </form>
+                
+                <button class="small" id="toggle-review-form-btn">+ Add a Review</button>
+            </div>
         </section>
 
         <section id="cart" class="panel hidden">
@@ -83,26 +107,6 @@
 
             <button class="checkout-btn" id="place-order-btn">Place Order (COD)</button>
             <button class="cancel-btn" id="cancel-checkout">Cancel</button>
-        </section>
-
-        <section id="reviews" class="panel">
-            <h2>Customer Reviews</h2>
-            <div id="reviews-container" class="reviews-grid"></div>
-            <form id="add-review-form" class="hidden">
-                <h3>Add Your Review</h3>
-                <input type="text" id="review-name" placeholder="Your Name" required>
-                <textarea id="review-text" placeholder="Your review..." required></textarea>
-                <div class="rating-stars">
-                    <input type="radio" id="star5" name="rating" value="5" checked><label for="star5">★</label>
-                    <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
-                    <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
-                    <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
-                    <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
-                </div>
-                <button type="submit" class="small">Submit Review</button>
-                <button type="button" class="small" id="cancel-review-btn">Cancel</button>
-            </form>
-            <button class="small" id="show-review-form-btn">+ Add a Review</button>
         </section>
 
         <section id="about" class="panel">

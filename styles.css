@@ -48,16 +48,27 @@ header {
     color: var(--primary-color);
 }
 
+.nav-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 .nav-bar .nav-link {
     color: var(--text-color);
     text-decoration: none;
     font-weight: 600;
-    margin-left: 16px;
     transition: color 0.3s;
 }
 
 .nav-bar .nav-link:hover {
     color: var(--accent-color);
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .panel {
@@ -112,7 +123,6 @@ h2 {
     margin: 8px 0;
     font-size: 1.1rem;
     color: var(--accent-color);
-    /* New CSS to handle long titles */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -238,14 +248,15 @@ button:hover {
     border-color: var(--primary-color);
 }
 
+/* Changed font sizes to be more minimal */
 .product-info-section h2 {
     border-bottom: none;
-    font-size: 2rem;
+    font-size: 1.5rem;
     margin-bottom: 0;
 }
 
 .product-info-section .price {
-    font-size: 2rem;
+    font-size: 1.8rem;
     margin-top: 0;
 }
 
@@ -340,6 +351,10 @@ button:hover {
 }
 
 /* Reviews Section */
+.product-reviews {
+    margin-top: 32px;
+}
+
 #add-review-form {
     background-color: var(--card-bg);
     padding: 16px;
@@ -403,6 +418,10 @@ button:hover {
     color: gold;
 }
 
+.form-actions {
+    display: flex;
+    gap: 8px;
+}
 /* About Section */
 .about-content {
     background-color: var(--card-bg);

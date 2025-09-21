@@ -112,6 +112,9 @@ function showProductDetail(id){
     
     // Set the first thumbnail as active
     contentDiv.querySelector('.thumbnail-gallery img').classList.add('active');
+    
+    // Now that the product details are rendered, render the reviews
+    renderReviews();
 }
 
 function changeMainImage(imgUrl) {
@@ -272,14 +275,22 @@ function renderReviews() {
   });
 }
 
-el('show-review-form-btn').onclick = () => {
-    el('add-review-form').classList.remove('hidden');
-    el('show-review-form-btn').classList.add('hidden');
+// New logic to toggle the review form
+el('toggle-review-form-btn').onclick = () => {
+    const form = el('add-review-form');
+    const button = el('toggle-review-form-btn');
+    if (form.classList.contains('hidden')) {
+        form.classList.remove('hidden');
+        button.textContent = "Cancel";
+    } else {
+        form.classList.add('hidden');
+        button.textContent = "+ Add a Review";
+    }
 };
 
 el('cancel-review-btn').onclick = () => {
     el('add-review-form').classList.add('hidden');
-    el('show-review-form-btn').classList.remove('hidden');
+    el('toggle-review-form-btn').textContent = "+ Add a Review";
 };
 
 el('add-review-form').onsubmit = e => {
@@ -299,7 +310,7 @@ el('add-review-form').onsubmit = e => {
     
     // Hide the form and reset it
     el('add-review-form').classList.add('hidden');
-    el('show-review-form-btn').classList.remove('hidden');
+    el('toggle-review-form-btn').textContent = "+ Add a Review";
     e.target.reset();
 };
 
@@ -307,7 +318,6 @@ el('add-review-form').onsubmit = e => {
 document.addEventListener('DOMContentLoaded',()=>{
   loadAddresses();
   renderProducts(); 
-  renderReviews(); // Now calls the new review function
   updateCartUI(); 
   el('view-products').onclick=()=>{ el('products').classList.remove('hidden'); el('cart').classList.add('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
   el('view-cart').onclick=()=>{ el('products').classList.add('hidden'); el('cart').classList.remove('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
