@@ -19,37 +19,44 @@
         <div class="header-container">
             <h1 class="store-name">NeonzCrafts</h1>
             <nav class="nav-bar">
-                <a href="#" class="nav-link" id="view-products">Products</a>
-                <a href="#" class="nav-link" id="view-cart">
+                <a href="#products" class="nav-link" id="view-products">Products</a>
+                <a href="#cart" class="nav-link" id="view-cart">
                     Cart (<span id="cart-count">0</span>)
                 </a>
                 <div class="user-actions">
-                    <button class="nav-link" id="login-btn">
-                        Login
-                    </button>
                     <span id="user-display" class="hidden"></span>
+                    <button class="small" id="login-btn">Log In</button>
                 </div>
             </nav>
         </div>
     </header>
 
+    <section class="delivery-details-banner">
+        <div class="container">
+            <div class="location-info">
+                <span class="material-symbols-outlined">location_on</span>
+                <span id="location-text">Select a delivery location</span>
+                <a href="#" id="change-location-btn">Change</a>
+            </div>
+            <div id="delivery-info">
+                </div>
+        </div>
+    </section>
+
     <main class="container">
         <section id="products" class="panel">
-            <h2>Our Products</h2>
-            <div id="products-grid" class="products-grid">
-                </div>
+            <h2>Products</h2>
+            <div id="products-grid"></div>
         </section>
 
         <section id="product-detail" class="panel hidden">
-            <div id="product-detail-content">
-                </div>
+            <button class="back-btn" id="back-to-products">← Back to Products</button>
+            <div id="product-detail-content"></div>
 
-            <div id="reviews-section">
-                <div class="reviews-header">
-                    <h2>Customer Reviews</h2>
-                    <button class="small add-review-btn" id="toggle-review-form-btn">+ Add a Review</button>
-                </div>
-                
+            <div class="product-reviews">
+                <h2>Customer Reviews</h2>
+                <div id="reviews-container" class="reviews-grid"></div>
+
                 <form id="add-review-form" class="hidden">
                     <h3>Add Your Review</h3>
                     <input type="text" id="review-name" placeholder="Your Name" required>
@@ -67,22 +74,18 @@
                     </div>
                 </form>
 
-                <div id="reviews-container">
-                    </div>
+                <button class="small" id="toggle-review-form-btn">+ Add a Review</button>
             </div>
-
-            <button class="buy-btn" id="back-to-products">Back to Products</button>
         </section>
 
         <section id="cart" class="panel hidden">
             <h2>Your Cart</h2>
-            <div id="cart-items">
-                </div>
+            <div id="cart-items"></div>
             <div class="cart-summary">
-                <strong>Total:</strong> ₹<span id="cart-total">0.00</span>
+                <div class="total">Total: ₹<span id="cart-total">0.00</span></div>
             </div>
             <div class="cart-actions">
-                <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
+                <button class="checkout-btn" id="checkout-btn">Checkout</button>
                 <button class="cancel-btn" id="back-to-products-from-cart">Back to Products</button>
             </div>
         </section>
@@ -92,9 +95,8 @@
             <div class="checkout-sections">
                 <div class="address-section">
                     <h3>Shipping Address</h3>
-                    <div id="addresses-container">
-                        </div>
-                    <button class="add-address-btn" id="add-address-btn">+ Add New Address</button>
+                    <div id="addresses-container"></div>
+                    <button class="small" id="add-address-btn">+ Add New Address</button>
                     <form id="new-address-form" class="hidden">
                         <input type="text" id="address-name" placeholder="Full Name" required>
                         <input type="tel" id="address-phone" placeholder="Mobile Number (10 digits)" pattern="[0-9]{10}" required>
@@ -111,9 +113,13 @@
 
                 <div class="order-summary-section">
                     <h3>Order Summary</h3>
-                    <div id="order-summary">
-                        </div>
+                    <div id="order-summary"></div>
                 </div>
+            </div>
+
+            <div class="notes-section">
+                <h3>Order special instructions</h3>
+                <textarea id="order-notes" placeholder="e.g., Leave at the door, call before delivery."></textarea>
             </div>
 
             <div class="payment-section">
@@ -147,6 +153,25 @@
         <div class="tick-mark">✔</div>
         <h2>Order Placed Successfully!</h2>
         <p>You will be contacted shortly...</p>
+      </div>
+    </div>
+
+    <div id="location-popup" class="hidden">
+      <div class="location-popup-content">
+        <button id="close-location-popup" class="close-btn">×</button>
+        <h2>Select Delivery Address</h2>
+        <div class="location-options">
+          <div class="pincode-input-section">
+            <p>Use pincode to check delivery info</p>
+            <input type="text" id="pincode-input" placeholder="Enter pincode" pattern="[0-9]{6}">
+            <button id="pincode-submit">Submit</button>
+          </div>
+          <div class="separator"><span>OR</span></div>
+          <button id="use-current-location" class="location-button">
+            <span class="material-symbols-outlined">my_location</span>
+            <span>Use my current location</span>
+          </button>
+        </div>
       </div>
     </div>
     <script src="script.js"></script>
