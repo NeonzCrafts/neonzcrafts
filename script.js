@@ -19,57 +19,7 @@ function saveCart(c){ localStorage.setItem(STORAGE_KEYS.cart,JSON.stringify(c));
 function updateCartBadge(c){ const cnt=c.reduce((s,i)=>s+i.qty,0); document.querySelectorAll('#cart-count').forEach(el=>el.textContent=cnt); }
 function addToCart(id,qty=1){ let c=loadCart(); const i=c.findIndex(x=>x.id===id); i>=0?c[i].qty+=qty:c.push({id,qty}); saveCart(c); }
 
-function renderCartPage(){
-  const panel = $('cart-items');
-  if (!panel) return;
-  const cart = loadCart();
-  panel.innerHTML = '';
-  
-  if (cart.length === 0) {
-    panel.innerHTML = '<p style="text-align:center;margin:1rem 0;color:#aaa">Your cart is empty.</p>';
-    updateCartTotals(0);
-    return;
-  }
-  
-  let subtotal = 0;
-  cart.forEach(item => {
-    const p = PRODUCTS.find(pr => pr.id === item.id);
-    if (!p) return;
-    subtotal += p.price * item.qty;
-
-    const row = document.createElement('div');
-    row.className = 'cart-item';
-    row.innerHTML = `
-      <img src="${p.images[0]}" alt="${p.title}" class="cart-thumb">
-      <div class="cart-details">
-        <h4>${p.title}</h4>
-        <div class="cart-price">₹${p.price} × ${item.qty} = <strong>₹${p.price * item.qty}</strong></div>
-        <button class="btn-sm remove-btn">Remove</button>
-      </div>
-    `;
-    row.querySelector('.remove-btn').addEventListener('click', () => {
-      removeFromCart(item.id);
-    });
-    panel.appendChild(row);
-  });
-
-  updateCartTotals(subtotal);
-}
-
-function updateCartTotals(subtotal){
-  const shipping = subtotal > 0 ? 50 : 0;
-  $('subtotal').textContent = `₹${subtotal}`;
-  $('shipping').textContent = `₹${shipping}`;
-  $('total').textContent = `₹${subtotal + shipping}`;
-}
-
-function removeFromCart(id){
-  let cart = loadCart();
-  cart = cart.filter(c => c.id !== id);
-  saveCart(cart);
-  renderCartPage();
-}
-
+// ---------- PRODUCT RENDER ----------
 function renderProductsPage(){
   const panel = $('products-panel');
   if (!panel) return;
@@ -119,3 +69,60 @@ function renderProductsPage(){
     alert('Added to cart');
   });
 }
+
+// ---------- CART PAGE RENDER ----------
+function renderCartPage(){
+  const panel = $('cart-items');
+  if (!panel) return;
+  const cart = loadCart();
+  panel.innerHTML = '';
+  
+  if (cart.length === 0) {
+    panel.innerHTML = '<p style="text-align:center;margin:1rem 0;color:#aaa">Your cart is empty.</p>';
+    updateCartTotals(0);
+    return;
+  }
+  
+  let subtotal = 0;
+  cart.forEach(item => {
+    const p = PRODUCTS.find(pr => pr.id === item.id);
+    if (!p) return;
+    subtotal += p.price * item.qty;
+
+    const row = document.createElement('div');
+    row.className = 'cart-item';
+    row.innerHTML = `
+      <img src="${p.images[0]}" alt="${p.title}" class="cart-thumb">
+      <div class="cart-details">
+        <h4>${p.title}</h4>
+        <div class="cart-price">₹${p.price} × ${item.qty} = <strong>₹${p.price * item.qty}</strong></div>
+        <button class="btn-sm remove-btn">Remove</button>
+      </div>
+    `;
+    row.querySelector('.remove-btn').addEventListener('click', () => removeFromCart(item.id));
+    panel.appendChild(row);
+  });
+
+  updateCartTotals(subtotal);
+}
+
+function updateCartTotals(subtotal){
+  const shipping = subtotal > 0 ? 50 : 0;
+  $('subtotal').textContent = `₹${subtotal}`;
+  $('shipping').textContent = `₹${shipping}`;
+  $('total').textContent = `₹${subtotal + shipping}`;
+}
+
+function removeFromCart(id){
+  let cart = loadCart();
+  cart = cart.filter(c => c.id !== id);
+  saveCart(cart);
+  renderCartPage();
+}
+
+// ---------- INITIALIZATION ----------
+document.addEventListener('DOMContentLoaded', () => {
+  updateCartBadge(loadCart());
+  renderProductsPage();
+  renderCartPage();
+});
