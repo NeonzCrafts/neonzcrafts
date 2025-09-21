@@ -152,7 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge(loadCart());
   renderProductsPage();
   renderCartPage();
-  renderCheckoutPage();
+  renderCheckoutPage(); // ✅ This will now update totals correctly
+});
 
   const placeOrderBtn = document.getElementById('place-order');
   if (placeOrderBtn) {
@@ -167,4 +168,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
 
