@@ -108,9 +108,9 @@ function renderCartPage(){
 
 function updateCartTotals(subtotal){
   const shipping = subtotal > 0 ? 50 : 0;
-  $('subtotal').textContent = `₹${subtotal}`;
-  $('shipping').textContent = `₹${shipping}`;
-  $('total').textContent = `₹${subtotal + shipping}`;
+  if ($('subtotal')) $('subtotal').textContent = `₹${subtotal}`;
+  if ($('shipping')) $('shipping').textContent = shipping > 0 ? `₹${shipping}` : 'Free';
+  if ($('total')) $('total').textContent = `₹${subtotal + shipping}`;
 }
 
 function removeFromCart(id){
@@ -122,19 +122,26 @@ function removeFromCart(id){
 
 // ---------- INITIALIZATION ----------
 document.addEventListener('DOMContentLoaded', () => {
+  // Always update cart badge first
+  updateCartBadge(loadCart());
+
+  // Render products if we are on index.html
+  renderProductsPage();
+
+  // Render cart if we are on cart.html
+  renderCartPage();
+
+  // Attach place order validation if we are on checkout.html
   const placeOrderBtn = document.getElementById('place-order');
   if (placeOrderBtn) {
     placeOrderBtn.addEventListener('click', (e) => {
-      e.preventDefault(); // stop instant redirect
+      e.preventDefault();
       const form = document.getElementById('address-form');
-
-      // ✅ Check if form is valid
       if (!form.checkValidity()) {
-        form.reportValidity(); // shows browser validation messages
+        form.reportValidity();
         return;
       }
 
-      // ✅ (Optional) Save address for later use
       const addressData = {
         name: form.name.value.trim(),
         phone: form.phone.value.trim(),
@@ -144,7 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       localStorage.setItem('neon_address', JSON.stringify(addressData));
 
-      // ✅ Redirect after successful validation
       window.location.href = 'order-success.html';
     });
   }
