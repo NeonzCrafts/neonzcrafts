@@ -1,65 +1,97 @@
-// ================= Part 1 =================
-// CONFIG & 3rd-party keys (replace with your own if you have them)
+/* ===========================
+   Robust & Compatible script
+   - fixes address-selection bug (0 index)
+   - persists cart & addresses into localStorage
+   - guards against missing elements
+   - improved checkout/address validation
+   =========================== */
+
+/* ---------- CONFIG ---------- */
 const EMAILJS_SERVICE_ID = "service_al4zpdb";
 const EMAILJS_TEMPLATE_ID = "template_vimeo5m";
 const EMAILJS_PUBLIC_KEY = "CRkybtSL0tLoJJ71X";
 
-// Firebase placeholder (not active unless you add config)
-const firebaseConfig = null;
-let firebaseEnabled = false;
-if (typeof firebase !== 'undefined' && firebaseConfig) {
-  try {
-    firebase.initializeApp(firebaseConfig);
-    firebaseEnabled = true;
-  } catch (e) { console.warn("Firebase init error:", e); }
-}
-
-// Simple helper to get element safely
+/* ---------- SAFE DOM HELPERS ---------- */
 const el = id => document.getElementById(id);
-
-// Safe event attach (only if element exists)
 const on = (id, evt, handler) => {
   const node = el(id);
   if (node) node.addEventListener(evt, handler);
 };
 
-// ---------- DATA ----------
+/* ---------- SAMPLE DATA ---------- */
 const PRODUCTS = [
-  { id: 'p1', title: 'Educational Geometric Shape Toy', originalPrice: 399, price: 199, images: ["./1000069559.jpg","./1000069560.jpg"], description: 'Learn colors & shapes - great for toddlers.' },
+  { id: 'p1', title: 'Educational Geometric Shape Toy', originalPrice: 399, price: 199, images: ["./1000069559.jpg"], description: 'Learn colors & shapes - great for toddlers.' },
   { id: 'p2', title: 'Handmade Ceramic Mug', originalPrice: null, price: 249, images: ["./mug.jpg"], description: 'Beautiful glazed mug for daily use.' },
   { id: 'p3', title: 'Wooden Photo Frame', originalPrice: 499, price: 349, images: ["./frame.jpg"], description: 'Rustic wooden frame for your memories.' }
 ];
 
-// initial reviews (keeps UI non-empty)
-let REVIEWS = [
-  { name: 'Priya S.', text: 'Amazing quality!', rating: 5 },
-  { name: 'Amit V.', text: 'Fast delivery, great service.', rating: 5 }
-];
+/* ---------- APP STATE ---------- */
+let cart = {}; // id -> qty
+let addresses = []; // array of address objects
+let selectedAddressIndex = null; // use null to represent none selected
+let userLocation = null; // { pincode, locationText }
 
-// cart stored as id -> qty mapping for reliability
-let cart = {}; // { p1: 2, p3: 1 }
-let addresses = []; // saved addresses list
-let selectedAddressIndex = null;
-let userLocation = null;
-let loggedInUser = null;
+/* ---------- STORAGE KEYS & HELPERS ---------- */
+const KEY_CART = 'neon_cart_v1';
+const KEY_ADDRESSES = 'neon_addresses_v1';
+const KEY_SELECTED_ADDR = 'neon_selected_addr_v1';
+const KEY_LOCATION = 'neon_location_v1';
 
-// ---------- Storage helpers ----------
-function loadCartFromStorage() {
+function loadCartFromStorage(){
   try {
-    const raw = localStorage.getItem('cart');
+    const raw = localStorage.getItem(KEY_CART);
     if (raw) cart = JSON.parse(raw);
-  } catch (e) { cart = {}; }
+  } catch(e){ cart = {}; }
 }
-function saveCartToStorage() {
-  try { localStorage.setItem('cart', JSON.stringify(cart)); } catch (e) {}
+function saveCartToStorage(){
+  try { localStorage.setItem(KEY_CART, JSON.stringify(cart)); } catch(e) {}
 }
 
-// ---------- PRODUCTS RENDERING ----------
-function renderProducts() {
+function loadAddressesFromStorage(){
+  try {
+    const raw = localStorage.getItem(KEY_ADDRESSES);
+    addresses = raw ? JSON.parse(raw) : [];
+    const idx = localStorage.getItem(KEY_SELECTED_ADDR);
+    selectedAddressIndex = idx !== null && idx !== undefined ? Number(idx) : null;
+    if (selectedAddressIndex !== null && (selectedAddressIndex < 0 || selectedAddressIndex >= addresses.length)) {
+      selectedAddressIndex = null;
+    }
+  } catch(e){ addresses = []; selectedAddressIndex = null; }
+}
+function saveAddressesToStorage(){
+  try {
+    localStorage.setItem(KEY_ADDRESSES, JSON.stringify(addresses));
+    localStorage.setItem(KEY_SELECTED_ADDR, selectedAddressIndex === null ? '' : String(selectedAddressIndex));
+  } catch(e){}
+}
+
+function loadLocationFromStorage(){
+  try {
+    const raw = localStorage.getItem(KEY_LOCATION);
+    userLocation = raw ? JSON.parse(raw) : null;
+  } catch(e){ userLocation = null; }
+}
+function saveLocationToStorage(){
+  try { localStorage.setItem(KEY_LOCATION, JSON.stringify(userLocation)); } catch(e){}
+}
+
+/* ---------- UTIL ---------- */
+function cartItemsArray(){
+  return Object.entries(cart).map(([id, qty]) => {
+    const p = PRODUCTS.find(x => x.id === id);
+    if (!p) return null;
+    return { ...p, qty };
+  }).filter(Boolean);
+}
+function cartTotal(){
+  return cartItemsArray().reduce((s, it) => s + (it.price || 0) * it.qty, 0);
+}
+
+/* ---------- RENDER: PRODUCTS ---------- */
+function renderProducts(){
   const grid = el('products-grid');
   if (!grid) return;
   grid.innerHTML = '';
-
   PRODUCTS.forEach(p => {
     const card = document.createElement('div');
     card.className = 'card';
@@ -68,32 +100,40 @@ function renderProducts() {
       <h3>${p.title}</h3>
       <div class="price">
         ${p.originalPrice ? `<span class="original-price">₹${p.originalPrice}</span>` : ''}
-        ₹${p.price} ${p.originalPrice ? `<span class="sale-tag">Sale</span>` : ''}
+        ₹${p.price}
+        ${p.originalPrice ? `<span class="sale-tag">Sale</span>` : ''}
       </div>
-      <button class="buy-btn small" data-id="${p.id}">BUY NOW</button>
-      <button class="add-btn small" data-id="${p.id}">Add to Cart</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+        <button class="buy-btn small" data-id="${p.id}">BUY NOW</button>
+        <button class="add-btn small" data-id="${p.id}">Add to Cart</button>
+      </div>
     `;
     grid.appendChild(card);
 
-    // attach listeners for this card
     const buyBtn = card.querySelector('.buy-btn');
     const addBtn = card.querySelector('.add-btn');
-    if (buyBtn) buyBtn.addEventListener('click', () => { showProductDetail(p.id); });
-    if (addBtn) addBtn.addEventListener('click', () => { addToCart(p.id, 1); });
+    if (buyBtn) buyBtn.addEventListener('click', () => {
+      showProductDetail(p.id);
+    });
+    if (addBtn) addBtn.addEventListener('click', () => {
+      addToCart(p.id, 1);
+      alert('Added to cart');
+    });
   });
 }
 
-// ---------- PRODUCT DETAIL ----------
-function showProductDetail(id) {
+/* ---------- PRODUCT DETAIL ---------- */
+function showProductDetail(id){
   const product = PRODUCTS.find(x => x.id === id);
   if (!product) return;
-  // toggle panels
   hideAllPanels();
   const detailPanel = el('product-detail');
   if (!detailPanel) return;
   detailPanel.classList.remove('hidden');
+  detailPanel.setAttribute('aria-hidden','false');
 
   const content = el('product-detail-content');
+  if (!content) return;
   content.innerHTML = `
     <div class="product-details-container">
       <div class="product-image-section">
@@ -107,12 +147,12 @@ function showProductDetail(id) {
           ${product.originalPrice ? `<span class="sale-tag">Sale</span>` : ''}
         </div>
         <p>${product.description || ''}</p>
-        <div class="quantity-selector-pill">
+        <div class="quantity-selector-pill" style="margin-top:8px;">
           <button id="detail-decrease" class="small">-</button>
           <span id="detail-qty">1</span>
           <button id="detail-increase" class="small">+</button>
         </div>
-        <div style="display:flex; gap:8px;">
+        <div style="display:flex; gap:8px; margin-top:12px;">
           <button id="detail-buy" class="checkout-btn">BUY NOW</button>
           <button id="detail-add" class="add-btn">Add to Cart</button>
         </div>
@@ -142,50 +182,29 @@ function showProductDetail(id) {
     showCheckout();
   });
 
-  // render reviews for this product (shared reviews in this simple version)
   renderReviews();
 }
 
-// ---------- NAVIGATION HELPERS ----------
-function hideAllPanels() {
+/* ---------- NAVIGATION ---------- */
+function hideAllPanels(){
   document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
-  // about is handled separately by showPanel
+  document.querySelectorAll('.panel').forEach(p => p.setAttribute('aria-hidden','true'));
 }
-function showPanel(panelId) {
+function showPanel(panelId){
   document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
   const panel = el(panelId);
-  if (panel) panel.classList.remove('hidden');
-
-  // About only shows when on products (homepage)
+  if (panel) {
+    panel.classList.remove('hidden');
+    panel.setAttribute('aria-hidden','false');
+  }
+  // reviews and about: product detail shows reviews area
   if (panelId === 'products') {
-    if (el('about')) el('about').classList.remove('hidden');
-  } else {
-    if (el('about')) el('about').classList.add('hidden');
+    // nothing else for now
   }
 }
 
-// attach main nav listeners (safe attach)
-on('view-products', 'click', () => showPanel('products'));
-on('view-cart', 'click', () => showPanel('cart'));
-// ================= Part 2 =================
-// ---------- CART DATA & UTILS ----------
-function cartItemsArray() {
-  // returns array of items { ...productProps, qty }
-  return Object.entries(cart).map(([id, qty]) => {
-    const p = PRODUCTS.find(x => x.id === id);
-    if (!p) return null;
-    return { ...p, qty };
-  }).filter(Boolean);
-}
-function cartTotal() {
-  return cartItemsArray().reduce((s, it) => s + (it.price || 0) * it.qty, 0);
-}
-
-// Initialize cart from storage
-loadCartFromStorage();
-
-// ---------- CART OPERATIONS ----------
-function addToCart(id, qty = 1) {
+/* ---------- CART OPERATIONS & UI ---------- */
+function addToCart(id, qty = 1){
   if (!id) return;
   const current = Number(cart[id] || 0);
   cart[id] = Math.max(0, current + Number(qty));
@@ -194,13 +213,12 @@ function addToCart(id, qty = 1) {
   updateCartUI();
 }
 
-function removeFromCart(id) {
+function removeFromCart(id){
   delete cart[id];
   saveCartToStorage();
   updateCartUI();
 }
-
-function changeCartQty(id, delta) {
+function changeCartQty(id, delta){
   if (!cart[id]) return;
   cart[id] = Math.max(0, cart[id] + delta);
   if (cart[id] === 0) delete cart[id];
@@ -208,10 +226,9 @@ function changeCartQty(id, delta) {
   updateCartUI();
 }
 
-// ---------- CART UI ----------
-function updateCartUI() {
+function updateCartUI(){
   // count
-  const count = Object.values(cart).reduce((a, b) => a + Number(b || 0), 0);
+  const count = Object.values(cart).reduce((a,b) => a + Number(b || 0), 0);
   if (el('cart-count')) el('cart-count').textContent = count;
 
   // items
@@ -219,7 +236,7 @@ function updateCartUI() {
   if (!wrap) return;
   wrap.innerHTML = '';
   const items = cartItemsArray();
-  if (items.length === 0) {
+  if (items.length === 0){
     wrap.innerHTML = '<p>Your cart is empty.</p>';
   } else {
     items.forEach(it => {
@@ -230,17 +247,20 @@ function updateCartUI() {
         <div style="flex:1">
           <strong>${it.title}</strong><br>₹${it.price}
         </div>
-        <div>
-          <button class="small" data-action="dec" data-id="${it.id}">-</button>
-          <span>${it.qty}</span>
-          <button class="small" data-action="inc" data-id="${it.id}">+</button>
-          <button class="small" data-action="remove" data-id="${it.id}">x</button>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="small" data-action="dec" data-id="${it.id}">-</button>
+            <span>${it.qty}</span>
+            <button class="small" data-action="inc" data-id="${it.id}">+</button>
+          </div>
+          <div>
+            <button class="small" data-action="remove" data-id="${it.id}">Remove</button>
+          </div>
         </div>
       `;
       wrap.appendChild(div);
     });
 
-    // attach item buttons (delegation could be used; here we attach)
     wrap.querySelectorAll('button[data-action]').forEach(btn => {
       btn.addEventListener('click', () => {
         const action = btn.dataset.action;
@@ -252,37 +272,16 @@ function updateCartUI() {
     });
   }
 
-  // total
   if (el('cart-total')) el('cart-total').textContent = cartTotal().toFixed(2);
 }
 
-// render once on load
-updateCartUI();
-
-// ---------- CHECKOUT ----------
-function showCheckout() {
-  hideAllPanels();
-  if (el('checkout-form')) el('checkout-form').classList.remove('hidden');
-  renderOrderSummary();
-  renderAddresses();
-}
-
-on('checkout-btn', 'click', () => {
-  if (Object.keys(cart).length === 0) {
-    alert('Your cart is empty. Add items first.');
-    return;
-  }
-  showCheckout();
-});
-on('back-to-products-from-cart', 'click', () => showPanel('products'));
-
-// ORDER SUMMARY
-function renderOrderSummary() {
+/* ---------- CHECKOUT RENDER ---------- */
+function renderOrderSummary(){
   const out = el('order-summary');
   if (!out) return;
   out.innerHTML = '';
   const items = cartItemsArray();
-  if (items.length === 0) {
+  if (items.length === 0){
     out.innerHTML = '<p>Your cart is empty.</p>';
     return;
   }
@@ -298,44 +297,12 @@ function renderOrderSummary() {
   out.appendChild(totalDiv);
 }
 
-// ---------- ADDRESS MANAGEMENT ----------
-on('add-address-btn', 'click', () => {
-  const form = el('new-address-form');
-  if (form) form.classList.remove('hidden');
-});
-on('cancel-address-btn', 'click', (e) => {
-  e.preventDefault();
-  const form = el('new-address-form');
-  if (form) form.classList.add('hidden');
-});
-
-if (el('new-address-form')) {
-  el('new-address-form').addEventListener('submit', e => {
-    e.preventDefault();
-    const newAddress = {
-      name: (el('address-name') && el('address-name').value.trim()) || '',
-      phone: (el('address-phone') && el('address-phone').value.trim()) || '',
-      pincode: (el('address-pincode') && el('address-pincode').value.trim()) || '',
-      city: (el('address-city') && el('address-city').value.trim()) || '',
-      street: (el('address-street') && el('address-street').value.trim()) || '',
-      landmark: (el('address-landmark') && el('address-landmark').value.trim()) || ''
-    };
-    if (!/^\d{10}$/.test(newAddress.phone)) { alert('Enter valid 10-digit phone'); return; }
-    if (!/^\d{6}$/.test(newAddress.pincode)) { alert('Enter valid 6-digit pincode'); return; }
-    addresses.push(newAddress);
-    selectedAddressIndex = addresses.length - 1;
-    // hide and reset
-    el('new-address-form').reset();
-    el('new-address-form').classList.add('hidden');
-    renderAddresses();
-  });
-}
-
-function renderAddresses() {
+/* ---------- ADDRESS MANAGEMENT ---------- */
+function renderAddresses(){
   const container = el('addresses-container');
   if (!container) return;
   container.innerHTML = '';
-  if (addresses.length === 0) {
+  if (!addresses || addresses.length === 0){
     container.innerHTML = '<p>No saved addresses.</p>';
     return;
   }
@@ -343,51 +310,81 @@ function renderAddresses() {
     const div = document.createElement('div');
     div.className = 'address-card' + (idx === selectedAddressIndex ? ' selected' : '');
     div.innerHTML = `
-      <strong>${a.name}</strong><br>
-      ${a.street}, ${a.city} - ${a.pincode}<br>
-      Phone: ${a.phone}
-      <div style="margin-top:8px;">
-        <button class="small select-addr" data-idx="${idx}">Select</button>
+      <div><strong>${a.name}</strong></div>
+      <div style="margin-top:6px;">${(a.street||'')}${a.city ? `, ${a.city}` : ''} - ${a.pincode || ''}</div>
+      <div style="margin-top:6px;">Phone: ${a.phone || ''}</div>
+      <div style="margin-top:8px; display:flex; gap:8px;">
+        <button class="small select-addr" data-idx="${idx}">${idx === selectedAddressIndex ? 'Selected' : 'Select'}</button>
         <button class="small remove-addr" data-idx="${idx}">Remove</button>
       </div>
     `;
     container.appendChild(div);
   });
-  // attach address buttons
+
   container.querySelectorAll('.select-addr').forEach(btn => btn.addEventListener('click', () => {
     selectedAddressIndex = Number(btn.dataset.idx);
+    saveAddressesToStorage();
     renderAddresses();
   }));
   container.querySelectorAll('.remove-addr').forEach(btn => btn.addEventListener('click', () => {
     const idx = Number(btn.dataset.idx);
     addresses.splice(idx, 1);
     if (selectedAddressIndex === idx) selectedAddressIndex = null;
+    // shift selected index down if necessary
+    if (selectedAddressIndex !== null && selectedAddressIndex > idx) selectedAddressIndex--;
+    saveAddressesToStorage();
     renderAddresses();
   }));
 }
 
-// ---------- PLACE ORDER ----------
-on('place-order-btn', 'click', () => {
-  if (Object.keys(cart).length === 0) { alert('Cart empty'); return; }
-
-  // ensure selected address
-  if (!selectedAddressIndex && el('new-address-form') && !el('new-address-form').classList.contains('hidden') ) {
-    alert('Please fill address form or select an address.');
+/* ---------- PLACE ORDER ---------- */
+on('place-order-btn','click', () => {
+  if (Object.keys(cart).length === 0){
+    alert('Your cart is empty. Add items first.');
     return;
   }
-  if (!selectedAddressIndex && addresses.length === 0) {
-    alert('Please add a shipping address.');
-    return;
-  }
-  const finalAddress = (!el('new-address-form') || el('new-address-form').classList.contains('hidden')) ? addresses[selectedAddressIndex] : {
-    name: el('address-name').value.trim(),
-    phone: el('address-phone').value.trim(),
-    street: el('address-street').value.trim(),
-    city: el('address-city').value.trim(),
-    pincode: el('address-pincode').value.trim()
-  };
-  if (!finalAddress || !finalAddress.name) { alert('Provide valid address'); return; }
 
+  // Determine final address
+  let finalAddress = null;
+
+  // If an address is selected from saved list
+  if (selectedAddressIndex !== null && addresses[selectedAddressIndex]) {
+    finalAddress = addresses[selectedAddressIndex];
+  } else {
+    // If new address form is visible, take existing values
+    const newForm = el('new-address-form');
+    if (newForm && !newForm.classList.contains('hidden')) {
+      const name = el('address-name') ? el('address-name').value.trim() : '';
+      const phone = el('address-phone') ? el('address-phone').value.trim() : '';
+      const pincode = el('address-pincode') ? el('address-pincode').value.trim() : '';
+      const city = el('address-city') ? el('address-city').value.trim() : '';
+      const street = el('address-street') ? el('address-street').value.trim() : '';
+      // validate minimal
+      if (!name) { alert('Please enter name for the shipping address.'); return; }
+      if (!/^\d{10}$/.test(phone)) { alert('Enter valid 10-digit phone'); return; }
+      if (!/^\d{6}$/.test(pincode)) { alert('Enter valid 6-digit pincode'); return; }
+      finalAddress = { name, phone, pincode, city, street };
+      // Save it to addresses and mark selected
+      addresses.push(finalAddress);
+      selectedAddressIndex = addresses.length - 1;
+      saveAddressesToStorage();
+      renderAddresses();
+      // hide form
+      newForm.reset();
+      newForm.classList.add('hidden');
+    } else {
+      alert('Please add or select a shipping address.');
+      return;
+    }
+  }
+
+  // location check (optional but useful)
+  if (!userLocation) {
+    const ok = confirm('No delivery location selected. Proceed anyway?');
+    if (!ok) return;
+  }
+
+  // Prepare order details
   const orderItems = cartItemsArray();
   const orderDetails = orderItems.map(it => `${it.title} (${it.qty}x)`).join(', ');
   const orderTotal = cartTotal();
@@ -395,7 +392,7 @@ on('place-order-btn', 'click', () => {
 
   const emailParams = {
     user_name: finalAddress.name,
-    user_email: "not-available@example.com",
+    user_email: "not-provided@example.com",
     user_phone: finalAddress.phone || '',
     user_address: `${finalAddress.street || ''}, ${finalAddress.city || ''} - ${finalAddress.pincode || ''}`,
     order_details: orderDetails,
@@ -403,60 +400,64 @@ on('place-order-btn', 'click', () => {
     order_notes: orderNotes
   };
 
-  // Try EmailJS if available, otherwise fallback to success message
+  // Try to send via EmailJS if present, else fallback
   if (typeof emailjs !== 'undefined' && emailjs.send) {
-    try { emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams)
+    try {
+      if (emailjs.init) emailjs.init(EMAILJS_PUBLIC_KEY);
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams)
       .then(() => {
-        // clear cart & update
         cart = {}; saveCartToStorage(); updateCartUI();
-        el('order-success').classList.remove('hidden');
-        setTimeout(() => { el('order-success').classList.add('hidden'); showPanel('products'); }, 3000);
+        if (el('order-success')) el('order-success').classList.remove('hidden');
+        setTimeout(() => {
+          if (el('order-success')) el('order-success').classList.add('hidden');
+          showPanel('products');
+        }, 2000);
       }, (err) => {
-        console.warn('EmailJS failed:', err);
-        alert('Order placed locally, but email failed. Check settings.');
+        console.warn('EmailJS send failed', err);
+        alert('Order placed locally but email notify failed.');
         cart = {}; saveCartToStorage(); updateCartUI();
-        el('order-success').classList.remove('hidden');
-        setTimeout(() => { el('order-success').classList.add('hidden'); showPanel('products'); }, 3000);
+        if (el('order-success')) el('order-success').classList.remove('hidden');
+        setTimeout(()=> { if (el('order-success')) el('order-success').classList.add('hidden'); showPanel('products'); }, 2000);
       });
-    } catch (err) {
-      console.warn('EmailJS send error', err);
-      alert('Order placed, but email service error.');
+    } catch(e){
+      console.warn('EmailJS error', e);
+      alert('Order placed (email failed).');
       cart = {}; saveCartToStorage(); updateCartUI();
-      el('order-success').classList.remove('hidden');
-      setTimeout(() => { el('order-success').classList.add('hidden'); showPanel('products'); }, 3000);
+      if (el('order-success')) el('order-success').classList.remove('hidden');
+      setTimeout(()=> { if (el('order-success')) el('order-success').classList.add('hidden'); showPanel('products'); }, 2000);
     }
   } else {
     // fallback
     alert('Order placed successfully! (Email service not configured)');
     cart = {}; saveCartToStorage(); updateCartUI();
     if (el('order-success')) el('order-success').classList.remove('hidden');
-    setTimeout(() => { if (el('order-success')) el('order-success').classList.add('hidden'); showPanel('products'); }, 2000);
+    setTimeout(()=> { if (el('order-success')) el('order-success').classList.add('hidden'); showPanel('products'); }, 1500);
   }
 });
-// ================= Part 3 =================
-// ---------- LOCATION POPUP ----------
-on('change-location-btn', 'click', (e) => {
+
+/* ---------- LOCATION HANDLING ---------- */
+on('change-location-btn','click', () => {
   if (el('location-popup')) el('location-popup').classList.remove('hidden');
 });
-on('close-location-popup', 'click', () => {
+on('close-location-popup','click', () => {
   if (el('location-popup')) el('location-popup').classList.add('hidden');
 });
-on('pincode-submit', 'click', (e) => {
+on('pincode-submit','click', () => {
   const pin = el('pincode-input') ? el('pincode-input').value.trim() : '';
   if (/^\d{6}$/.test(pin)) {
-    userLocation = { pincode: pin, locationText: `Local area (${pin})` };
-    if (el('location-text')) el('location-text').textContent = `Delivering to ${pin}`;
-    if (el('delivery-info')) el('delivery-info').textContent = `Delivery by ${getDeliveryDate()}`;
+    userLocation = { pincode: pin, locationText: `Delivery to ${pin}` };
+    if (el('location-text')) el('location-text').textContent = `Delivery to ${pin}`;
+    if (el('delivery-info')) el('delivery-info').textContent = `Delivery by ${getDeliveryDate()} for pincode ${pin}`;
+    saveLocationToStorage();
     if (el('location-popup')) el('location-popup').classList.add('hidden');
   } else {
     alert('Enter valid 6-digit pincode');
   }
 });
-on('use-current-location', 'click', () => {
+on('use-current-location','click', () => {
   if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
   navigator.geolocation.getCurrentPosition(pos => {
     const { latitude, longitude } = pos.coords;
-    // We don't call external API here — simulate mapping to a pincode/city
     const mapped = getPincodeFromGeolocation(latitude, longitude);
     updateLocation(mapped.pincode, `Delivery to ${mapped.locationText}`);
   }, err => {
@@ -465,27 +466,31 @@ on('use-current-location', 'click', () => {
   });
 });
 
-// helper placeholders for location
-function getDeliveryDate() {
+function updateLocation(pincode, locationText){
+  userLocation = { pincode, locationText };
+  if (el('location-text')) el('location-text').textContent = locationText;
+  if (el('delivery-info')) el('delivery-info').textContent = `Delivery by ${getDeliveryDate()} for pincode ${pincode}`;
+  saveLocationToStorage();
+  if (el('location-popup')) el('location-popup').classList.add('hidden');
+}
+function getDeliveryDate(){
   const d = new Date();
   d.setDate(d.getDate() + 3);
   return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
 }
-function getPincodeFromGeolocation(lat, lng) {
-  // This is a dummy mapping — replace with real reverse-geocoding if you want
+function getPincodeFromGeolocation(lat, lng){
+  // simplified dummy mapping for demo
   const cities = [{c:'Mumbai',p:'400001'}, {c:'Delhi',p:'110001'}, {c:'Bengaluru',p:'560001'}, {c:'Chennai',p:'600001'}];
   const pick = cities[Math.floor(Math.random() * cities.length)];
   return { pincode: pick.p, locationText: pick.c };
 }
-function updateLocation(pincode, locationText) {
-  userLocation = { pincode, locationText };
-  if (el('location-text')) el('location-text').textContent = locationText;
-  if (el('delivery-info')) el('delivery-info').textContent = `Delivery by ${getDeliveryDate()} for pincode ${pincode}`;
-  if (el('location-popup')) el('location-popup').classList.add('hidden');
-}
 
-// ---------- REVIEWS ----------
-function renderReviews() {
+/* ---------- REVIEWS ---------- */
+let REVIEWS = [
+  { name: 'Priya S.', text: 'Amazing quality!', rating: 5 },
+  { name: 'Amit V.', text: 'Fast delivery, great service.', rating: 5 }
+];
+function renderReviews(){
   const container = el('reviews-container');
   if (!container) return;
   container.innerHTML = '';
@@ -502,50 +507,11 @@ if (el('add-review-form')) {
     e.preventDefault();
     const name = el('review-name') ? el('review-name').value.trim() : 'Anonymous';
     const text = el('review-text') ? el('review-text').value.trim() : '';
-    const rating = document.querySelector('input[name="rating"]:checked') ? document.querySelector('input[name="rating"]:checked').value : 5;
+    const ratingInput = document.querySelector('input[name="rating"]:checked');
+    const rating = ratingInput ? Number(ratingInput.value) : 5;
     if (!text) { alert('Write a short review'); return; }
-    REVIEWS.push({ name: name || 'Anonymous', text, rating: Number(rating) });
+    REVIEWS.push({ name: name || 'Anonymous', text, rating });
     renderReviews();
     if (el('add-review-form')) el('add-review-form').reset();
     if (el('add-review-form')) el('add-review-form').classList.add('hidden');
-    if (el('toggle-review-form-btn')) el('toggle-review-form-btn').textContent = '+ Add a Review';
-  });
-}
-on('toggle-review-form-btn', 'click', () => {
-  const form = el('add-review-form');
-  if (!form) return;
-  form.classList.toggle('hidden');
-  el('toggle-review-form-btn').textContent = form.classList.contains('hidden') ? '+ Add a Review' : 'Hide Form';
-});
-on('cancel-review-btn', 'click', (e) => {
-  e.preventDefault();
-  if (el('add-review-form')) el('add-review-form').classList.add('hidden');
-  if (el('toggle-review-form-btn')) el('toggle-review-form-btn').textContent = '+ Add a Review';
-});
-
-// ---------- MISC UI ----------
-on('back-to-products', 'click', () => showPanel('products'));
-
-// ---------- INITIALIZATION (DOMContentLoaded) ----------
-document.addEventListener('DOMContentLoaded', () => {
-  // init EmailJS safely
-  if (typeof emailjs !== 'undefined' && emailjs.init) {
-    try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch (e) { console.warn('EmailJS init error', e); }
-  }
-
-  // Load cart & other state
-  loadCartFromStorage();
-  renderProducts();
-  updateCartUI();
-  renderReviews();
-
-  // ensure About visibility on first load: show products + about
-  showPanel('products');
-
-  // set login button placeholder
-  on('login-btn', 'click', () => {
-    loggedInUser = 'TestUser';
-    if (el('login-btn')) el('login-btn').classList.add('hidden');
-    if (el('user-display')) { el('user-display').classList.remove('hidden'); el('user-display').textContent = `Welcome, ${loggedInUser}!`; }
-  });
-});
+    if (el('toggle-review-f
