@@ -1,15 +1,22 @@
+// ========== CONFIG ==========
 const EMAILJS_SERVICE_ID = "service_al4zpdb";
 const EMAILJS_TEMPLATE_ID = "template_vimeo5m";
 const EMAILJS_PUBLIC_KEY = "CRkybtSL0tLoJJ71X";
 
+// Firebase (disabled by default)
 const firebaseConfig = null;
 let firebaseEnabled = false;
 if (typeof firebase !== 'undefined' && firebaseConfig) {
-  try { firebase.initializeApp(firebaseConfig); var db = firebase.firestore(); firebaseEnabled = true; }
-  catch (e) { console.warn("Firebase init error:", e); }
+  try {
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+    firebaseEnabled = true;
+  } catch (e) {
+    console.warn("Firebase init error:", e);
+  }
 }
 
-// Products
+// ===== Products =====
 const PRODUCTS = [
   {
     id: 'p1',
@@ -27,11 +34,11 @@ let REVIEWS = [
   { name: 'Sneha R.', text: 'Exceeded my expectations.', rating: 4 }
 ];
 
-const el = id=>document.getElementById(id);
+const el = id => document.getElementById(id);
 let cart = {};
 let addresses = [], selectedAddressIndex = null;
 
-// Render Products
+// ===== Render Products =====
 function renderProducts(){
   const container = el('products');
   const grid = document.createElement('div'); grid.className = 'products-grid';
@@ -52,14 +59,15 @@ function renderProducts(){
   const old = container.querySelector('.products-grid'); if (old) old.remove();
   container.appendChild(grid);
 }
-
-// Show product detail
+// ===== Product Detail =====
 function showProductDetail(id){
   const product = PRODUCTS.find(x=>x.id===id); if (!product) return;
   el('products').classList.add('hidden');
   el('product-detail').classList.remove('hidden');
   const content = el('product-detail-content');
-  let price = product.originalPrice ? `<span class="original-price">₹${product.originalPrice}</span> ₹${product.price} <span class="sale-tag">Sale</span>` : `₹${product.price}`;
+  let price = product.originalPrice
+    ? `<span class="original-price">₹${product.originalPrice}</span> ₹${product.price} <span class="sale-tag">Sale</span>`
+    : `₹${product.price}`;
   content.innerHTML = `
     <div class="product-details-container">
       <div class="product-image-section">
@@ -82,10 +90,12 @@ function showProductDetail(id){
   renderReviews();
 }
 
-function changeQtyOnDetail(c){ const q=el('detail-qty'); let v=+q.textContent+c; if(v<1)v=1; q.textContent=v; }
-function addToCartAndCheckout(id){ addToCart(id, +el('detail-qty').textContent); el('view-cart').click(); }
+function changeQtyOnDetail(c){
+  const q=el('detail-qty'); let v=+q.textContent+c; if(v<1)v=1; q.textContent=v;
+}
+function addToCartAndCheckout(id){ addToCart(id,+el('detail-qty').textContent); el('view-cart').click(); }
 
-// Cart
+// ===== Cart =====
 function addToCart(id,qty=1){ cart[id]=(cart[id]||0)+qty; updateCartUI(); }
 function removeFromCart(id){ delete cart[id]; updateCartUI(); }
 function cartItems(){ return Object.entries(cart).map(([id,q])=>({...PRODUCTS.find(p=>p.id===id),qty:q})); }
@@ -113,8 +123,25 @@ function updateCartUI(){
     wrap.appendChild(div);
   });
 }
-
-// Reviews
+// ===== Reviews =====
 function renderReviews(){
   const c=el('reviews-container'); c.innerHTML='';
   REVIEWS.forEach(r=>{
+    const div=document.createElement('div'); div.className='review-card';
+    const stars = '★'.repeat(r.rating) + '☆'.repeat(5-r.rating);
+    div.innerHTML=`<div class="review-header"><strong>${r.name}</strong><span class="stars">${stars}</span></div><p>"${r.text}"</p>`;
+    c.appendChild(div);
+  });
+}
+
+// ===== Navigation & Init =====
+document.addEventListener('DOMContentLoaded',()=>{
+  if (typeof emailjs!=='undefined' && emailjs.init) {
+    try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e){ console.warn('EmailJS init error',e); }
+  }
+  renderProducts(); updateCartUI();
+
+  el('view-products').onclick=()=>{ el('products').classList.remove('hidden'); el('cart').classList.add('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
+  el('view-cart').onclick=()=>{ el('products').classList.add('hidden'); el('cart').classList.remove('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
+  el('back-to-products').onclick=()=>{ el('product-detail').classList.add('hidden'); el('products').classList.remove('hidden'); };
+});
