@@ -93,7 +93,7 @@ function showProductDetail(id){
 function changeQtyOnDetail(c){
   const q=el('detail-qty'); let v=+q.textContent+c; if(v<1)v=1; q.textContent=v;
 }
-function addToCartAndCheckout(id){ addToCart(id,+el('detail-qty').textContent); el('view-cart').click(); }
+function addToCartAndCheckout(id){ addToCart(id,+el('detail-qty').textContent); showCheckout(); }
 
 // ===== Cart =====
 function addToCart(id,qty=1){ cart[id]=(cart[id]||0)+qty; updateCartUI(); }
@@ -123,6 +123,110 @@ function updateCartUI(){
     wrap.appendChild(div);
   });
 }
+
+// ===== Checkout Page Functions =====
+function showCheckout() {
+    el('products').classList.add('hidden');
+    el('cart').classList.add('hidden');
+    el('product-detail').classList.add('hidden');
+    el('checkout-form').classList.remove('hidden');
+    
+    // Call the functions to render the checkout page content
+    renderOrderSummary();
+    renderAddresses();
+}
+
+function renderOrderSummary() {
+    const orderSummaryContainer = el('order-summary');
+    orderSummaryContainer.innerHTML = '';
+    const items = cartItems();
+    items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'order-summary-item';
+        div.innerHTML = `
+            <span>${item.title} (x${item.qty})</span>
+            <span>₹${(item.price * item.qty).toFixed(2)}</span>
+        `;
+        orderSummaryContainer.appendChild(div);
+    });
+
+    const total = cartTotal();
+    const totalDiv = document.createElement('div');
+    totalDiv.className = 'order-summary-total';
+    totalDiv.innerHTML = `<strong>Total:</strong> <span>₹${total.toFixed(2)}</span>`;
+    orderSummaryContainer.appendChild(totalDiv);
+}
+
+function renderAddresses() {
+    const addressesContainer = el('addresses-container');
+    addressesContainer.innerHTML = '';
+
+    if (addresses.length === 0) {
+        addressesContainer.innerHTML = '<p>No saved addresses.</p>';
+        el('add-address-btn').classList.remove('hidden');
+        el('new-address-form').classList.remove('hidden');
+        return;
+    }
+
+    addresses.forEach((addr, index) => {
+        const div = document.createElement('div');
+        div.className = 'address-card';
+        if (index === selectedAddressIndex) {
+            div.classList.add('selected');
+        }
+        div.innerHTML = `
+            <strong>${addr.name}</strong><br>
+            ${addr.street}, ${addr.city} - ${addr.pincode}<br>
+            Phone: ${addr.phone}<br>
+            <button class="remove-address" onclick="removeAddress(${index})">Remove</button>
+            <input type="radio" name="address-selection" value="${index}" ${index === selectedAddressIndex ? 'checked' : ''} onclick="selectAddress(${index})">
+        `;
+        addressesContainer.appendChild(div);
+    });
+}
+
+function selectAddress(index) {
+    selectedAddressIndex = index;
+    renderAddresses();
+}
+
+function removeAddress(index) {
+    addresses.splice(index, 1);
+    if (selectedAddressIndex === index) {
+        selectedAddressIndex = null;
+    } else if (selectedAddressIndex > index) {
+        selectedAddressIndex--;
+    }
+    renderAddresses();
+}
+
+el('add-address-btn').onclick = () => {
+    el('new-address-form').classList.remove('hidden');
+};
+
+el('cancel-address-btn').onclick = (e) => {
+    e.preventDefault();
+    el('new-address-form').classList.add('hidden');
+};
+
+el('new-address-form').onsubmit = (e) => {
+    e.preventDefault();
+    const newAddress = {
+        name: el('address-name').value,
+        phone: el('address-phone').value,
+        pincode: el('address-pincode').value,
+        city: el('address-city').value,
+        street: el('address-street').value,
+        landmark: el('address-landmark').value
+    };
+    addresses.push(newAddress);
+    selectedAddressIndex = addresses.length - 1;
+    renderAddresses();
+    el('new-address-form').reset();
+    el('new-address-form').classList.add('hidden');
+};
+
+
 // ===== Reviews =====
 function renderReviews(){
   const c=el('reviews-container'); c.innerHTML='';
@@ -141,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e){ console.warn('EmailJS init error',e); }
     }
     renderProducts(); updateCartUI();
-    renderReviews(); // This was missing from your previous code
+    renderReviews(); 
 
     // Event listeners for navigation
     el('view-products').onclick = () => {
@@ -160,12 +264,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add event listener for the "Checkout" button
     el('checkout-btn').onclick = () => {
-        el('products').classList.add('hidden');
-        el('cart').classList.add('hidden');
-        el('product-detail').classList.add('hidden');
-        el('checkout-form').classList.remove('hidden');
+        showCheckout();
     };
-
+    
     // Add event listener for the "Cancel" button on the checkout page
     el('cancel-checkout').onclick = () => {
         el('products').classList.add('hidden');
