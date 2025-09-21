@@ -5,28 +5,17 @@ const EMAILJS_PUBLIC_KEY = "CRkybtSL0tLoJJ71X";
 
 // The products for your store
 const PRODUCTS = [
-  { 
-    id:'p1', 
-    title:'Educational Geometric Shape Sorting & Stacking Toys for 1 2 3 Year Old, Montessori Toys for Toddlers, Preschool Educational Color Shape Learning Toy Gift for Kids Girls Boys', 
-    price:219, 
-    images:[
-      './51Vgahd2ZEL._AC_UF894,1000_QL80_FMwebp_.webp',
-      './61WMeKDIQGL._AC_SL1500_.jpg',
-      './61WjJh4UQ6L._AC_SL1500_.jpg'
-    ], 
-    description:'A perfect educational toy for toddlers to learn colors, shapes, and improve motor skills. Made from safe, durable materials.' 
-  },
   {
-    id: 'p2',
-    title: 'Traditional Thekua',
-    originalPrice: 599,
-    price: 299,
+    id: 'p1',
+    title: 'Educational Geometric Shape Sorting & Stacking Toys for 1 2 3 Year Old, Montessori Toys for Toddlers, Preschool Educational Color Shape Learning Toy Gift for Kids Girls Boys',
+    originalPrice: 399,
+    price: 199,
     images: [
         './1000069559.jpg',
         './1000069560.jpg',
         './1000069561.jpg'
     ],
-    description: 'A traditional sweet snack from India, made with wheat flour, jaggery, and coconut. Perfect for festivals and daily treats.'
+    description: 'A perfect educational toy for toddlers to learn colors, shapes, and improve motor skills. Made from safe, durable materials.'
   }
 ];
 
@@ -73,6 +62,11 @@ function updateLoginState() {
 }
 
 function formatPrice(v){ return Number(v).toFixed(2); }
+
+// New function to shorten titles for the cart page
+function getShortTitle(title, maxLength = 50) {
+  return title.length > maxLength ? title.substring(0, maxLength) + '...' : title;
+}
 
 // ====== Product rendering ======
 function renderProducts(){
@@ -186,7 +180,7 @@ function updateCartUI(){
       div.innerHTML=`
           <img src="${it.images[0]}" alt="${it.title}">
           <div style="flex:1">
-              <div><strong>${it.title}</strong></div>
+              <div><strong>${getShortTitle(it.title)}</strong></div>
               <div class="price">₹${formatPrice(it.price)}</div>
           </div>
           <div class="cart-quantity-pill">
@@ -268,7 +262,7 @@ el('login-btn').onclick = toggleLogin;
 // Render order summary
 function renderOrderSummary(){
   const summaryDiv=el('order-summary');
-  const items=cartItems().map(i=>`${i.title} × ${i.qty} = ₹${formatPrice(i.price*i.qty)}`).join('<br>');
+  const items=cartItems().map(i=>`${getShortTitle(i.title)} × ${i.qty} = ₹${formatPrice(i.price*i.qty)}`).join('<br>');
   summaryDiv.innerHTML=`${items}<hr><strong>Total: ₹${formatPrice(cartTotal())}</strong>`;
 }
 
@@ -276,7 +270,7 @@ function renderOrderSummary(){
 el('place-order-btn').onclick=()=>{
   if(selectedAddressIndex===null){ alert("Select an address before placing order!"); return; }
   const addr=addresses[selectedAddressIndex];
-  const items=cartItems().map(i=>`${i.title} × ${i.qty} = ₹${formatPrice(i.price*i.qty)}`).join('\n');
+  const items=cartItems().map(i=>`${getShortTitle(i.title)} × ${i.qty} = ₹${formatPrice(i.price*i.qty)}`).join('\n');
   const notes = el('order-notes').value || 'No special instructions.';
   const message=`New COD Order:\n\nName: ${addr.name}\nPhone: ${addr.phone}\nAddress:\n${addr.street}, ${addr.landmark}, ${addr.city}, ${addr.pincode}\n\nItems:\n${items}\n\nTotal: ₹${formatPrice(cartTotal())}\n\nSpecial Instructions:\n${notes}`;
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
