@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NeonzCrafts — Cart</title>
+  <title>NeonzCrafts — Products</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="navbar">
     <div class="navbar-left">
-      <a class="brand" href="index.html" id="brand-link">NeonzCrafts</a>
+      <a class="brand" href="index.html" id="brand-link" aria-label="NeonzCrafts homepage">NeonzCrafts</a>
     </div>
     <div class="navbar-right">
       <a class="nav-icon" href="cart.html" aria-label="View cart">🛒 <span id="cart-count">0</span></a>
@@ -17,28 +17,15 @@
   </header>
 
   <main class="container">
-    <h1 class="page-title">Your Cart</h1>
+    <h1 class="page-title">Our Featured Product</h1>
 
-    <section class="cart-wrapper">
-      <!-- CART ITEMS -->
-      <div class="cart-list">
-        <div id="cart-items" class="cart-items" aria-live="polite"></div>
-      </div>
+    <section id="products-panel" class="products-grid" aria-live="polite"></section>
 
-      <!-- SUMMARY -->
-      <aside class="cart-summary">
-        <h2 class="summary-title">Order Summary</h2>
-
-        <div class="totals-row"><span>Subtotal</span><strong id="subtotal">₹0</strong></div>
-        <div class="totals-row"><span>Shipping</span><strong id="shipping">Free</strong></div>
-        <div class="totals-row totals-grand"><span>Total</span><strong id="total">₹0</strong></div>
-
-        <div class="divider"></div>
-        <div style="margin-top:12px;">
-          <a id="continue-shopping" class="btn btn-secondary full-width" href="index.html">Continue Shopping</a>
-          <a id="to-checkout" class="btn btn-primary full-width" href="checkout.html">Proceed to Checkout</a>
-        </div>
-      </aside>
+    <section class="about-card">
+      <h2>About NeonzCrafts</h2>
+      <p class="muted">
+        Handmade • Crafted • Local — We design playful, educational toys that spark curiosity and support early learning. Sustainable materials, safe finishes, and small-batch production.
+      </p>
     </section>
   </main>
 
@@ -46,7 +33,9 @@
     <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
   </footer>
 
+  <!-- EmailJS SDK (safe to include site-wide) -->
   <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
+  <!-- App script -->
   <script src="script.js"></script>
 </body>
 </html>
