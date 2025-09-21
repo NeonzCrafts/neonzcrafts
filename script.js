@@ -36,18 +36,115 @@ try {
   db = null;
 }
 
-// ===== STORE DATA =====
+// ===== SIMPLE STORE SCRIPT =====
+
+// Helper
+const el = (id) => document.getElementById(id);
+
+// ===== PRODUCTS =====
 const PRODUCTS = [
   {
     id: "p1",
-    title:
-      "Educational Geometric Shape Sorting & Stacking Toy (Montessori) — Color Shape Learning",
+    title: "Educational Geometric Shape Sorting Toy",
     originalPrice: 399,
     price: 199,
-    images: ["./1000069559.jpg", "./1000069560.jpg", "./1000069561.jpg"],
-    description:
-      "A perfect educational toy for toddlers to learn colors, shapes, and improve motor skills. Made from safe, durable materials."
+    images: ["https://via.placeholder.com/420x300?text=Product"],
+    description: "A fun Montessori toy to learn colors & shapes."
   }
+];
+
+// ===== CART =====
+let cart = {};
+
+function formatPrice(v) { return Number(v).toFixed(2); }
+function getShortTitle(title, max = 40) {
+  return title.length > max ? title.substring(0, max) + "..." : title;
+}
+
+function addToCart(id, qty = 1) {
+  cart[id] = (cart[id] || 0) + qty;
+  updateCartUI();
+}
+
+function cartItems() {
+  return Object.entries(cart).map(([id, qty]) => ({
+    ...PRODUCTS.find(p => p.id === id),
+    qty
+  }));
+}
+
+function cartTotal() {
+  return cartItems().reduce((sum, i) => sum + i.price * i.qty, 0);
+}
+
+function updateCartUI() {
+  if (el("cart-count"))
+    el("cart-count").textContent = Object.values(cart).reduce((a, b) => a + b, 0);
+
+  const itemsDiv = el("cart-items");
+  if (!itemsDiv) return;
+
+  itemsDiv.innerHTML = "";
+  const items = cartItems();
+
+  if (el("cart-total"))
+    el("cart-total").textContent = formatPrice(cartTotal());
+
+  if (items.length === 0) {
+    itemsDiv.innerHTML = "<p>Your cart is empty.</p>";
+    return;
+  }
+
+  items.forEach(it => {
+    const div = document.createElement("div");
+    div.className = "cart-item";
+    div.innerHTML = `
+      <img src="${it.images[0]}" alt="${it.title}">
+      <div style="flex:1">
+        <div><strong>${getShortTitle(it.title)}</strong></div>
+        <div class="price">₹${formatPrice(it.price)}</div>
+      </div>
+      <div class="cart-quantity-pill">
+        <span class="qty">${it.qty}</span>
+      </div>
+    `;
+    itemsDiv.appendChild(div);
+  });
+}
+
+// ===== PRODUCTS LIST =====
+function renderProducts() {
+  const container = el("products");
+  if (!container) return;
+
+  const grid = document.createElement("div");
+  grid.className = "products-grid";
+
+  PRODUCTS.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <img src="${p.images[0]}" alt="${p.title}">
+      <h3>${p.title}</h3>
+      <p>${p.description}</p>
+      <div class="price">
+        <span class="original-price">₹${formatPrice(p.originalPrice)}</span>
+        ₹${formatPrice(p.price)}
+      </div>
+      <button onclick="addToCart('${p.id}')">Add to Cart</button>
+    `;
+    grid.appendChild(card);
+  });
+
+  container.innerHTML = "<h2>Products</h2>";
+  container.appendChild(grid);
+}
+
+// ===== INIT =====
+document.addEventListener("DOMContentLoaded", () => {
+  renderProducts();
+  updateCartUI();
+});
 ];
 
 // default reviews
@@ -425,3 +522,4 @@ document.addEventListener("DOMContentLoaded", () => {
   // Helpful console tip
   console.info("App initialized. If you still can't see products: open Console (F12) and look for errors.");
 });
+
