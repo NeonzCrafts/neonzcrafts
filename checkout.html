@@ -5,19 +5,130 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>NeonzCrafts — Checkout</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ✅ Base theme using system preference */
+    :root {
+      --primary: #ff6f00;
+      --primary-dark: #e65c00;
+      --bg: #ffffff;
+      --text: #222;
+      --card: #fff;
+      --muted: #666;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1c;
+        --text: #f1f1f1;
+        --card: #2a2a2a;
+        --muted: #aaa;
+        --shadow: 0 4px 16px rgba(0,0,0,0.5);
+      }
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .brand {
+      font-weight: 800;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand img {
+      width: 28px;
+      height: 28px;
+    }
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 20px;
+      max-width: 960px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+    @media (max-width: 768px) {
+      .checkout-grid { grid-template-columns: 1fr; }
+    }
+    .checkout-card {
+      background: var(--card);
+      padding: 16px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .address-form label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+    .address-form input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+    }
+    .btn {
+      display: inline-block;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary {
+      background: #f2f2f2;
+      color: #333;
+    }
+    .site-footer {
+      text-align: center;
+      padding: 12px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 40px;
+    }
+  </style>
 </head>
 <body>
   <header class="navbar">
     <div class="navbar-left">
-      <a class="brand" href="index.html" aria-label="NeonzCrafts homepage">NeonzCrafts</a>
+      <!-- ✅ Homepage Icon -->
+      <a class="brand" href="index.html" aria-label="Homepage">
+        <img src="home-icon.svg" alt="Home">
+        NeonzCrafts
+      </a>
     </div>
     <div class="navbar-right">
       <a class="nav-icon" href="cart.html" aria-label="View cart">🛒 <span id="cart-count">0</span></a>
     </div>
   </header>
 
-  <main class="container">
-    <h1 class="page-title">Checkout</h1>
+  <main>
+    <h1 style="text-align:center; margin: 1rem 0;">Checkout</h1>
 
     <section class="checkout-grid">
       <!-- ADDRESS FORM -->
@@ -29,9 +140,9 @@
           <label>Street / Locality <input type="text" name="street" required></label>
           <label>City <input type="text" name="city" required></label>
           <label>Pincode (6 digits) <input type="text" name="pincode" pattern="\d{6}" required></label>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save Address</button>
-            <button type="reset" class="btn btn-secondary">Clear</button>
+          <div style="display:flex; gap:10px; margin-top:10px;">
+            <button type="submit" class="btn btn-primary" style="flex:1;">Save</button>
+            <button type="reset" class="btn btn-secondary" style="flex:1;">Clear</button>
           </div>
         </form>
       </div>
@@ -42,23 +153,21 @@
         <p>Subtotal: <strong id="subtotal">₹0</strong></p>
         <p>Shipping: <strong id="shipping">Free</strong></p>
         <p>Total: <strong id="total">₹0</strong></p>
-        <div style="margin-top:12px;">
-          <button id="place-order" class="btn btn-primary full-width">
-            Place Order
-          </button>
-        </div>
+        <button id="place-order" class="btn btn-primary" style="margin-top:12px; width:100%;">
+          Place Order
+        </button>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
+    © 2025 NeonzCrafts. All rights reserved.
   </footer>
 
   <!-- ✅ EmailJS + JS -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>
-    emailjs.init("CRkybtSL0tLoJJ71X");
+    document.addEventListener("DOMContentLoaded", () => emailjs.init("CRkybtSL0tLoJJ71X"));
   </script>
   <script src="script.js" defer></script>
 </body>
