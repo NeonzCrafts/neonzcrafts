@@ -18,15 +18,15 @@
     </div>
   </header>
 
-  <!-- Main Checkout Section -->
+  <!-- Main -->
   <main class="container">
     <h1 class="page-title">Checkout</h1>
 
-    <!-- Shipping Address -->
-    <section class="card">
+    <!-- Shipping Address Card -->
+    <section class="checkout-card">
       <h2>Shipping Address</h2>
 
-      <!-- Saved Address Summary -->
+      <!-- Collapsed Saved Address -->
       <div id="address-summary" style="display:none;">
         <p id="saved-address-text"></p>
         <div class="address-actions">
@@ -36,22 +36,34 @@
       </div>
 
       <!-- Address Form -->
-      <form id="address-form">
-        <input type="text" name="name" placeholder="Full name" required>
-        <input type="tel" name="phone" placeholder="Phone (10 digits)" pattern="[0-9]{10}" required>
-        <input type="text" name="street" placeholder="Street / Locality" required>
-        <input type="text" name="city" placeholder="City" required>
-        <input type="text" name="pincode" placeholder="Pincode (6 digits)" pattern="[0-9]{6}" required>
+      <form id="address-form" class="address-form">
+        <div class="form-row">
+          <input type="text" name="name" placeholder="Full name" required>
+        </div>
+        <div class="form-row">
+          <input type="tel" name="phone" placeholder="Phone (10 digits)" pattern="[0-9]{10}" required>
+        </div>
+        <div class="form-row">
+          <input type="text" name="street" placeholder="Street / Locality" required>
+        </div>
+        <div class="form-row">
+          <input type="text" name="city" placeholder="City" required>
+        </div>
+        <div class="form-row">
+          <input type="text" name="pincode" placeholder="Pincode (6 digits)" pattern="[0-9]{6}" required>
+        </div>
         <button type="submit" class="btn btn-primary">Save</button>
       </form>
     </section>
 
-    <!-- Order Summary -->
-    <section class="card">
+    <!-- Order Summary Card -->
+    <section class="checkout-card">
       <h2>Order Summary</h2>
-      <p>Subtotal: <span id="subtotal">₹0</span></p>
-      <p>Shipping: <span id="shipping">Free</span></p>
-      <p><strong>Total: <span id="total">₹0</span></strong></p>
+      <p>Subtotal: <strong id="subtotal">₹0</strong></p>
+      <p>Shipping: <strong id="shipping">Free</strong></p>
+      <p>Total: <strong id="total">₹0</strong></p>
+
+      <hr>
 
       <label class="payment-option">
         <input type="radio" name="payment" value="cod" checked>
@@ -62,20 +74,21 @@
     </section>
   </main>
 
+  <!-- Footer -->
   <footer class="footer">
     <p>© 2025 NeonzCrafts. All rights reserved.</p>
   </footer>
 
-  <!-- ✅ EmailJS SDK (Load BEFORE script.js) -->
+  <!-- ✅ EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>
     (function() {
-      emailjs.init("CRkybtSL0tLoJJ71X"); // ✅ your public key
+      emailjs.init("CRkybtSL0tLoJJ71X");
       console.log("✅ EmailJS initialized");
     })();
   </script>
 
-  <!-- ✅ Your main JS file -->
+  <!-- ✅ Main JS -->
   <script src="script.js" defer></script>
 </body>
 </html>
