@@ -16,10 +16,8 @@
   </header>
 
   <main id="main">
-    <!-- Products Section -->
     <section id="products" class="panel"></section>
 
-    <!-- Cart Section -->
     <section id="cart" class="panel hidden">
       <h2>Your cart</h2>
       <div id="cart-items"></div>
@@ -29,11 +27,25 @@
       <button id="checkout-btn" class="checkout-btn">Place Order (Cash on Delivery)</button>
     </section>
 
-    <!-- Checkout Form Section -->
     <section id="checkout-form" class="panel hidden">
       <h2>Checkout</h2>
+      
       <div id="addresses-container"></div>
       <button id="add-address-btn" class="add-address-btn">+ Add New Address</button>
+
+      <form id="new-address-form" class="hidden">
+        <h3>Add New Address</h3>
+        <input type="text" id="address-name" placeholder="Full Name" required>
+        <input type="tel" id="address-phone" placeholder="Phone Number" required>
+        <div class="form-row">
+            <input type="text" id="address-pincode" placeholder="Pincode" required>
+            <input type="text" id="address-city" placeholder="City" required>
+        </div>
+        <input type="text" id="address-street" placeholder="Street / Area" required>
+        <input type="text" id="address-landmark" placeholder="Landmark / Notes">
+        <button type="submit" class="checkout-btn">Save Address</button>
+        <button type="button" id="cancel-address-btn" class="cancel-btn">Cancel</button>
+      </form>
 
       <h3>Order Summary</h3>
       <div id="order-summary"></div>
@@ -49,7 +61,6 @@
     <small>Built for learning — replace images and product data with your supplier info.</small>
   </footer>
 
-  <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script src="script.js" defer></script>
 </body>
