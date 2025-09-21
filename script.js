@@ -266,6 +266,25 @@ function renderOrderSummary(){
   summaryDiv.innerHTML=`${items}<hr><strong>Total: ₹${formatPrice(cartTotal())}</strong>`;
 }
 
+// Show the full-page order success animation
+function showOrderSuccessScreen() {
+    el('order-success-overlay').classList.remove('hidden');
+    // Hide all other sections
+    document.querySelectorAll('.panel').forEach(panel => panel.classList.add('hidden'));
+    document.querySelector('header').classList.add('hidden');
+    document.querySelector('footer').classList.add('hidden');
+    
+    // Clear the cart and reset after a delay
+    setTimeout(() => {
+        cart = {};
+        updateCartUI();
+        el('order-success-overlay').classList.add('hidden');
+        document.querySelector('header').classList.remove('hidden');
+        document.querySelector('footer').classList.remove('hidden');
+        el('products').classList.remove('hidden');
+    }, 4000); // Wait for 4 seconds before returning to products page
+}
+
 // Place order via EmailJS
 el('place-order-btn').onclick=()=>{
   if(selectedAddressIndex===null){ alert("Select an address before placing order!"); return; }
@@ -282,7 +301,7 @@ el('place-order-btn').onclick=()=>{
     full_message: message,
     special_notes: notes
   }, EMAILJS_PUBLIC_KEY)
-  .then(()=>{ alert("Order placed successfully! You'll be contacted soon."); cart={}; updateCartUI(); addresses=[]; selectedAddressIndex=null; hideCheckoutForm(); })
+  .then(()=>{ showOrderSuccessScreen(); })
   .catch(err=>{ console.error(err); alert("Error sending order. Check EmailJS setup."); });
 };
 
