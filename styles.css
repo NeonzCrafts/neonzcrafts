@@ -2,9 +2,9 @@
     --bg-color: #121212;
     --text-color: #E0E0E0;
     --card-bg: #1C1C1C;
-    --primary-color: #007BFF; /* A professional blue */
-    --accent-color: #4CAF50; /* A friendly green */
-    --dark-accent: #0056b3; /* Darker blue */
+    --primary-color: #007BFF;
+    --accent-color: #4CAF50;
+    --dark-accent: #0056b3;
     --button-bg: #404040;
     --button-text: #FFFFFF;
     --font-family: 'Poppins', sans-serif;
@@ -112,6 +112,11 @@ h2 {
     margin: 8px 0;
     font-size: 1.1rem;
     color: var(--accent-color);
+    /* New CSS to handle long titles */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .card p {

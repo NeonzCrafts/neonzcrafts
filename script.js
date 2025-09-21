@@ -36,16 +36,29 @@ function loadAddresses(){
   if(savedAddresses){
     addresses = JSON.parse(savedAddresses);
     selectedAddressIndex = localStorage.getItem('selectedAddressIndex');
-    // Display the user's name if an address is saved
-    el('user-display').textContent = `Welcome, ${addresses[0].name}!`;
-    el('user-display').classList.remove('hidden');
-    el('login-btn').textContent = "Log Out";
   }
+  updateLoginState();
 }
 // Save addresses to local storage
 function saveAddresses(){
   localStorage.setItem('addresses', JSON.stringify(addresses));
   localStorage.setItem('selectedAddressIndex', selectedAddressIndex);
+  updateLoginState();
+}
+
+// New function to manage login/logout UI state
+function updateLoginState() {
+  if (addresses.length > 0) {
+    el('user-display').textContent = `Welcome, ${addresses[0].name}!`;
+    el('user-display').classList.remove('hidden');
+    el('login-btn').textContent = "Log Out";
+    el('login-btn').classList.remove('small'); // Make sure it looks like a button
+  } else {
+    el('user-display').textContent = "";
+    el('user-display').classList.add('hidden');
+    el('login-btn').textContent = "Log In";
+    el('login-btn').classList.add('small'); // Make sure it looks like a button
+  }
 }
 
 function formatPrice(v){ return Number(v).toFixed(2); }
@@ -187,28 +200,26 @@ el('new-address-form').onsubmit=e=>{
   el('new-address-form').classList.add('hidden');
   e.target.reset(); // Clear the form
   saveAddresses(); // Save to local storage
-  el('user-display').textContent = `Welcome, ${name}!`;
-  el('user-display').classList.remove('hidden');
-  el('login-btn').textContent = "Log Out";
 };
 
-// Handle login button
-el('login-btn').onclick = () => {
-    if (el('login-btn').textContent === "Log Out") {
+// New toggle login/logout function
+function toggleLogin() {
+    if (addresses.length > 0) {
         // Log out logic
         localStorage.removeItem('addresses');
         localStorage.removeItem('selectedAddressIndex');
         addresses = [];
         selectedAddressIndex = null;
-        el('user-display').textContent = "";
-        el('user-display').classList.add('hidden');
-        el('login-btn').textContent = "Log In";
         alert("You have been logged out.");
     } else {
         // Show address form for "login"
         el('add-address-btn').click();
     }
-};
+    updateLoginState();
+}
+
+// Link the new function to the login button
+el('login-btn').onclick = toggleLogin;
 
 // Render order summary
 function renderOrderSummary(){
@@ -241,6 +252,11 @@ el('place-order-btn').onclick=()=>{
 function renderReviews() {
   const container = el('reviews-container');
   container.innerHTML = '';
+  // Load reviews from local storage, or use default if none exist
+  const savedReviews = localStorage.getItem('reviews');
+  if(savedReviews){
+      REVIEWS = JSON.parse(savedReviews);
+  }
   REVIEWS.forEach(review => {
     const div = document.createElement('div');
     div.className = 'review-card';
@@ -275,6 +291,9 @@ el('add-review-form').onsubmit = e => {
     // Add the new review to the array
     REVIEWS.push({ name, text, rating });
     
+    // Save the updated reviews to local storage
+    localStorage.setItem('reviews', JSON.stringify(REVIEWS));
+    
     // Re-render the reviews section
     renderReviews();
     
@@ -288,8 +307,8 @@ el('add-review-form').onsubmit = e => {
 document.addEventListener('DOMContentLoaded',()=>{
   loadAddresses();
   renderProducts(); 
+  renderReviews(); // Now calls the new review function
   updateCartUI(); 
-  renderReviews();
   el('view-products').onclick=()=>{ el('products').classList.remove('hidden'); el('cart').classList.add('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
   el('view-cart').onclick=()=>{ el('products').classList.add('hidden'); el('cart').classList.remove('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
   el('back-to-products').onclick=()=>{ el('product-detail').classList.add('hidden'); el('products').classList.remove('hidden'); };
