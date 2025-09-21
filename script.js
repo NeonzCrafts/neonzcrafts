@@ -1,4 +1,4 @@
-const STORAGE_KEYS = { cart: 'neon_cart_v2', address: 'neon_address' };
+const STORAGE_KEYS = { cart: 'neon_cart_v2', addresses: 'neon_addresses_v2' };
 
 const PRODUCTS = [
   { 
@@ -74,11 +74,11 @@ function renderProductsPage(){
   const btn = card.querySelector('.add-js');
   btn.addEventListener('click', () => {
     addToCart(p.id, Number(qty.value) || 1);
-    alert('✅ Added to cart!');
+    alert('Added to cart');
   });
 }
 
-// ---------- CART PAGE ----------
+// ---------- CART PAGE RENDER ----------
 function renderCartPage(){
   const panel = $('cart-items');
   if (!panel) return;
@@ -115,12 +115,13 @@ function renderCartPage(){
 }
 
 function updateCartTotals(subtotal){
+  const shipping = 0;
   if ($('subtotal')) $('subtotal').textContent = `₹${subtotal}`;
   if ($('shipping')) $('shipping').textContent = `Free`;
   if ($('total')) $('total').textContent = `₹${subtotal}`;
 }
 
-// ---------- CHECKOUT ----------
+// ---------- CHECKOUT PAGE RENDER ----------
 function renderCheckoutPage(){
   const subtotalEl = $('subtotal');
   const shippingEl = $('shipping');
@@ -128,13 +129,6 @@ function renderCheckoutPage(){
   if (!subtotalEl || !totalEl) return;
 
   const cart = loadCart();
-  if (cart.length === 0) {
-    subtotalEl.textContent = "₹0";
-    shippingEl.textContent = "Free";
-    totalEl.textContent = "₹0";
-    return;
-  }
-
   let subtotal = 0;
   cart.forEach(item => {
     const p = PRODUCTS.find(pr => pr.id === item.id);
@@ -146,7 +140,19 @@ function renderCheckoutPage(){
   totalEl.textContent = `₹${subtotal}`;
 }
 
-// ---------- INIT ----------
+// ---------- Build Cart HTML for Email ----------
+function buildCartHTML(cart){
+  return cart.map(item => {
+    const p = PRODUCTS.find(pr => pr.id === item.id);
+    if (!p) return '';
+    return `<div style="display:flex;justify-content:space-between;">
+              <span>${p.title} × ${item.qty}</span>
+              <strong>₹${p.price * item.qty}</strong>
+            </div>`;
+  }).join('');
+}
+
+// ---------- INITIALIZATION ----------
 document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge(loadCart());
   renderProductsPage();
@@ -155,20 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const form = document.getElementById('address-form');
   if (form) {
-    // Auto-fill saved address
-    const saved = localStorage.getItem(STORAGE_KEYS.address);
-    if (saved) {
-      try {
-        const addr = JSON.parse(saved);
-        form.elements['name'].value = addr.name || '';
-        form.elements['phone'].value = addr.phone || '';
-        form.elements['street'].value = addr.street || '';
-        form.elements['city'].value = addr.city || '';
-        form.elements['pincode'].value = addr.pincode || '';
-      } catch {}
-    }
-
-    // Save address
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       if (!form.checkValidity()) {
@@ -176,15 +168,27 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       const addressData = {
-        name: form.elements['name'].value.trim(),
-        phone: form.elements['phone'].value.trim(),
-        street: form.elements['street'].value.trim(),
-        city: form.elements['city'].value.trim(),
-        pincode: form.elements['pincode'].value.trim(),
+        name: form.name.value.trim(),
+        phone: form.phone.value.trim(),
+        street: form.street.value.trim(),
+        city: form.city.value.trim(),
+        pincode: form.pincode.value.trim(),
       };
-      localStorage.setItem(STORAGE_KEYS.address, JSON.stringify(addressData));
+      localStorage.setItem('neon_address', JSON.stringify(addressData));
       alert('✅ Address saved!');
     });
+
+    const saved = localStorage.getItem('neon_address');
+    if (saved) {
+      try {
+        const addr = JSON.parse(saved);
+        form.name.value = addr.name || '';
+        form.phone.value = addr.phone || '';
+        form.street.value = addr.street || '';
+        form.city.value = addr.city || '';
+        form.pincode.value = addr.pincode || '';
+      } catch {}
+    }
   }
 
   const placeOrderBtn = document.getElementById('place-order');
@@ -193,20 +197,33 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
 
       const cart = loadCart();
-      if (cart.length === 0) {
-        alert('Your cart is empty! Please add items before placing order.');
-        return;
-      }
+      if (cart.length === 0) return alert('Your cart is empty!');
+      const savedAddress = JSON.parse(localStorage.getItem('neon_address') || '{}');
+      if (!savedAddress.name) return alert('Please save your address first.');
 
-      const savedAddress = localStorage.getItem(STORAGE_KEYS.address);
-      if (!savedAddress) {
-        alert('Please save your shipping address before placing order.');
-        return;
-      }
+      const subtotal = cart.reduce((sum, item) => {
+        const p = PRODUCTS.find(pr => pr.id === item.id);
+        return p ? sum + p.price * item.qty : sum;
+      }, 0);
 
-      // ✅ Clear cart & redirect
-      localStorage.removeItem(STORAGE_KEYS.cart);
-      window.location.href = 'order-success.html';
+      const cartHTML = buildCartHTML(cart);
+
+      emailjs.send("service_al4zpdb", "template_vimeo5m", {
+        name: savedAddress.name,
+        phone: savedAddress.phone,
+        street: savedAddress.street,
+        city: savedAddress.city,
+        pincode: savedAddress.pincode,
+        cart: cartHTML,
+        total: subtotal
+      }).then(() => {
+        alert("✅ Order sent successfully!");
+        localStorage.removeItem(STORAGE_KEYS.cart);
+        window.location.href = 'order-success.html';
+      }).catch(err => {
+        console.error(err);
+        alert("❌ Failed to send order.");
+      });
     });
   }
 });
