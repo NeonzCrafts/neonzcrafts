@@ -40,7 +40,18 @@ let addresses = [], selectedAddressIndex = null;
 let loggedInUser = null;
 let userLocation = null;
 
-// ===== Login/User Functions =====
+// ===== Cart Storage =====
+function loadCartFromStorage(){
+  try{
+    const raw = localStorage.getItem('cart');
+    if(raw){ cart = JSON.parse(raw); }
+  }catch(e){ cart = {}; }
+}
+function saveCartToStorage(){
+  try{ localStorage.setItem('cart', JSON.stringify(cart)); }catch(e){}
+}
+
+// ===== Login/User =====
 function handleLogin() {
     loggedInUser = "TestUser";
     el('login-btn').classList.add('hidden');
@@ -49,35 +60,30 @@ function handleLogin() {
     alert("Logged in as TestUser. (This is a placeholder)");
 }
 
-// ===== Location Functions =====
-function showLocationPopup() {
+// ===== Location =====
+function showLocationPopup(e) {
+    if(e && e.preventDefault) e.preventDefault();
     el('location-popup').classList.remove('hidden');
 }
-
-function closeLocationPopup() {
+function closeLocationPopup(e) {
+    if(e && e.preventDefault) e.preventDefault();
     el('location-popup').classList.add('hidden');
 }
-
 function updateLocation(pincode, locationText) {
     userLocation = { pincode, locationText };
     el('location-text').textContent = locationText;
     el('delivery-info').textContent = `Delivery by ${getDeliveryDate()} for pincode ${pincode}`;
     closeLocationPopup();
 }
-
 function getDeliveryDate() {
     const today = new Date();
     today.setDate(today.getDate() + 3); // 3-day delivery
     const options = { weekday: 'long', day: 'numeric', month: 'short' };
-    return today.toLocaleDateString('en-US', options);
+    return today.toLocaleDateString('en-IN', options);
 }
-
 function getPincodeFromGeolocation(latitude, longitude) {
-    // This is a placeholder for a real API call.
-    // In a production app, you would use a service like Google Maps Geocoding API.
+    // Placeholder for a real API call.
     console.log("Getting location for:", latitude, longitude);
-
-    // Simulate API response
     const dummyPincodes = {
         'Mumbai': '400001',
         'Delhi': '110001',
@@ -91,7 +97,7 @@ function getPincodeFromGeolocation(latitude, longitude) {
     };
 }
 
-// ===== Render Products =====
+// ===== Products =====
 function renderProducts(){
   const container = el('products');
   const grid = document.createElement('div'); grid.className = 'products-grid';
@@ -143,7 +149,6 @@ function showProductDetail(id){
   `;
   renderReviews();
 }
-
 function changeQtyOnDetail(c){
   const q=el('detail-qty'); let v=+q.textContent+c; if(v<1)v=1; q.textContent=v;
 }
@@ -152,14 +157,13 @@ function addToCartAndCheckout(id){ addToCart(id,+el('detail-qty').textContent); 
 // ===== Cart =====
 function addToCart(id,qty=1){
   cart[id]=(cart[id]||0)+qty;
-  if (cart[id] < 1) {
-    delete cart[id];
-  }
+  if (cart[id] < 1) { delete cart[id]; }
+  saveCartToStorage();
   updateCartUI();
 }
-function removeFromCart(id){ delete cart[id]; updateCartUI(); }
-function cartItems(){ return Object.entries(cart).map(([id,q])=>({...PRODUCTS.find(p=>p.id===id),qty:q})); }
-function cartTotal(){ return cartItems().reduce((s,i)=>s+i.price*i.qty,0); }
+function removeFromCart(id){ delete cart[id]; saveCartToStorage(); updateCartUI(); }
+function cartItems(){ return Object.entries(cart).map(([id,q])=>({...PRODUCTS.find(p=>p.id===id),qty:q})).filter(Boolean); }
+function cartTotal(){ return cartItems().reduce((s,i)=>s+(i.price||0)*i.qty,0); }
 
 function updateCartUI(){
   el('cart-count').textContent = Object.values(cart).reduce((a,b)=>a+b,0);
@@ -184,17 +188,15 @@ function updateCartUI(){
   });
 }
 
-// ===== Checkout Page Functions =====
+// ===== Checkout =====
 function showCheckout() {
     el('products').classList.add('hidden');
     el('cart').classList.add('hidden');
     el('product-detail').classList.add('hidden');
     el('checkout-form').classList.remove('hidden');
-
     renderOrderSummary();
     renderAddresses();
 }
-
 function renderOrderSummary() {
     const orderSummaryContainer = el('order-summary');
     orderSummaryContainer.innerHTML = '';
@@ -212,31 +214,25 @@ function renderOrderSummary() {
         `;
         orderSummaryContainer.appendChild(div);
     });
-
     const total = cartTotal();
     const totalDiv = document.createElement('div');
     totalDiv.className = 'order-summary-total';
     totalDiv.innerHTML = `<strong>Total:</strong> <span>₹${total.toFixed(2)}</span>`;
     orderSummaryContainer.appendChild(totalDiv);
 }
-
 function renderAddresses() {
     const addressesContainer = el('addresses-container');
     addressesContainer.innerHTML = '';
-
     if (addresses.length === 0) {
         addressesContainer.innerHTML = '<p>No saved addresses.</p>';
         el('add-address-btn').classList.remove('hidden');
         el('new-address-form').classList.add('hidden');
         return;
     }
-
     addresses.forEach((addr, index) => {
         const div = document.createElement('div');
         div.className = 'address-card';
-        if (index === selectedAddressIndex) {
-            div.classList.add('selected');
-        }
+        if (index === selectedAddressIndex) div.classList.add('selected');
         div.innerHTML = `
             <strong>${addr.name}</strong><br>
             ${addr.street}, ${addr.city} - ${addr.pincode}<br>
@@ -247,12 +243,10 @@ function renderAddresses() {
         addressesContainer.appendChild(div);
     });
 }
-
 function selectAddress(index) {
     selectedAddressIndex = index;
     renderAddresses();
 }
-
 function removeAddress(index) {
     addresses.splice(index, 1);
     if (selectedAddressIndex === index) {
@@ -262,104 +256,110 @@ function removeAddress(index) {
     }
     renderAddresses();
 }
-
 el('add-address-btn').onclick = () => {
     el('new-address-form').classList.remove('hidden');
 };
-
 el('cancel-address-btn').onclick = (e) => {
     e.preventDefault();
     el('new-address-form').classList.add('hidden');
 };
-
 el('new-address-form').onsubmit = (e) => {
     e.preventDefault();
     const newAddress = {
-        name: el('address-name').value,
-        phone: el('address-phone').value,
-        pincode: el('address-pincode').value,
-        city: el('address-city').value,
-        street: el('address-street').value,
-        landmark: el('address-landmark').value
+        name: el('address-name').value.trim(),
+        phone: el('address-phone').value.trim(),
+        pincode: el('address-pincode').value.trim(),
+        city: el('address-city').value.trim(),
+        street: el('address-street').value.trim(),
+        landmark: el('address-landmark').value.trim()
     };
-
-    if (newAddress.phone.length !== 10) {
+    if (!/^\d{10}$/.test(newAddress.phone)) {
         alert("Please enter a valid 10-digit mobile number.");
         return;
     }
-    if (newAddress.pincode.length !== 6) {
+    if (!/^\d{6}$/.test(newAddress.pincode)) {
         alert("Please enter a valid 6-digit pincode.");
         return;
     }
-
     addresses.push(newAddress);
     selectedAddressIndex = addresses.length - 1;
     renderAddresses();
     el('new-address-form').reset();
     el('new-address-form').classList.add('hidden');
 };
-
 el('place-order-btn').onclick = (e) => {
     e.preventDefault();
     if (Object.keys(cart).length === 0) {
         alert("Your cart is empty. Please add items before placing an order.");
         return;
     }
-
-    const form = el('new-address-form');
-    if (!form.classList.contains('hidden')) {
-        const phone = el('address-phone').value;
-        const pincode = el('address-pincode').value;
-        if (phone.length !== 10) {
+    const formVisible = !el('new-address-form').classList.contains('hidden');
+    let selectedAddress;
+    if (formVisible) {
+        const phone = el('address-phone').value.trim();
+        const pincode = el('address-pincode').value.trim();
+        if (!/^\d{10}$/.test(phone)) {
             alert("Please enter a valid 10-digit mobile number.");
             return;
         }
-        if (pincode.length !== 6) {
+        if (!/^\d{6}$/.test(pincode)) {
             alert("Please enter a valid 6-digit pincode.");
             return;
         }
-    } else if (addresses.length === 0) {
-        alert("Please add a shipping address.");
+        selectedAddress = {
+            name: el('address-name').value.trim(),
+            phone,
+            street: el('address-street').value.trim(),
+            city: el('address-city').value.trim(),
+            pincode
+        };
+    } else {
+        if (addresses.length === 0) {
+            alert("Please add a shipping address.");
+            return;
+        }
+        selectedAddress = addresses[selectedAddressIndex];
+    }
+    if(!selectedAddress || !selectedAddress.name){
+        alert('Please provide a valid shipping address.');
         return;
     }
-
-    const orderDetails = Object.values(cart).map(item => `${item.title} (${item.qty}x)`).join(', ');
+    const orderItems = cartItems();
+    const orderDetails = orderItems.map(it => `${it.title} (${it.qty}x)`).join(', ');
     const orderTotal = cartTotal();
-    const selectedAddress = addresses[selectedAddressIndex];
-    const orderNotes = el('order-notes').value;
-
+    const orderNotes = el('order-notes').value.trim();
     const emailParams = {
         user_name: selectedAddress.name,
-        user_email: "not-available@example.com", // Since email is not a form field
+        user_email: "not-available@example.com",
         user_phone: selectedAddress.phone,
         user_address: `${selectedAddress.street}, ${selectedAddress.city}, ${selectedAddress.pincode}`,
         order_details: orderDetails,
         order_total: `₹${orderTotal.toFixed(2)}`,
         order_notes: orderNotes
     };
-
     if (typeof emailjs!=='undefined' && emailjs.send) {
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams)
-            .then((response) => {
-                console.log('SUCCESS!', response.status, response.text);
-                localStorage.removeItem('cart');
-                cart = {};
-                updateCartUI();
+            .then(() => {
+                localStorage.removeItem('cart'); cart = {}; saveCartToStorage(); updateCartUI();
                 el('order-success').classList.remove('hidden');
                 setTimeout(() => {
                     el('order-success').classList.add('hidden');
                     el('products').classList.remove('hidden');
                     el('checkout-form').classList.add('hidden');
-                }, 5000);
+                }, 3000);
             }, (error) => {
                 console.log('FAILED...', error);
                 alert('Order failed. Please try again.');
             });
     } else {
         alert("Order placed successfully! (Email service not available)");
-        localStorage.removeItem('cart');
-        cart = {};
-        updateCartUI();
+        localStorage.removeItem('cart'); cart = {}; saveCartToStorage(); updateCartUI();
+        el('order-success').classList.remove('hidden');
+        setTimeout(() => {
+            el('order-success').classList.add('hidden');
+            el('products').classList.remove('hidden');
+            el('checkout-form').classList.add('hidden');
+        }, 2000);
     }
 };
 
@@ -373,33 +373,27 @@ function renderReviews(){
     c.appendChild(div);
   });
 }
-
-// Event listener for review submission
 el('add-review-form').onsubmit = (e) => {
     e.preventDefault();
-    const name = el('review-name').value;
-    const text = el('review-text').value;
+    const name = el('review-name').value.trim();
+    const text = el('review-text').value.trim();
     const rating = document.querySelector('input[name="rating"]:checked').value;
-
     const newReview = {
-        name: name,
-        text: text,
+        name: name || 'Anonymous',
+        text: text || '',
         rating: Number(rating)
     };
-
     REVIEWS.push(newReview);
     renderReviews();
     el('add-review-form').reset();
     el('add-review-form').classList.add('hidden');
     el('toggle-review-form-btn').textContent = '+ Add a Review';
 };
-
 el('toggle-review-form-btn').onclick = () => {
     const form = el('add-review-form');
     form.classList.toggle('hidden');
     el('toggle-review-form-btn').textContent = form.classList.contains('hidden') ? '+ Add a Review' : 'Hide Form';
 };
-
 el('cancel-review-btn').onclick = (e) => {
     e.preventDefault();
     el('add-review-form').classList.add('hidden');
@@ -411,77 +405,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof emailjs!=='undefined' && emailjs.init) {
         try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e){ console.warn('EmailJS init error',e); }
     }
+    loadCartFromStorage();
     renderProducts(); updateCartUI();
     renderReviews();
-
-    el('view-products').onclick = () => {
+    el('view-products').addEventListener('click', ()=>{
         el('products').classList.remove('hidden');
         el('cart').classList.add('hidden');
         el('product-detail').classList.add('hidden');
         el('checkout-form').classList.add('hidden');
-    };
-
-    el('view-cart').onclick = () => {
+    });
+    el('view-cart').addEventListener('click', ()=>{
         el('products').classList.add('hidden');
         el('cart').classList.remove('hidden');
         el('product-detail').classList.add('hidden');
         el('checkout-form').classList.add('hidden');
-    };
-
-    el('checkout-btn').onclick = () => {
-        showCheckout();
-    };
-
+    });
+    el('checkout-btn').onclick = () => { showCheckout(); };
     el('cancel-checkout').onclick = () => {
         el('products').classList.add('hidden');
         el('cart').classList.remove('hidden');
         el('product-detail').classList.add('hidden');
         el('checkout-form').classList.add('hidden');
     };
-
     el('back-to-products').onclick = () => {
         el('product-detail').classList.add('hidden');
         el('products').classList.remove('hidden');
     };
-
     el('back-to-products-from-cart').onclick = () => {
         el('products').classList.remove('hidden');
         el('cart').classList.add('hidden');
         el('product-detail').classList.add('hidden');
         el('checkout-form').classList.add('hidden');
-    };
-
-    el('login-btn').onclick = handleLogin;
-
-    // New Location Event Listeners
-    el('change-location-btn').onclick = showLocationPopup;
-    el('close-location-popup').onclick = closeLocationPopup;
-
-    el('use-current-location').onclick = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    const location = getPincodeFromGeolocation(latitude, longitude);
-                    updateLocation(location.pincode, `Delivery to ${location.locationText}`);
-                },
-                (error) => {
-                    console.error("Geolocation Error:", error);
-                    alert("Unable to get your location. Please enter your pincode manually.");
-                }
-            );
-        } else {
-            alert("Geolocation is not supported by your browser.");
-        }
-    };
-
-    el('pincode-submit').onclick = () => {
-        const pincode = el('pincode-input').value;
-        if (pincode.length === 6 && /^\d+$/.test(pincode)) {
-            // Placeholder: A real app would validate this pincode with an API.
-            updateLocation(pincode, `Delivery to ${pincode}`);
-        } else {
-            alert("Please enter a valid 6-digit pincode.");
-        }
-    };
-});

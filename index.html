@@ -19,10 +19,8 @@
         <div class="header-container">
             <h1 class="store-name">NeonzCrafts</h1>
             <nav class="nav-bar">
-                <a href="#products" class="nav-link" id="view-products">Products</a>
-                <a href="#cart" class="nav-link" id="view-cart">
-                    Cart (<span id="cart-count">0</span>)
-                </a>
+                <button class="nav-link" id="view-products">Products</button>
+                <button class="nav-link" id="view-cart">Cart (<span id="cart-count">0</span>)</button>
                 <div class="user-actions">
                     <span id="user-display" class="hidden"></span>
                     <button class="small" id="login-btn">Log In</button>
@@ -36,10 +34,9 @@
             <div class="location-info">
                 <span class="material-symbols-outlined">location_on</span>
                 <span id="location-text">Select a delivery location</span>
-                <a href="#" id="change-location-btn">Change</a>
+                <button id="change-location-btn" class="small">Change</button>
             </div>
-            <div id="delivery-info">
-                </div>
+            <div id="delivery-info"></div>
         </div>
     </section>
 
