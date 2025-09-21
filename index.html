@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NeonzCrafts</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>NeonzCrafts</h1>
+    <nav>
+      <button id="view-products">Products</button>
+      <button id="view-cart">Cart (<span id="cart-count">0</span>)</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- Products Section -->
+    <section id="products" class="panel"></section>
+
+    <!-- Cart Section -->
+    <section id="cart" class="panel hidden">
+      <h2>Your cart</h2>
+      <div id="cart-items"></div>
+      <div class="cart-summary">
+        <strong>Total: ₹<span id="cart-total">0.00</span></strong>
+      </div>
+      <button id="checkout-btn" class="checkout-btn">Place Order (Cash on Delivery)</button>
+    </section>
+
+    <!-- Checkout Form Section -->
+    <section id="checkout-form" class="panel hidden">
+      <h2>Checkout</h2>
+      <div id="addresses-container"></div>
+      <button id="add-address-btn" class="add-address-btn">+ Add New Address</button>
+
+      <h3>Order Summary</h3>
+      <div id="order-summary"></div>
+
+      <button id="place-order-btn" class="checkout-btn">Place Order (COD)</button>
+      <button type="button" id="cancel-checkout">Cancel</button>
+
+      <p class="note">After you confirm, your order details will be emailed to the store owner.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <small>Built for learning — replace images and product data with your supplier info.</small>
+  </footer>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
