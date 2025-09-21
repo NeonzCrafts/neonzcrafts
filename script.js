@@ -1,9 +1,8 @@
 /* script.js - NeonzCrafts
-   Complete app logic for products, modal, cart, checkout, EmailJS
-   Replace entire script.js with this file.
+   Replace your current script.js with this file.
 */
 
-/* ---------- STORAGE KEYS (with legacy support) ---------- */
+/* ---------- STORAGE KEYS ---------- */
 const STORAGE_KEYS = {
   cart: 'neon_cart_v3',
   cartLegacy: 'neon_cart_v2',
@@ -27,23 +26,20 @@ const EMAILJS_SERVICE = 'service_al4zpdb';
 const EMAILJS_TEMPLATE = 'template_vimeo5m';
 const EMAILJS_PUBLIC_KEY = 'CRkybtSL0tLoJJ71X';
 
-/* ---------- Small helpers ---------- */
+/* ---------- Helpers ---------- */
 function $(id){ return document.getElementById(id); }
 function q(sel, ctx=document){ return ctx.querySelector(sel); }
 function qAll(sel, ctx=document){ return Array.from((ctx||document).querySelectorAll(sel)); }
 function safeParse(raw, fallback){ try { return JSON.parse(raw||'null') || fallback } catch { return fallback; } }
 function formatCurrency(n){ return `₹${Number(n||0).toFixed(0)}`; }
 
-/* ---------- Cart storage with legacy migration ---------- */
+/* ---------- Cart storage + migration ---------- */
 function loadCart(){
-  // try v3
-  const raw = localStorage.getItem(STORAGE_KEYS.cart);
-  if (raw) return safeParse(raw, []);
-  // fallback to legacy v2
-  const old = localStorage.getItem(STORAGE_KEYS.cartLegacy);
-  if (old) {
-    const parsed = safeParse(old, []);
-    // migrate to new key (do not delete legacy automatically)
+  const v3 = localStorage.getItem(STORAGE_KEYS.cart);
+  if (v3) return safeParse(v3, []);
+  const legacy = localStorage.getItem(STORAGE_KEYS.cartLegacy);
+  if (legacy) {
+    const parsed = safeParse(legacy, []);
     try { localStorage.setItem(STORAGE_KEYS.cart, JSON.stringify(parsed)); } catch(e){}
     return parsed;
   }
@@ -52,7 +48,6 @@ function loadCart(){
 function saveCart(cart){
   try { localStorage.setItem(STORAGE_KEYS.cart, JSON.stringify(cart)); } catch(e){}
   updateCartBadge(cart);
-  // dispatch event so other listeners on page can update
   window.dispatchEvent(new CustomEvent('neon:cart:updated', { detail: { cart } }));
 }
 function clearCart(){ saveCart([]); }
@@ -74,7 +69,7 @@ function removeFromCart(id){
   saveCart(cart);
 }
 
-/* ---------- UI: PRODUCTS (index.html) ---------- */
+/* ---------- Render products (index.html) ---------- */
 function renderProductsPage(){
   const panel = $('products-panel');
   if (!panel) return;
@@ -101,7 +96,6 @@ function renderProductsPage(){
     `;
     panel.appendChild(card);
 
-    // handlers
     const addBtn = q('.btn-add', card);
     const viewBtn = q('.btn-view', card);
     const media = q('.product-media', card);
@@ -109,7 +103,7 @@ function renderProductsPage(){
     addBtn && addBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       addToCart(p.id, 1);
-      // open cart so user sees it
+      // open cart page so user can see the item immediately
       window.location.href = 'cart.html';
     });
 
@@ -120,30 +114,31 @@ function renderProductsPage(){
   });
 }
 
-/* ---------- MODAL: product details with image-only carousel ---------- */
+/* ---------- Modal product detail (with safe overlay styles) ---------- */
 function openProductModal(product){
-  // overlay
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
+  // inline base overlay styles to avoid z-index/pointer issues
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;justify-content:center;align-items:flex-start;padding:20px;z-index:9999;overflow:auto;';
   overlay.innerHTML = `
-    <div class="modal-dialog" role="dialog" aria-modal="true" aria-label="${product.title}">
-      <div class="modal-header">
-        <h2>${product.title}</h2>
-        <button class="modal-close" aria-label="Close">×</button>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-label="${product.title}" style="max-width:720px;width:100%;background:var(--card, #fff);border-radius:12px;padding:18px;box-shadow:0 18px 48px rgba(0,0,0,0.4);">
+      <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 style="margin:0">${product.title}</h2>
+        <button class="modal-close" aria-label="Close" style="font-size:24px;line-height:1;border:0;background:transparent;cursor:pointer;">×</button>
       </div>
 
-      <div class="carousel-container">
-        <div class="carousel-images" style="display:flex; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling: touch;">
-          ${product.images.map(src => `<img src="${src}" alt="${product.title}" style="min-width:100%; height:auto; object-fit:cover; scroll-snap-align:center;">`).join('')}
+      <div class="carousel-container" style="margin-top:12px;">
+        <div class="carousel-images" style="display:flex; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;">
+          ${product.images.map(src=>`<img src="${src}" alt="${product.title}" style="min-width:100%;height:auto;object-fit:cover;scroll-snap-align:center;border-radius:8px;">`).join('')}
         </div>
         <div class="carousel-dots" style="margin-top:8px;display:flex;gap:8px;justify-content:center;"></div>
       </div>
 
-      <div class="modal-info">
-        <div class="modal-price">${formatCurrency(product.price)}</div>
+      <div class="modal-info" style="margin-top:12px;">
+        <div class="modal-price" style="font-weight:700;color:var(--primary,#ff6f00)">${formatCurrency(product.price)}</div>
         <p class="muted" style="margin-top:8px;">${product.desc}</p>
-        <div class="modal-actions" style="margin-top:10px;">
-          <input id="modal-qty" type="number" min="1" value="1" style="width:80px;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.08);">
+        <div class="modal-actions" style="margin-top:12px;display:flex;gap:8px;align-items:center;">
+          <input id="modal-qty" type="number" min="1" value="1" style="width:84px;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.08);">
           <button class="btn btn-primary" id="modal-add">Add to Cart</button>
           <button class="btn btn-secondary" id="modal-buy">Buy Now</button>
         </div>
@@ -152,50 +147,46 @@ function openProductModal(product){
   `;
   document.body.appendChild(overlay);
 
-  // references
-  const dialog = q('.modal-dialog', overlay);
   const closeBtn = q('.modal-close', overlay);
   const carousel = q('.carousel-images', overlay);
   const dotsWrap = q('.carousel-dots', overlay);
   const imgs = Array.from(carousel.querySelectorAll('img'));
 
-  // populate dots
+  // create dots
   imgs.forEach((_, i) => {
     const dot = document.createElement('div');
-    dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+    dot.className = 'carousel-dot' + (i===0 ? ' active' : '');
     dot.dataset.index = i;
     dot.style.width = '10px'; dot.style.height = '10px'; dot.style.borderRadius = '50%';
-    dot.style.background = i === 0 ? 'var(--accent)' : 'rgba(0,0,0,0.15)';
+    dot.style.background = i===0 ? 'var(--primary,#ff6f00)' : 'rgba(0,0,0,0.15)';
     dot.style.cursor = 'pointer';
     dotsWrap.appendChild(dot);
-    dot.addEventListener('click', (e) => {
-      const width = carousel.clientWidth;
-      carousel.scrollTo({ left: i * width, behavior: 'smooth' });
+    dot.addEventListener('click', () => {
+      carousel.scrollTo({ left: i * carousel.clientWidth, behavior: 'smooth' });
     });
   });
 
-  // update dots on scroll (debounced)
+  // update dots on scroll
   let scrollTimer = null;
   carousel.addEventListener('scroll', () => {
     if (scrollTimer) clearTimeout(scrollTimer);
     scrollTimer = setTimeout(() => {
       const ix = Math.round(carousel.scrollLeft / carousel.clientWidth);
-      qAll('.carousel-dot', dotsWrap).forEach((d, j) => d.style.background = j === ix ? 'var(--accent)' : 'rgba(0,0,0,0.15)');
+      qAll('.carousel-dot', dotsWrap).forEach((d, j) => d.style.background = j === ix ? 'var(--primary,#ff6f00)' : 'rgba(0,0,0,0.15)');
     }, 80);
   });
 
-  // close behaviors
+  // close handlers
   closeBtn && closeBtn.addEventListener('click', () => overlay.remove());
   overlay.addEventListener('click', (ev) => { if (ev.target === overlay) overlay.remove(); });
-  const escHandler = (ev) => { if (ev.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); } };
+  const escHandler = (e) => { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); } };
   document.addEventListener('keydown', escHandler);
 
-  // Add/Buy handlers
+  // add / buy actions
   q('#modal-add', overlay).addEventListener('click', () => {
     const qty = Math.max(1, Number(q('#modal-qty', overlay)?.value || 1));
     addToCart(product.id, qty);
     overlay.remove();
-    // open cart for review
     window.location.href = 'cart.html';
   });
   q('#modal-buy', overlay).addEventListener('click', () => {
@@ -209,7 +200,7 @@ function openProductModal(product){
   carousel.scrollLeft = 0;
 }
 
-/* ---------- CART PAGE rendering ---------- */
+/* ---------- CART page render ---------- */
 function renderCartPage(){
   const panel = $('cart-items');
   if (!panel) return;
@@ -217,7 +208,7 @@ function renderCartPage(){
   panel.innerHTML = '';
 
   if (!cart.length) {
-    panel.innerHTML = '<p style="text-align:center;color:var(--muted);padding:12px">Your cart is empty.</p>';
+    panel.innerHTML = '<p style="text-align:center;color:var(--muted,#888);padding:12px">Your cart is empty.</p>';
     updateCartTotals(0);
     setCheckoutEnabled(false);
     return;
@@ -244,7 +235,6 @@ function renderCartPage(){
     const removeBtn = q('.remove-btn', row);
     removeBtn.addEventListener('click', () => {
       removeFromCart(item.id);
-      // rerender to reflect changes
       renderCartPage();
     });
     panel.appendChild(row);
@@ -254,44 +244,33 @@ function renderCartPage(){
   setCheckoutEnabled(true);
 }
 
-/* ---------- update totals & checkout state ---------- */
+/* ---------- totals & checkout state ---------- */
 function updateCartTotals(subtotal){
   const shipping = 0;
   const setIf = (id, value) => { const e = $(id); if (e) e.textContent = value; };
   setIf('subtotal', formatCurrency(subtotal));
   setIf('shipping', shipping === 0 ? 'Free' : formatCurrency(shipping));
   setIf('total', formatCurrency(subtotal + shipping));
-  // also update other selectors used elsewhere
   setIf('subtotal-amt', formatCurrency(subtotal));
   setIf('shipping-amt', shipping === 0 ? 'Free' : formatCurrency(shipping));
   setIf('grand-amt', formatCurrency(subtotal + shipping));
 }
 
 function setCheckoutEnabled(enabled){
-  // cart page anchor
   const toCheckout = $('to-checkout');
   if (toCheckout) {
-    if (!enabled) {
-      toCheckout.classList.add('disabled');
-      toCheckout.style.pointerEvents = 'none';
-      toCheckout.setAttribute('aria-disabled', 'true');
-    } else {
-      toCheckout.classList.remove('disabled');
-      toCheckout.style.pointerEvents = '';
-      toCheckout.removeAttribute('aria-disabled');
-    }
+    if (!enabled) { toCheckout.classList.add('disabled'); toCheckout.style.pointerEvents = 'none'; toCheckout.setAttribute('aria-disabled','true'); }
+    else { toCheckout.classList.remove('disabled'); toCheckout.style.pointerEvents = ''; toCheckout.removeAttribute('aria-disabled'); }
   }
-  // checkout place-order button
   const place = $('place-order');
   if (place) {
-    if (!enabled) { place.disabled = true; place.setAttribute('aria-disabled','true'); }
-    else { place.disabled = false; place.removeAttribute('aria-disabled'); }
+    place.disabled = !enabled;
+    if (!enabled) place.setAttribute('aria-disabled','true'); else place.removeAttribute('aria-disabled');
   }
 }
 
-/* ---------- CHECKOUT page render & handlers ---------- */
+/* ---------- CHECKOUT render + handlers ---------- */
 function renderCheckoutPage(){
-  // totals
   const cart = loadCart();
   const subtotal = cart.reduce((s,it) => {
     const p = PRODUCTS.find(pr => pr.id === it.id) || { price: 0 };
@@ -299,7 +278,6 @@ function renderCheckoutPage(){
   }, 0);
   updateCartTotals(subtotal);
 
-  // address summary vs form
   const saved = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
   const form = $('address-form');
   const summary = $('address-summary');
@@ -317,17 +295,15 @@ function renderCheckoutPage(){
   }
 }
 
-/* init checkout form handlers & place order */
 function initCheckoutHandlers(){
-  // EmailJS init if available
+  // init EmailJS if available
   if (window.emailjs && typeof emailjs.init === 'function') {
-    try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e){ console.warn('EmailJS init error', e); }
+    try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e) { console.warn('EmailJS init failed', e); }
   }
 
-  // address form submit
+  // address form
   const form = $('address-form');
   if (form) {
-    // autofill if saved
     const saved = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
     if (saved) {
       try {
@@ -336,7 +312,7 @@ function initCheckoutHandlers(){
         if (form.elements['street']) form.elements['street'].value = saved.street || '';
         if (form.elements['city']) form.elements['city'].value = saved.city || '';
         if (form.elements['pincode']) form.elements['pincode'].value = saved.pincode || '';
-      } catch (e){}
+      } catch(e){}
     }
 
     form.addEventListener('submit', (e) => {
@@ -355,25 +331,18 @@ function initCheckoutHandlers(){
     });
   }
 
-  // edit / clear buttons
+  // edit / clear
   const editBtn = $('edit-address');
-  if (editBtn) {
-    editBtn.addEventListener('click', () => {
-      const formEl = $('address-form'); if (formEl) formEl.style.display = '';
-      const summary = $('address-summary'); if (summary) summary.style.display = 'none';
-    });
-  }
+  if (editBtn) editBtn.addEventListener('click', () => { if ($('address-form')) $('address-form').style.display = ''; if ($('address-summary')) $('address-summary').style.display = 'none'; });
   const clearBtn = $('clear-address');
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      localStorage.removeItem(STORAGE_KEYS.address);
-      const formEl = $('address-form'); if (formEl) { formEl.reset(); formEl.style.display = ''; }
-      const summary = $('address-summary'); if (summary) summary.style.display = 'none';
-      alert('Saved address removed');
-    });
-  }
+  if (clearBtn) clearBtn.addEventListener('click', () => {
+    localStorage.removeItem(STORAGE_KEYS.address);
+    if ($('address-form')) { $('address-form').reset(); $('address-form').style.display = ''; }
+    if ($('address-summary')) $('address-summary').style.display = 'none';
+    alert('Saved address removed');
+  });
 
-  // Place order
+  // place order (send email via EmailJS)
   const place = $('place-order');
   if (place) {
     place.addEventListener('click', async (e) => {
@@ -383,65 +352,60 @@ function initCheckoutHandlers(){
       const addr = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
       if (!addr || !addr.name) { alert('Please save your shipping address before placing order.'); return; }
 
-      // prepare email payload
-      const itemsHtml = cart.map(it => {
+      const itemsTxt = cart.map(it => {
         const p = PRODUCTS.find(pr => pr.id === it.id) || {};
         return `${p.title || it.id} × ${it.qty} = ${formatCurrency((p.price||0) * it.qty)}`;
       }).join('\n');
-      const total = cart.reduce((s,it) => { const p = PRODUCTS.find(pr => pr.id === it.id) || { price: 0 }; return s + p.price * it.qty; }, 0);
+
+      const totalVal = cart.reduce((s,it) => { const p = PRODUCTS.find(pr => pr.id === it.id) || { price: 0 }; return s + p.price * it.qty; }, 0);
 
       const templateParams = {
-        order_items: itemsHtml,
-        order_total: formatCurrency(total),
+        order_items: itemsTxt,
+        order_total: formatCurrency(totalVal),
         customer_name: addr.name,
         customer_phone: addr.phone,
         customer_address: `${addr.street}, ${addr.city} - ${addr.pincode}`
       };
 
       try {
-        if (!window.emailjs) throw new Error('EmailJS not available');
-        await emailjs.send(service_al4zpdb, template_vimeo5m, CRkybtSL0tLoJJ71X);
-        // success: clear cart & go to success page
-        localStorage.removeItem(STORAGE_KEYS.cart);
-        updateCartBadge([]);
+        if (!window.emailjs || typeof emailjs.send !== 'function') throw new Error('EmailJS is not available or not loaded');
+        // correct usage: pass service id, template id and params
+        await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams);
+        // success: clear cart & navigate to success
+        clearCart();
         window.location.href = 'order-success.html';
       } catch (err) {
-  console.error('EmailJS error details:', err);
-  alert('Failed to send order confirmation. See console for details.');
+        console.error('EmailJS error details:', err);
+        const msg = (err && err.text) ? err.text : (err && err.message) ? err.message : 'Failed to send order confirmation. See console for details.';
+        alert(msg);
       }
     });
   }
 }
 
-/* ---------- brand link fix: ensure brand always goes home ---------- */
+/* ---------- brand click: always go home (avoid wrong default) ---------- */
 function initBrandLinks(){
   qAll('.brand').forEach(el => {
     el.addEventListener('click', (e) => {
-      // if it's an anchor, allow default navigation. But to be bulletproof:
       e.preventDefault && e.preventDefault();
       window.location.href = 'index.html';
     });
   });
 }
 
-/* ---------- page init ---------- */
+/* ---------- Initialization ---------- */
 document.addEventListener('DOMContentLoaded', () => {
   try {
-    // Update badge from storage
     updateCartBadge(loadCart());
-
-    // initialize pages conditionally
     if ($('products-panel')) renderProductsPage();
     if ($('cart-items')) renderCartPage();
     if ($('address-form') || $('place-order')) {
       renderCheckoutPage();
       initCheckoutHandlers();
     }
-
-    // place handlers for brand & cross-page updates
     initBrandLinks();
 
-    // keep cart+UI synced across tabs/windows
+    // keep UI in sync across tabs
     window.addEventListener('storage', (e) => {
       if (e.key === STORAGE_KEYS.cart || e.key === STORAGE_KEYS.cartLegacy) {
         updateCartBadge(loadCart());
@@ -450,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // re-render if our event fired on same page
+    // local event
     window.addEventListener('neon:cart:updated', () => {
       updateCartBadge(loadCart());
       if ($('cart-items')) renderCartPage();
@@ -460,4 +424,3 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('Init error', err);
   }
 });
-
