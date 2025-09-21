@@ -1,3 +1,9 @@
+/*
+  Replicating the look of the "Shuddh Swad" website based on user-provided screenshots.
+  This includes a new color palette, rounded buttons, and a more modern layout.
+*/
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
 :root {
   --max-width: 1000px;
   --bg-color: #f6f5f0; /* Light beige/tan background, similar to the reference site */
@@ -344,6 +350,291 @@ button.small {
   font-family: inherit;
 }
 
+/* New Footer Styles */
+.reviews-section, .about-us-section {
+  width: 100%;
+  max-width: var(--max-width);
+  padding: 20px;
+  margin-top: 40px;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+}
+.reviews-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  margin-top: 20px;
+}
+.review-card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.stars {
+  color: gold;
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+.about-us-section blockquote {
+  margin: 20px auto;
+  font-style: italic;
+  color: var(--muted);
+  max-width: 600px;
+}
+.store-details p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+.card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.card h3 {
+  margin: 12px 0 4px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.card p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.card .price {
+  margin-top: auto;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text-color);
+}
+
+.hidden {
+  display: none;
+}
+
+.cart-item {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.cart-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.cart-qty {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+button.small {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  cursor: pointer;
+}
+
+.site-footer {
+  width: 100%;
+  max-width: var(--max-width);
+  padding: 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* Buttons */
+.checkout-btn, .add-address-btn {
+  margin-top: 20px;
+  padding: 12px 24px;
+  border: none;
+  background: var(--accent);
+  color: var(--button-text);
+  border-radius: 25px; /* More rounded look */
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.checkout-btn:hover, .add-address-btn:hover {
+  background: var(--accent-hover);
+}
+
+.cancel-btn {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border-color);
+}
+
+/* Checkout and addresses */
+.address-card {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  background: var(--bg-color);
+}
+
+.address-card input[type="radio"] {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.address-card label {
+  display: block;
+  font-weight: 600;
+}
+
+#order-summary {
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  background: var(--bg-color);
+  line-height: 1.5;
+}
+
+/* New Form Styles */
+#new-address-form {
+  padding: 20px;
+  background: var(--bg-color);
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+#new-address-form input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text-color);
+  font-size: 16px;
+}
+#new-address-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+.form-row input {
+  flex: 1;
+}
+
+/* Product Detail Page Styles */
+.product-details-container {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.product-image-section {
+  flex: 1;
+  min-width: 300px;
+}
+.product-image-section img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+.product-info-section {
+  flex: 2;
+  min-width: 300px;
+}
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  padding: 4px;
+  width: 150px;
+  margin-top: 16px;
+}
+.quantity-selector button {
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--accent);
+}
+.quantity-selector input {
+  width: 100%;
+  text-align: center;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: var(--text-color);
+  font-weight: 600;
+}
+.add-to-cart-btn {
+  margin-top: 12px;
+  padding: 12px 24px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.add-to-cart-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+.back-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+/* Cart Page Updates */
+.special-instructions-container {
+  margin-top: 20px;
+}
+#order-notes {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  resize: vertical;
+  font-family: inherit;
+}
+
 .card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
@@ -591,4 +882,5 @@ button.small {
   resize: vertical;
   font-family: inherit;
 }
+
 
