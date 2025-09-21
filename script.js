@@ -1,10 +1,10 @@
-const STORAGE_KEYS = { cart: 'neon_cart_v2', addresses: 'neon_addresses_v2' };
+const STORAGE_KEYS = { cart: 'neon_cart_v2', address: 'neon_address' };
 
 const PRODUCTS = [
   { 
     id: 'p1', 
     title: 'Educational Geometric Shape Toy', 
-    price: 199, 
+    price: 299, 
     originalPrice: 399, 
     images: ['1000069559.jpg','1000069560.jpg','1000069561.jpg'], 
     desc: 'Interactive and colorful shape toy to improve cognitive skills for toddlers.'
@@ -78,7 +78,7 @@ function renderProductsPage(){
   });
 }
 
-// ---------- CART PAGE RENDER ----------
+// ---------- CART PAGE ----------
 function renderCartPage(){
   const panel = $('cart-items');
   if (!panel) return;
@@ -115,13 +115,12 @@ function renderCartPage(){
 }
 
 function updateCartTotals(subtotal){
-  const shipping = 0; // Always free
   if ($('subtotal')) $('subtotal').textContent = `₹${subtotal}`;
   if ($('shipping')) $('shipping').textContent = `Free`;
   if ($('total')) $('total').textContent = `₹${subtotal}`;
 }
 
-// ---------- CHECKOUT PAGE RENDER ----------
+// ---------- CHECKOUT ----------
 function renderCheckoutPage(){
   const subtotalEl = $('subtotal');
   const shippingEl = $('shipping');
@@ -147,7 +146,7 @@ function renderCheckoutPage(){
   totalEl.textContent = `₹${subtotal}`;
 }
 
-// ---------- INITIALIZATION ----------
+// ---------- INIT ----------
 document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge(loadCart());
   renderProductsPage();
@@ -156,7 +155,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const form = document.getElementById('address-form');
   if (form) {
-    // Save Address
+    // Auto-fill saved address
+    const saved = localStorage.getItem(STORAGE_KEYS.address);
+    if (saved) {
+      try {
+        const addr = JSON.parse(saved);
+        form.elements['name'].value = addr.name || '';
+        form.elements['phone'].value = addr.phone || '';
+        form.elements['street'].value = addr.street || '';
+        form.elements['city'].value = addr.city || '';
+        form.elements['pincode'].value = addr.pincode || '';
+      } catch {}
+    }
+
+    // Save address
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       if (!form.checkValidity()) {
@@ -170,25 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
         city: form.elements['city'].value.trim(),
         pincode: form.elements['pincode'].value.trim(),
       };
-      localStorage.setItem('neon_address', JSON.stringify(addressData));
+      localStorage.setItem(STORAGE_KEYS.address, JSON.stringify(addressData));
       alert('✅ Address saved!');
     });
-
-    // Auto-fill saved address if exists
-    const saved = localStorage.getItem('neon_address');
-    if (saved) {
-      try {
-        const addr = JSON.parse(saved);
-        form.elements['name'].value = addr.name || '';
-        form.elements['phone'].value = addr.phone || '';
-        form.elements['street'].value = addr.street || '';
-        form.elements['city'].value = addr.city || '';
-        form.elements['pincode'].value = addr.pincode || '';
-      } catch {}
-    }
   }
 
-  // Place Order Validation
   const placeOrderBtn = document.getElementById('place-order');
   if (placeOrderBtn) {
     placeOrderBtn.addEventListener('click', (e) => {
@@ -200,12 +198,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      const savedAddress = localStorage.getItem('neon_address');
+      const savedAddress = localStorage.getItem(STORAGE_KEYS.address);
       if (!savedAddress) {
         alert('Please save your shipping address before placing order.');
         return;
       }
 
+      // ✅ Clear cart & redirect
+      localStorage.removeItem(STORAGE_KEYS.cart);
       window.location.href = 'order-success.html';
     });
   }
