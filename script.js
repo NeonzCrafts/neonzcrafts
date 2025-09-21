@@ -152,21 +152,52 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge(loadCart());
   renderProductsPage();
   renderCartPage();
-  renderCheckoutPage(); // ✅ This will now update totals correctly
-});
+  renderCheckoutPage();
+
+  const form = document.getElementById('address-form');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      const addressData = {
+        name: form.name.value.trim(),
+        phone: form.phone.value.trim(),
+        street: form.street.value.trim(),
+        city: form.city.value.trim(),
+        pincode: form.pincode.value.trim(),
+      };
+      localStorage.setItem('neon_address', JSON.stringify(addressData));
+      alert('✅ Address saved!');
+    });
+  }
 
   const placeOrderBtn = document.getElementById('place-order');
   if (placeOrderBtn) {
     placeOrderBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      const form = document.getElementById('address-form');
-      if (form && !form.checkValidity()) {
-        form.reportValidity();
+
+      // 🚫 Prevent order if cart is empty
+      const cart = loadCart();
+      if (cart.length === 0) {
+        alert('Your cart is empty! Please add items before placing order.');
         return;
       }
+
+      // 🚫 Prevent order if no saved address
+      const savedAddress = localStorage.getItem('neon_address');
+      if (!savedAddress) {
+        alert('Please save your shipping address before placing order.');
+        return;
+      }
+
+      // ✅ Redirect after everything is valid
       window.location.href = 'order-success.html';
     });
   }
 });
+
 
 
