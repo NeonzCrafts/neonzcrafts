@@ -19,11 +19,15 @@
         <div class="header-container">
             <h1 class="store-name">NeonzCrafts</h1>
             <nav class="nav-bar">
-                <a href="#products" class="nav-link" id="view-products">Products</a>
-                <a href="#cart" class="nav-link" id="view-cart">Cart (<span id="cart-count">0</span>)</a>
+                <a href="#" class="nav-link" id="view-products">Products</a>
+                <a href="#" class="nav-link" id="view-cart">
+                    Cart (<span id="cart-count">0</span>)
+                </a>
                 <div class="user-actions">
+                    <button class="nav-link" id="login-btn">
+                        Login
+                    </button>
                     <span id="user-display" class="hidden"></span>
-                    <button class="small" id="login-btn">Log In</button>
                 </div>
             </nav>
         </div>
@@ -31,16 +35,20 @@
 
     <main class="container">
         <section id="products" class="panel">
-            <h2>Products</h2>
-            </section>
+            <h2>Our Products</h2>
+            <div id="products-grid" class="products-grid">
+                </div>
+        </section>
 
         <section id="product-detail" class="panel hidden">
-            <button class="back-btn" id="back-to-products">← Back to Products</button>
-            <div id="product-detail-content"></div>
+            <div id="product-detail-content">
+                </div>
 
-            <div class="product-reviews">
-                <h2>Customer Reviews</h2>
-                <div id="reviews-container" class="reviews-grid"></div>
+            <div id="reviews-section">
+                <div class="reviews-header">
+                    <h2>Customer Reviews</h2>
+                    <button class="small add-review-btn" id="toggle-review-form-btn">+ Add a Review</button>
+                </div>
                 
                 <form id="add-review-form" class="hidden">
                     <h3>Add Your Review</h3>
@@ -58,47 +66,54 @@
                         <button type="button" class="small" id="cancel-review-btn">Cancel</button>
                     </div>
                 </form>
-                
-                <button class="small" id="toggle-review-form-btn">+ Add a Review</button>
+
+                <div id="reviews-container">
+                    </div>
             </div>
+
+            <button class="buy-btn" id="back-to-products">Back to Products</button>
         </section>
 
         <section id="cart" class="panel hidden">
             <h2>Your Cart</h2>
-            <div id="cart-items"></div>
+            <div id="cart-items">
+                </div>
             <div class="cart-summary">
-                <div class="total">Total: ₹<span id="cart-total">0.00</span></div>
+                <strong>Total:</strong> ₹<span id="cart-total">0.00</span>
             </div>
-            <button class="checkout-btn" id="checkout-btn">Checkout</button>
+            <div class="cart-actions">
+                <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
+                <button class="cancel-btn" id="back-to-products-from-cart">Back to Products</button>
+            </div>
         </section>
 
         <section id="checkout-form" class="panel hidden">
             <h2>Checkout</h2>
-            <div class="address-section">
-                <h3>Shipping Address</h3>
-                <div id="addresses-container"></div>
-                <button class="small" id="add-address-btn">+ Add New Address</button>
-                
-                <form id="new-address-form" class="hidden">
-                    <input type="text" id="address-name" placeholder="Full Name" required>
-                    <input type="tel" id="address-phone" placeholder="Phone Number" required>
-                    <input type="text" id="address-pincode" placeholder="Pincode" required>
-                    <input type="text" id="address-city" placeholder="City" required>
-                    <input type="text" id="address-street" placeholder="Street, House No." required>
-                    <input type="text" id="address-landmark" placeholder="Landmark (Optional)">
-                    <button type="submit" class="small">Save Address</button>
-                    <button type="button" class="small" id="cancel-address-btn">Cancel</button>
-                </form>
-            </div>
-            
-            <div class="order-summary-section">
-                <h3>Order Summary</h3>
-                <div id="order-summary"></div>
-            </div>
+            <div class="checkout-sections">
+                <div class="address-section">
+                    <h3>Shipping Address</h3>
+                    <div id="addresses-container">
+                        </div>
+                    <button class="add-address-btn" id="add-address-btn">+ Add New Address</button>
+                    <form id="new-address-form" class="hidden">
+                        <input type="text" id="address-name" placeholder="Full Name" required>
+                        <input type="tel" id="address-phone" placeholder="Mobile Number (10 digits)" pattern="[0-9]{10}" required>
+                        <input type="text" id="address-pincode" placeholder="Pincode (6 digits)" pattern="[0-9]{6}" required>
+                        <input type="text" id="address-city" placeholder="City" required>
+                        <input type="text" id="address-street" placeholder="House No, Colony, Street" required>
+                        <input type="text" id="address-landmark" placeholder="Landmark (optional)">
+                        <div class="form-actions">
+                            <button type="submit" class="small">Save Address</button>
+                            <button type="button" class="small" id="cancel-address-btn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
 
-            <div class="notes-section">
-                <h3>Order special instructions</h3>
-                <textarea id="order-notes" placeholder="e.g., Leave at the door, call before delivery."></textarea>
+                <div class="order-summary-section">
+                    <h3>Order Summary</h3>
+                    <div id="order-summary">
+                        </div>
+                </div>
             </div>
 
             <div class="payment-section">
@@ -131,10 +146,9 @@
       <div class="success-content" role="status" aria-live="polite">
         <div class="tick-mark">✔</div>
         <h2>Order Placed Successfully!</h2>
-        <p>You will be contacted shortly.</p>
+        <p>You will be contacted shortly...</p>
       </div>
     </div>
-
-    <script src="script.js?v=5"></script>
+    <script src="script.js"></script>
 </body>
 </html>

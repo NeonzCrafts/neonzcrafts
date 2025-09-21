@@ -37,6 +37,18 @@ let REVIEWS = [
 const el = id => document.getElementById(id);
 let cart = {};
 let addresses = [], selectedAddressIndex = null;
+let loggedInUser = null;
+
+// ===== Login/User Functions =====
+function handleLogin() {
+    // This is a placeholder for actual login logic.
+    // In a real application, you would use a service like Firebase Auth.
+    loggedInUser = "TestUser"; // Set a dummy user for demonstration
+    el('login-btn').classList.add('hidden');
+    el('user-display').classList.remove('hidden');
+    el('user-display').textContent = `Welcome, ${loggedInUser}!`;
+    alert("Logged in as TestUser. (This is a placeholder)");
+}
 
 // ===== Render Products =====
 function renderProducts(){
@@ -59,6 +71,7 @@ function renderProducts(){
   const old = container.querySelector('.products-grid'); if (old) old.remove();
   container.appendChild(grid);
 }
+
 // ===== Product Detail =====
 function showProductDetail(id){
   const product = PRODUCTS.find(x=>x.id===id); if (!product) return;
@@ -96,7 +109,13 @@ function changeQtyOnDetail(c){
 function addToCartAndCheckout(id){ addToCart(id,+el('detail-qty').textContent); showCheckout(); }
 
 // ===== Cart =====
-function addToCart(id,qty=1){ cart[id]=(cart[id]||0)+qty; updateCartUI(); }
+function addToCart(id,qty=1){ 
+  cart[id]=(cart[id]||0)+qty; 
+  if (cart[id] < 1) {
+    delete cart[id];
+  }
+  updateCartUI();
+}
 function removeFromCart(id){ delete cart[id]; updateCartUI(); }
 function cartItems(){ return Object.entries(cart).map(([id,q])=>({...PRODUCTS.find(p=>p.id===id),qty:q})); }
 function cartTotal(){ return cartItems().reduce((s,i)=>s+i.price*i.qty,0); }
@@ -131,7 +150,6 @@ function showCheckout() {
     el('product-detail').classList.add('hidden');
     el('checkout-form').classList.remove('hidden');
     
-    // Call the functions to render the checkout page content
     renderOrderSummary();
     renderAddresses();
 }
@@ -140,6 +158,10 @@ function renderOrderSummary() {
     const orderSummaryContainer = el('order-summary');
     orderSummaryContainer.innerHTML = '';
     const items = cartItems();
+    if (items.length === 0) {
+        orderSummaryContainer.innerHTML = '<p>Your cart is empty.</p>';
+        return;
+    }
     items.forEach(item => {
         const div = document.createElement('div');
         div.className = 'order-summary-item';
@@ -164,7 +186,7 @@ function renderAddresses() {
     if (addresses.length === 0) {
         addressesContainer.innerHTML = '<p>No saved addresses.</p>';
         el('add-address-btn').classList.remove('hidden');
-        el('new-address-form').classList.remove('hidden');
+        el('new-address-form').classList.add('hidden');
         return;
     }
 
@@ -219,6 +241,16 @@ el('new-address-form').onsubmit = (e) => {
         street: el('address-street').value,
         landmark: el('address-landmark').value
     };
+
+    if (newAddress.phone.length !== 10) {
+        alert("Please enter a valid 10-digit mobile number.");
+        return;
+    }
+    if (newAddress.pincode.length !== 6) {
+        alert("Please enter a valid 6-digit pincode.");
+        return;
+    }
+    
     addresses.push(newAddress);
     selectedAddressIndex = addresses.length - 1;
     renderAddresses();
@@ -226,6 +258,69 @@ el('new-address-form').onsubmit = (e) => {
     el('new-address-form').classList.add('hidden');
 };
 
+el('place-order-btn').onclick = (e) => {
+    e.preventDefault();
+    if (Object.keys(cart).length === 0) {
+        alert("Your cart is empty. Please add items before placing an order.");
+        return;
+    }
+    
+    const form = el('new-address-form');
+    if (!form.classList.contains('hidden')) {
+        const phone = el('address-phone').value;
+        const pincode = el('address-pincode').value;
+        if (phone.length !== 10) {
+            alert("Please enter a valid 10-digit mobile number.");
+            return;
+        }
+        if (pincode.length !== 6) {
+            alert("Please enter a valid 6-digit pincode.");
+            return;
+        }
+    } else if (addresses.length === 0) {
+        alert("Please add a shipping address.");
+        return;
+    }
+
+    const orderDetails = Object.values(cart).map(item => `${item.title} (${item.qty}x)`).join(', ');
+    const orderTotal = cartTotal();
+    const selectedAddress = addresses[selectedAddressIndex];
+    const orderNotes = el('order-notes').value;
+
+    const emailParams = {
+        user_name: selectedAddress.name,
+        user_email: "not-available@example.com", // Since email is not a form field
+        user_phone: selectedAddress.phone,
+        user_address: `${selectedAddress.street}, ${selectedAddress.city}, ${selectedAddress.pincode}`,
+        order_details: orderDetails,
+        order_total: `₹${orderTotal.toFixed(2)}`,
+        order_notes: orderNotes
+    };
+
+    if (typeof emailjs!=='undefined' && emailjs.send) {
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams)
+            .then((response) => {
+                console.log('SUCCESS!', response.status, response.text);
+                localStorage.removeItem('cart');
+                cart = {};
+                updateCartUI();
+                el('order-success').classList.remove('hidden');
+                setTimeout(() => {
+                    el('order-success').classList.add('hidden');
+                    el('products').classList.remove('hidden');
+                    el('checkout-form').classList.add('hidden');
+                }, 5000);
+            }, (error) => {
+                console.log('FAILED...', error);
+                alert('Order failed. Please try again.');
+            });
+    } else {
+        alert("Order placed successfully! (Email service not available)");
+        localStorage.removeItem('cart');
+        cart = {};
+        updateCartUI();
+    }
+};
 
 // ===== Reviews =====
 function renderReviews(){
@@ -238,16 +333,46 @@ function renderReviews(){
   });
 }
 
+// Event listener for review submission
+el('add-review-form').onsubmit = (e) => {
+    e.preventDefault();
+    const name = el('review-name').value;
+    const text = el('review-text').value;
+    const rating = document.querySelector('input[name="rating"]:checked').value;
+
+    const newReview = {
+        name: name,
+        text: text,
+        rating: Number(rating)
+    };
+
+    REVIEWS.push(newReview);
+    renderReviews();
+    el('add-review-form').reset();
+    el('add-review-form').classList.add('hidden');
+    el('toggle-review-form-btn').textContent = '+ Add a Review';
+};
+
+el('toggle-review-form-btn').onclick = () => {
+    const form = el('add-review-form');
+    form.classList.toggle('hidden');
+    el('toggle-review-form-btn').textContent = form.classList.contains('hidden') ? '+ Add a Review' : 'Hide Form';
+};
+
+el('cancel-review-btn').onclick = (e) => {
+    e.preventDefault();
+    el('add-review-form').classList.add('hidden');
+    el('toggle-review-form-btn').textContent = '+ Add a Review';
+};
+
 // ===== Navigation & Init =====
 document.addEventListener('DOMContentLoaded', () => {
-    // Other initializations...
     if (typeof emailjs!=='undefined' && emailjs.init) {
         try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e){ console.warn('EmailJS init error',e); }
     }
     renderProducts(); updateCartUI();
-    renderReviews(); 
+    renderReviews();
 
-    // Event listeners for navigation
     el('view-products').onclick = () => {
         el('products').classList.remove('hidden');
         el('cart').classList.add('hidden');
@@ -262,12 +387,10 @@ document.addEventListener('DOMContentLoaded', () => {
         el('checkout-form').classList.add('hidden');
     };
     
-    // Add event listener for the "Checkout" button
     el('checkout-btn').onclick = () => {
         showCheckout();
     };
     
-    // Add event listener for the "Cancel" button on the checkout page
     el('cancel-checkout').onclick = () => {
         el('products').classList.add('hidden');
         el('cart').classList.remove('hidden');
@@ -279,4 +402,13 @@ document.addEventListener('DOMContentLoaded', () => {
         el('product-detail').classList.add('hidden');
         el('products').classList.remove('hidden');
     };
+
+    el('back-to-products-from-cart').onclick = () => {
+        el('products').classList.remove('hidden');
+        el('cart').classList.add('hidden');
+        el('product-detail').classList.add('hidden');
+        el('checkout-form').classList.add('hidden');
+    };
+    
+    el('login-btn').onclick = handleLogin;
 });

@@ -123,7 +123,7 @@ h2 {
 }
 
 .price { font-weight: 600; margin-bottom: 10px; }
-.original-price { text-decoration: line-through; font-size: 0.9rem; color: #bbb; margin-right: 6px; }
+.original-price { text-decoration: line-through; font-size: 0.9rem; color: #b7bbc1; margin-right: 6px; }
 .sale-tag { background: #D32F2F; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
 
 /* Buttons */
@@ -227,10 +227,12 @@ button:hover { background: var(--dark-accent); }
 .remove-address {
     position: absolute; bottom: 12px; right: 12px; background-color: transparent; color: var(--accent-color); border: none; text-decoration: underline; padding: 0; font-size: 0.85rem;
 }
+.address-card.selected { border-color: var(--primary-color); }
 
 /* Reviews */
 #add-review-form { background-color: rgba(255,255,255,0.02); padding: 14px; border-radius: 10px; margin-top: 16px; }
 #add-review-form input, #add-review-form textarea, #new-address-form input, #order-notes { padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04); background: transparent; color: var(--text-color); }
+#add-review-form input::placeholder, #add-review-form textarea::placeholder, #new-address-form input::placeholder, #order-notes::placeholder { color: var(--muted); }
 
 .reviews-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .review-card { background-color: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; }
