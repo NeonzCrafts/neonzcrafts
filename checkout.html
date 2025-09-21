@@ -9,10 +9,10 @@
 <body>
   <header class="navbar">
     <div class="navbar-left">
-      <a class="brand" href="index.html" aria-label="NeonzCrafts homepage">NeonzCrafts</a>
+      <a class="brand" href="index.html">NeonzCrafts</a>
     </div>
     <div class="navbar-right">
-      <a class="nav-icon" href="cart.html" aria-label="View cart">🛒 <span id="cart-count">0</span></a>
+      <a class="nav-icon" href="cart.html">🛒 <span id="cart-count">0</span></a>
     </div>
   </header>
 
@@ -24,30 +24,28 @@
       <div class="checkout-card">
         <h2>Shipping Address</h2>
         <form id="address-form" class="address-form">
-  <label>Full name <input type="text" name="name" required></label>
-  <label>Phone (10 digits) <input type="tel" name="phone" pattern="\d{10}" required></label>
-  <label>Street / Locality <input type="text" name="street" required></label>
-  <label>City <input type="text" name="city" required></label>
-  <label>Pincode (6 digits) <input type="text" name="pincode" pattern="\d{6}" required></label>
-  <div class="form-actions">
-    <button type="submit" class="btn btn-primary">Save Address</button>
-    <button type="reset" class="btn btn-secondary">Clear</button>
-  </div>
-</form>
+          <label>Full name <input type="text" name="name" required></label>
+          <label>Phone (10 digits) <input type="tel" name="phone" pattern="\d{10}" required></label>
+          <label>Street / Locality <input type="text" name="street" required></label>
+          <label>City <input type="text" name="city" required></label>
+          <label>Pincode (6 digits) <input type="text" name="pincode" pattern="\d{6}" required></label>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Address</button>
+            <button type="reset" class="btn btn-secondary">Clear</button>
+          </div>
+        </form>
       </div>
 
       <!-- ORDER SUMMARY -->
       <div class="checkout-card">
-  <h2>Order Summary</h2>
-  <div class="totals-row"><span>Subtotal</span><strong id="subtotal">₹0</strong></div>
-  <div class="totals-row"><span>Shipping</span><strong id="shipping">Free</strong></div>
-  <div class="totals-row totals-grand"><span>Total</span><strong id="total">₹0</strong></div>
-  <div class="divider"></div>
-  <label><input type="radio" checked> Cash on Delivery (COD)</label>
-  <button class="btn btn-primary full-width" onclick="window.location.href='order-success.html'">
-  Place Order
-  </button>
-</div>
+        <h2>Order Summary</h2>
+        <div class="totals-row"><span>Subtotal</span><strong id="subtotal">₹0</strong></div>
+        <div class="totals-row"><span>Shipping</span><strong id="shipping">Free</strong></div>
+        <div class="totals-row totals-grand"><span>Total</span><strong id="total">₹0</strong></div>
+        <div class="divider"></div>
+        <label><input type="radio" checked> Cash on Delivery (COD)</label>
+        <button id="place-order" class="btn btn-primary full-width">Place Order</button>
+      </div>
     </section>
   </main>
 
@@ -59,8 +57,3 @@
   <script src="script.js" defer></script>
 </body>
 </html>
-
-
-
-
-
