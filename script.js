@@ -174,30 +174,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const placeOrderBtn = document.getElementById('place-order');
-  if (placeOrderBtn) {
-    placeOrderBtn.addEventListener('click', (e) => {
-      e.preventDefault();
+  const form = document.getElementById('address-form');
+if (form) {
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
 
-      // 🚫 Prevent order if cart is empty
-      const cart = loadCart();
-      if (cart.length === 0) {
-        alert('Your cart is empty! Please add items before placing order.');
-        return;
-      }
+    const addressData = {
+      name: form.elements['name'].value.trim(),
+      phone: form.elements['phone'].value.trim(),
+      street: form.elements['street'].value.trim(),
+      city: form.elements['city'].value.trim(),
+      pincode: form.elements['pincode'].value.trim(),
+    };
 
-      // 🚫 Prevent order if no saved address
-      const savedAddress = localStorage.getItem('neon_address');
-      if (!savedAddress) {
-        alert('Please save your shipping address before placing order.');
-        return;
-      }
+    localStorage.setItem('neon_address', JSON.stringify(addressData));
+    alert('✅ Address saved!');
+  });
 
-      // ✅ Redirect after everything is valid
-      window.location.href = 'order-success.html';
-    });
+  // ✅ Auto-fill saved address if exists
+  const saved = localStorage.getItem('neon_address');
+  if (saved) {
+    try {
+      const addr = JSON.parse(saved);
+      form.elements['name'].value = addr.name || '';
+      form.elements['phone'].value = addr.phone || '';
+      form.elements['street'].value = addr.street || '';
+      form.elements['city'].value = addr.city || '';
+      form.elements['pincode'].value = addr.pincode || '';
+    } catch {}
   }
-});
-
-
-
+}
