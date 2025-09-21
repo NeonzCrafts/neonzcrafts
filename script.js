@@ -122,7 +122,30 @@ function removeFromCart(id){
 
 // ---------- INITIALIZATION ----------
 document.addEventListener('DOMContentLoaded', () => {
-  updateCartBadge(loadCart());
-  renderProductsPage();
-  renderCartPage();
+  const placeOrderBtn = document.getElementById('place-order');
+  if (placeOrderBtn) {
+    placeOrderBtn.addEventListener('click', (e) => {
+      e.preventDefault(); // stop instant redirect
+      const form = document.getElementById('address-form');
+
+      // ✅ Check if form is valid
+      if (!form.checkValidity()) {
+        form.reportValidity(); // shows browser validation messages
+        return;
+      }
+
+      // ✅ (Optional) Save address for later use
+      const addressData = {
+        name: form.name.value.trim(),
+        phone: form.phone.value.trim(),
+        street: form.street.value.trim(),
+        city: form.city.value.trim(),
+        pincode: form.pincode.value.trim(),
+      };
+      localStorage.setItem('neon_address', JSON.stringify(addressData));
+
+      // ✅ Redirect after successful validation
+      window.location.href = 'order-success.html';
+    });
+  }
 });
