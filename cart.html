@@ -5,54 +5,37 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>NeonzCrafts — Cart</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="script.js" defer></script>
 </head>
 <body>
   <header class="navbar">
     <div class="navbar-left">
-      <a class="brand" href="index.html" aria-label="NeonzCrafts homepage">NeonzCrafts</a>
+      <a class="brand" href="index.html">NeonzCrafts</a>
     </div>
     <div class="navbar-right">
-      <a class="nav-icon" href="cart.html" aria-label="View cart">🛒 <span id="cart-count">0</span></a>
+      <button id="theme-toggle" class="icon-btn">🌓</button>
+      <a class="nav-icon" href="cart.html">🛒 <span id="cart-count">0</span></a>
     </div>
   </header>
 
   <main class="container">
-  <h1 class="page-title">Your Cart</h1>
+    <h1 class="page-title">Your Cart</h1>
+    <section id="cart-items"></section>
 
-  <section class="cart-wrapper">
-    <!-- CART ITEMS LIST -->
-    <div id="cart-items" class="cart-items" aria-live="polite"></div>
-
-    <!-- CART SUMMARY -->
-    <aside class="cart-summary">
-  <h2 class="summary-title">Order Summary</h2>
-
-  <div class="cart-totals">
-    <p>Subtotal: <span id="subtotal">₹0</span></p>
-    <p>Shipping: <span id="shipping">Free</span></p>
-    <p><strong>Total: <span id="total">₹0</span></strong></p>
-  </div>
-
-  <div style="margin-top:12px;">
-    <a href="index.html" class="btn btn-secondary full-width">Continue Shopping</a>
-    <a href="checkout.html" class="btn btn-primary full-width">Proceed to Checkout</a>
-  </div>
-    </aside>
-  </section>
-</main>
+    <div class="checkout-card">
+      <h2>Order Summary</h2>
+      <p>Subtotal: <strong id="subtotal">₹0</strong></p>
+      <p>Shipping: <strong id="shipping">Free</strong></p>
+      <p>Total: <strong id="total">₹0</strong></p>
+      <button class="btn btn-primary full-width" onclick="window.location.href='checkout.html'">
+        Proceed to Checkout
+      </button>
+    </div>
+  </main>
 
   <footer class="site-footer">
     <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
   </footer>
-  
-  <!-- ✅ JS at bottom -->
+
   <script src="script.js" defer></script>
-  
 </body>
-
 </html>
-
-
-
-
