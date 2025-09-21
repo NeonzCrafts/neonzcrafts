@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>NeonzCrafts</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
 </head>
 <body>
   <header class="site-header">
@@ -18,11 +19,20 @@
   <main id="main">
     <section id="products" class="panel"></section>
 
+    <section id="product-detail" class="panel hidden">
+      <button id="back-to-products" class="back-btn">&#8592; Back to Products</button>
+      <div id="product-detail-content"></div>
+    </section>
+
     <section id="cart" class="panel hidden">
       <h2>Your cart</h2>
       <div id="cart-items"></div>
       <div class="cart-summary">
         <strong>Total: ₹<span id="cart-total">0.00</span></strong>
+      </div>
+      <div class="special-instructions-container">
+          <label for="order-notes">Order Special Instructions</label>
+          <textarea id="order-notes" rows="4" placeholder="Any special requests or notes for your order..."></textarea>
       </div>
       <button id="checkout-btn" class="checkout-btn">Place Order (Cash on Delivery)</button>
     </section>

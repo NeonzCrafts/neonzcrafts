@@ -21,13 +21,54 @@ function renderProducts(){
   const grid=document.createElement('div'); grid.className='products-grid';
   PRODUCTS.forEach(p=>{
     const card=document.createElement('div'); card.className='card';
-    card.innerHTML=`<img src="${p.image}" alt="${p.title}"/><h3>${p.title}</h3><p>${p.description}</p><div class="price">₹${formatPrice(p.price)}</div><div style="margin-top:8px"><button class="small" data-id="${p.id}">Add to cart</button></div>`;
+    card.innerHTML=`<img src="${p.image}" alt="${p.title}"/><h3>${p.title}</h3><p>${p.description}</p><div class="price">₹${formatPrice(p.price)}</div><div style="margin-top:8px"><button class="small" data-id="${p.id}" onclick="showProductDetail('${p.id}')">View Details</button></div>`;
     grid.appendChild(card);
   });
   container.innerHTML='<h2>Products</h2>'; container.appendChild(grid);
-  container.querySelectorAll('button[data-id]').forEach(b=>{
-    b.addEventListener('click',e=>addToCart(e.currentTarget.dataset.id,1));
-  });
+}
+
+// ====== Product Detail Page ======
+function showProductDetail(id){
+    const product = PRODUCTS.find(p=>p.id===id);
+    if (!product) return;
+
+    el('products').classList.add('hidden');
+    el('product-detail').classList.remove('hidden');
+
+    const contentDiv = el('product-detail-content');
+    contentDiv.innerHTML = `
+      <div class="product-details-container">
+        <div class="product-image-section">
+          <img src="${product.image}" alt="${product.title}">
+        </div>
+        <div class="product-info-section">
+          <h2>${product.title}</h2>
+          <div class="price">₹${formatPrice(product.price)}</div>
+          <p>${product.description}</p>
+          <div class="quantity-selector">
+            <button class="small" onclick="changeQtyOnDetail(-1)">-</button>
+            <input type="number" id="detail-qty" value="1" min="1">
+            <button class="small" onclick="changeQtyOnDetail(1)">+</button>
+          </div>
+          <button class="checkout-btn" onclick="addToCartAndCheckout('${product.id}')">BUY NOW</button>
+          <button class="add-to-cart-btn" onclick="addToCart('${product.id}', Number(el('detail-qty').value))">Add to cart</button>
+        </div>
+      </div>
+    `;
+}
+
+function changeQtyOnDetail(change){
+    const qtyInput = el('detail-qty');
+    let currentQty = Number(qtyInput.value);
+    currentQty += change;
+    if (currentQty < 1) currentQty = 1;
+    qtyInput.value = currentQty;
+}
+
+function addToCartAndCheckout(id){
+  const qty = Number(el('detail-qty').value);
+  addToCart(id, qty);
+  el('view-cart').click();
 }
 
 // ====== Cart logic ======
@@ -57,7 +98,7 @@ function updateCartUI(){
 // ====== Checkout ======
 function showCheckoutForm(){
   if(Object.keys(cart).length===0){ alert("Your cart is empty!"); return; }
-  el('products').classList.add('hidden'); el('cart').classList.add('hidden'); el('checkout-form').classList.remove('hidden');
+  el('products').classList.add('hidden'); el('cart').classList.add('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.remove('hidden');
   el('new-address-form').classList.add('hidden'); // Hide form on load
   renderAddresses(); renderOrderSummary();
 }
@@ -107,14 +148,16 @@ el('place-order-btn').onclick=()=>{
   if(selectedAddressIndex===null){ alert("Select an address before placing order!"); return; }
   const addr=addresses[selectedAddressIndex];
   const items=cartItems().map(i=>`${i.title} × ${i.qty} = ₹${formatPrice(i.price*i.qty)}`).join('\n');
-  const message=`New COD Order:\n\nName: ${addr.name}\nPhone: ${addr.phone}\nAddress:\n${addr.street}, ${addr.landmark}, ${addr.city}, ${addr.pincode}\n\nItems:\n${items}\n\nTotal: ₹${formatPrice(cartTotal())}`;
+  const notes = el('order-notes').value || 'No special instructions.';
+  const message=`New COD Order:\n\nName: ${addr.name}\nPhone: ${addr.phone}\nAddress:\n${addr.street}, ${addr.landmark}, ${addr.city}, ${addr.pincode}\n\nItems:\n${items}\n\nTotal: ₹${formatPrice(cartTotal())}\n\nSpecial Instructions:\n${notes}`;
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
     customer_name: addr.name,
     customer_phone: addr.phone,
     customer_address:`${addr.street}, ${addr.landmark}, ${addr.city}, ${addr.pincode}`,
     order_summary: items,
     order_total: formatPrice(cartTotal()),
-    full_message: message
+    full_message: message,
+    special_notes: notes
   }, EMAILJS_PUBLIC_KEY)
   .then(()=>{ alert("Order placed successfully! You'll be contacted soon."); cart={}; updateCartUI(); addresses=[]; selectedAddressIndex=null; hideCheckoutForm(); })
   .catch(err=>{ console.error(err); alert("Error sending order. Check EmailJS setup."); });
@@ -123,8 +166,9 @@ el('place-order-btn').onclick=()=>{
 // Navigation
 document.addEventListener('DOMContentLoaded',()=>{
   renderProducts(); updateCartUI();
-  el('view-products').onclick=()=>{ el('products').classList.remove('hidden'); el('cart').classList.add('hidden'); };
-  el('view-cart').onclick=()=>{ el('products').classList.add('hidden'); el('cart').classList.remove('hidden'); };
+  el('view-products').onclick=()=>{ el('products').classList.remove('hidden'); el('cart').classList.add('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
+  el('view-cart').onclick=()=>{ el('products').classList.add('hidden'); el('cart').classList.remove('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
+  el('back-to-products').onclick=()=>{ el('product-detail').classList.add('hidden'); el('products').classList.remove('hidden'); };
   el('checkout-btn').onclick=showCheckoutForm;
   el('cancel-checkout').onclick=hideCheckoutForm;
 });
