@@ -129,6 +129,13 @@ function renderCheckoutPage(){
   if (!subtotalEl || !totalEl) return;
 
   const cart = loadCart();
+  if (cart.length === 0) {
+    subtotalEl.textContent = "₹0";
+    shippingEl.textContent = "Free";
+    totalEl.textContent = "₹0";
+    return;
+  }
+
   let subtotal = 0;
   cart.forEach(item => {
     const p = PRODUCTS.find(pr => pr.id === item.id);
@@ -136,7 +143,7 @@ function renderCheckoutPage(){
   });
 
   subtotalEl.textContent = `₹${subtotal}`;
-  shippingEl.textContent = 'Free';
+  shippingEl.textContent = "Free";
   totalEl.textContent = `₹${subtotal}`;
 }
 
@@ -160,3 +167,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
