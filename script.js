@@ -512,3 +512,10 @@ el("toggle-review-form-btn").onclick = () => {
 };
 
 el("cancel-review
+
+// ===== INITIALIZE =====
+window.onload = () => {
+  loadAddresses();
+  renderProducts();
+  updateCartUI();
+};
