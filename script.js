@@ -3,11 +3,11 @@ const EMAILJS_SERVICE_ID = "service_al4zpdb";
 const EMAILJS_TEMPLATE_ID = "template_vimeo5m";
 const EMAILJS_PUBLIC_KEY = "CRkybtSL0tLoJJ71X";
 
-// Sample product list
+// product list
 const PRODUCTS = [
-  { id:'p1', title:'Wireless Earbuds', price:799, image:'https://via.placeholder.com/400x300?text=Earbuds', description:'Lightweight earbuds with good battery life.' },
-  { id:'p2', title:'Phone Stand', price:249, image:'https://via.placeholder.com/400x300?text=Phone+Stand', description:'Adjustable phone stand for desk.' }
-];
+  { id:'p1', title:'Wireless Earbuds', price:79, image:'https://i.postimg.cc/LXKMmDPs/20250416-172908.png', description:'Lightweight earbuds with good battery life.' },
+  { id:'p2', title:'Phone Stand', price:249, image:'https://i.postimg.cc/LXKMmDPs/20250416-172908.png', description:'Adjustable phone stand for desk.' }
+]
 
 const el = id=>document.getElementById(id);
 let cart = {};
