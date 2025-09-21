@@ -268,11 +268,13 @@ function renderOrderSummary(){
 
 // Show the full-page order success animation
 function showOrderSuccessScreen() {
-    el('order-success-overlay').classList.remove('hidden');
     // Hide all other sections
     document.querySelectorAll('.panel').forEach(panel => panel.classList.add('hidden'));
     document.querySelector('header').classList.add('hidden');
     document.querySelector('footer').classList.add('hidden');
+    
+    // Show the success overlay
+    el('order-success-overlay').classList.remove('hidden');
     
     // Clear the cart and reset after a delay
     setTimeout(() => {
