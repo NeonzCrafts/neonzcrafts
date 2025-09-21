@@ -42,7 +42,7 @@ const PRODUCTS = [
     images: [
         './1000069559.jpg',
         './1000069560.jpg',
-        './1000069561.jpg'
+        './1000069561.jpg',
     ],
     description: 'A perfect educational toy for toddlers to learn colors, shapes, and improve motor skills. Made from safe, durable materials.'
   }
@@ -450,3 +450,4 @@ document.addEventListener('DOMContentLoaded', ()=>{
   el('checkout-btn').onclick = showCheckoutForm;
   el('cancel-checkout').onclick = hideCheckoutForm;
 });
+
