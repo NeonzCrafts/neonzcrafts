@@ -1,148 +1,73 @@
-// ========== CONFIG ==========
-// EmailJS config (unchanged)
 const EMAILJS_SERVICE_ID = "service_al4zpdb";
 const EMAILJS_TEMPLATE_ID = "template_vimeo5m";
 const EMAILJS_PUBLIC_KEY = "CRkybtSL0tLoJJ71X";
 
-// ===== FIREBASE SETUP =====
-// If you want to enable Firestore order saving, replace the firebaseConfig object below
-// with the web app config from your Firebase Console (Project Settings -> SDK setup).
-// Example structure:
-// const firebaseConfig = {
-//   apiKey: "AAA...",
-//   authDomain: "yourproject.firebaseapp.com",
-//   projectId: "yourproject-id",
-//   storageBucket: "yourproject.appspot.com",
-//   messagingSenderId: "1234567890",
-//   appId: "1:123:web:abcdef"
-// };
-// If you leave firebaseConfig = null, Firestore saving will be skipped and EmailJS fallback used.
-
-const firebaseConfig = null; // <-- REPLACE null with your firebase config object to enable Firestore
-
+const firebaseConfig = null;
 let firebaseEnabled = false;
 if (typeof firebase !== 'undefined' && firebaseConfig) {
-  try {
-    firebase.initializeApp(firebaseConfig);
-    var db = firebase.firestore();
-    firebaseEnabled = true;
-    console.log("Firebase initialized.");
-  } catch (err) {
-    console.warn("Firebase init error:", err);
-  }
+  try { firebase.initializeApp(firebaseConfig); var db = firebase.firestore(); firebaseEnabled = true; }
+  catch (e) { console.warn("Firebase init error:", e); }
 }
 
-// The products for your store
+// Products
 const PRODUCTS = [
   {
     id: 'p1',
-    title: 'Educational Geometric Shape Sorting & Stacking Toy (Montessori) — Color Shape Learning',
+    title: 'Educational Geometric Shape Sorting & Stacking Toy',
     originalPrice: 399,
     price: 199,
-    images: [
-        './1000069559.jpg',
-        './1000069560.jpg',
-        './1000069561.jpg',
-    ],
-    description: 'A perfect educational toy for toddlers to learn colors, shapes, and improve motor skills. Made from safe, durable materials.'
+    images: ["./1000069559.jpg","./1000069560.jpg","./1000069561.jpg"],
+    description: 'A perfect educational toy for toddlers to learn colors, shapes, and motor skills.'
   }
 ];
 
-// Sample reviews
 let REVIEWS = [
-  { name: 'Priya S.', text: 'The product quality is amazing! I am so happy with my purchase.', rating: 5 },
-  { name: 'Amit V.', text: 'Fast delivery and excellent customer service. Highly recommend!', rating: 5 },
-  { name: 'Sneha R.', text: 'A great buy. The product exceeded my expectations.', rating: 4 }
+  { name: 'Priya S.', text: 'Amazing quality!', rating: 5 },
+  { name: 'Amit V.', text: 'Fast delivery, great service.', rating: 5 },
+  { name: 'Sneha R.', text: 'Exceeded my expectations.', rating: 4 }
 ];
 
 const el = id=>document.getElementById(id);
 let cart = {};
 let addresses = [], selectedAddressIndex = null;
 
-// load addresses from localStorage
-function loadAddresses(){
-  const savedAddresses = localStorage.getItem('addresses');
-  if (savedAddresses) {
-    try {
-      addresses = JSON.parse(savedAddresses);
-      const idx = localStorage.getItem('selectedAddressIndex');
-      selectedAddressIndex = idx !== null ? parseInt(idx, 10) : null;
-    } catch(e) {
-      addresses = [];
-      selectedAddressIndex = null;
-    }
-  }
-  updateLoginState();
-}
-
-// save addresses
-function saveAddresses(){
-  localStorage.setItem('addresses', JSON.stringify(addresses));
-  localStorage.setItem('selectedAddressIndex', selectedAddressIndex !== null ? selectedAddressIndex : '');
-  updateLoginState();
-}
-
-function updateLoginState() {
-  if (addresses.length > 0) {
-    el('user-display').textContent = `Welcome, ${addresses[0].name}!`;
-    el('user-display').classList.remove('hidden');
-    el('login-btn').textContent = "Log Out";
-    el('login-btn').classList.remove('small');
-  } else {
-    el('user-display').textContent = "";
-    el('user-display').classList.add('hidden');
-    el('login-btn').textContent = "Log In";
-    el('login-btn').classList.add('small');
-  }
-}
-
-function formatPrice(v){ return Number(v).toFixed(2); }
-
-function getShortTitle(title, maxLength=50){
-  return title.length > maxLength ? title.substring(0,maxLength) + '...' : title;
-}
-
-// ====== Product rendering ======
+// Render Products
 function renderProducts(){
   const container = el('products');
   const grid = document.createElement('div'); grid.className = 'products-grid';
   PRODUCTS.forEach(p=>{
     const card = document.createElement('div'); card.className = 'card';
-    card.setAttribute('onclick', `showProductDetail('${p.id}')`);
-    let priceDisplay = '';
-    if (p.originalPrice) {
-      priceDisplay = `<span class="original-price">₹${formatPrice(p.originalPrice)}</span> ₹${formatPrice(p.price)} <span class="sale-tag">Sale</span>`;
-    } else {
-      priceDisplay = `₹${formatPrice(p.price)}`;
-    }
-    const img = p.images[0] || '';
-    card.innerHTML = `<img src="${img}" alt="${p.title}"/><h3>${p.title}</h3><p>${p.description}</p><div class="price">${priceDisplay}</div>`;
+    card.innerHTML = `
+      <img src="${p.images[0]}" alt="${p.title}">
+      <h3>${p.title}</h3>
+      <div class="price">
+        ${p.originalPrice ? `<span class="original-price">₹${p.originalPrice}</span>` : ""}
+        ₹${p.price} ${p.originalPrice ? `<span class="sale-tag">Sale</span>` : ""}
+      </div>
+      <button class="buy-btn" onclick="showProductDetail('${p.id}')">BUY NOW</button>
+      <button class="add-btn small" onclick="addToCart('${p.id}',1)">Add to Cart</button>
+    `;
     grid.appendChild(card);
   });
-  container.innerHTML = '<h2>Products</h2>';
+  const old = container.querySelector('.products-grid'); if (old) old.remove();
   container.appendChild(grid);
 }
 
-// ====== Product Detail ======
+// Show product detail
 function showProductDetail(id){
-  const product = PRODUCTS.find(x=>x.id===id);
-  if (!product) return;
+  const product = PRODUCTS.find(x=>x.id===id); if (!product) return;
   el('products').classList.add('hidden');
   el('product-detail').classList.remove('hidden');
-  const contentDiv = el('product-detail-content');
-
-  const galleryHtml = product.images.map(imgUrl => `<img src="${imgUrl}" alt="Product thumbnail" onclick="changeMainImage('${imgUrl}')">`).join('');
-  let priceDisplay = product.originalPrice ? `<span class="original-price">₹${formatPrice(product.originalPrice)}</span> ₹${formatPrice(product.price)} <span class="sale-tag">Sale</span>` : `₹${formatPrice(product.price)}`;
-
-  contentDiv.innerHTML = `
+  const content = el('product-detail-content');
+  let price = product.originalPrice ? `<span class="original-price">₹${product.originalPrice}</span> ₹${product.price} <span class="sale-tag">Sale</span>` : `₹${product.price}`;
+  content.innerHTML = `
     <div class="product-details-container">
       <div class="product-image-section">
         <img src="${product.images[0]}" alt="${product.title}" id="main-product-image">
-        <div class="thumbnail-gallery">${galleryHtml}</div>
       </div>
       <div class="product-info-section">
         <h2>${product.title}</h2>
-        <div class="price">${priceDisplay}</div>
+        <div class="price">${price}</div>
         <p>${product.description}</p>
         <div class="quantity-selector-pill">
           <button onclick="changeQtyOnDetail(-1)">-</button>
@@ -150,304 +75,46 @@ function showProductDetail(id){
           <button onclick="changeQtyOnDetail(1)">+</button>
         </div>
         <button class="checkout-btn" onclick="addToCartAndCheckout('${product.id}')">BUY NOW</button>
-        <button class="add-to-cart-btn small" onclick="addToCart('${product.id}', Number(el('detail-qty').textContent))">Add to cart</button>
+        <button class="add-btn" onclick="addToCart('${product.id}',Number(el('detail-qty').textContent))">Add to Cart</button>
       </div>
     </div>
   `;
-
-  // mark first thumbnail active if exists
-  const firstThumb = contentDiv.querySelector('.thumbnail-gallery img');
-  if (firstThumb) firstThumb.classList.add('active');
   renderReviews();
 }
 
-function changeMainImage(imgUrl){
-  const main = el('main-product-image');
-  if (main) main.src = imgUrl;
-  const thumbs = document.querySelectorAll('#product-detail-content .thumbnail-gallery img');
-  thumbs.forEach(t => t.classList.remove('active'));
-  const active = Array.from(thumbs).find(t => t.src === (new URL(imgUrl, location.href)).href || t.getAttribute('src') === imgUrl);
-  if (active) active.classList.add('active');
-}
+function changeQtyOnDetail(c){ const q=el('detail-qty'); let v=+q.textContent+c; if(v<1)v=1; q.textContent=v; }
+function addToCartAndCheckout(id){ addToCart(id, +el('detail-qty').textContent); el('view-cart').click(); }
 
-function changeQtyOnDetail(change){
-  const qtySpan = el('detail-qty');
-  let currentQty = Number(qtySpan.textContent);
-  currentQty += change;
-  if (currentQty < 1) currentQty = 1;
-  qtySpan.textContent = currentQty;
-}
-
-function addToCartAndCheckout(id){
-  const qty = Number(el('detail-qty').textContent);
-  addToCart(id, qty);
-  el('view-cart').click();
-}
-
-// ===== Cart =====
-function addToCart(id, qty=1){ cart[id] = (cart[id]||0) + qty; updateCartUI(); }
+// Cart
+function addToCart(id,qty=1){ cart[id]=(cart[id]||0)+qty; updateCartUI(); }
 function removeFromCart(id){ delete cart[id]; updateCartUI(); }
-function changeQty(id, qty){ if (qty <= 0) removeFromCart(id); else { cart[id] = qty; updateCartUI(); } }
-function cartItems(){ return Object.entries(cart).map(([id,qty]) => ({ ...PRODUCTS.find(x=>x.id===id), qty })); }
-function cartTotal(){ return cartItems().reduce((s,i)=>s + i.price * i.qty, 0); }
+function cartItems(){ return Object.entries(cart).map(([id,q])=>({...PRODUCTS.find(p=>p.id===id),qty:q})); }
+function cartTotal(){ return cartItems().reduce((s,i)=>s+i.price*i.qty,0); }
 
 function updateCartUI(){
   el('cart-count').textContent = Object.values(cart).reduce((a,b)=>a+b,0);
-  const itemsDiv = el('cart-items'); itemsDiv.innerHTML = '';
+  const wrap = el('cart-items'); wrap.innerHTML='';
   const items = cartItems();
-  el('cart-total').textContent = formatPrice(cartTotal());
-  if (items.length === 0) { itemsDiv.innerHTML = '<p>Your cart is empty.</p>'; }
-  else {
-    items.forEach(it => {
-      const div = document.createElement('div'); div.className = 'cart-item';
-      div.innerHTML = `
-        <img src="${it.images[0]}" alt="${it.title}">
-        <div style="flex:1">
-          <div><strong>${getShortTitle(it.title)}</strong></div>
-          <div class="price">₹${formatPrice(it.price)}</div>
-        </div>
-        <div class="cart-quantity-pill">
-          <button class="small dec" data-id="${it.id}">-</button>
-          <span class="qty">${it.qty}</span>
-          <button class="small inc" data-id="${it.id}">+</button>
-          <button class="remove-from-cart-btn" data-id="${it.id}"><span class="material-symbols-outlined">delete</span></button>
-        </div>
-      `;
-      itemsDiv.appendChild(div);
-    });
-    itemsDiv.querySelectorAll('.inc').forEach(b => b.onclick = e => changeQty(e.currentTarget.dataset.id, cart[e.currentTarget.dataset.id] + 1));
-    itemsDiv.querySelectorAll('.dec').forEach(b => b.onclick = e => changeQty(e.currentTarget.dataset.id, cart[e.currentTarget.dataset.id] - 1));
-    itemsDiv.querySelectorAll('.remove-from-cart-btn').forEach(b => b.onclick = e => removeFromCart(e.currentTarget.dataset.id));
-  }
-}
-
-// ===== Checkout =====
-function showCheckoutForm(){
-  if (Object.keys(cart).length === 0) { alert("Your cart is empty!"); return; }
-  el('products').classList.add('hidden');
-  el('cart').classList.add('hidden');
-  el('product-detail').classList.add('hidden');
-  el('checkout-form').classList.remove('hidden');
-  el('new-address-form').classList.add('hidden');
-  renderAddresses();
-  renderOrderSummary();
-}
-function hideCheckoutForm(){ el('checkout-form').classList.add('hidden'); el('products').classList.remove('hidden'); }
-
-// Render addresses
-function renderAddresses(){
-  const container = el('addresses-container'); container.innerHTML = '';
-  addresses.forEach((addr, idx) => {
-    const div = document.createElement('div'); div.className = 'address-card';
-    div.innerHTML = `
-      <input type="radio" name="selected-address" ${selectedAddressIndex===idx ? 'checked' : ''} data-idx="${idx}">
-      <label><strong>${addr.name}</strong></label>
-      <div>${addr.phone}</div>
-      <div>${addr.pincode}, ${addr.city}</div>
-      <div>${addr.street}</div>
-      <div>${addr.landmark || ''}</div>
-      <button class="small remove-address" data-idx="${idx}">Remove</button>
-    `;
-    container.appendChild(div);
-  });
-
-  // when selecting radio, update selectedAddressIndex
-  container.querySelectorAll('input[name="selected-address"]').forEach(r => r.onchange = e => {
-    selectedAddressIndex = parseInt(e.currentTarget.dataset.idx, 10);
-    saveAddresses();
-  });
-
-  // Fix: use dataset.idx (was dataset.id)
-  container.querySelectorAll('.remove-address').forEach(b => b.onclick = e => {
-    const idx = parseInt(e.currentTarget.dataset.idx, 10);
-    if (isNaN(idx)) return;
-    addresses.splice(idx, 1);
-    if (selectedAddressIndex !== null && selectedAddressIndex >= addresses.length) selectedAddressIndex = addresses.length - 1;
-    if (addresses.length === 0) selectedAddressIndex = null;
-    saveAddresses();
-    renderAddresses();
-  });
-}
-
-// Add new address form handlers
-el('add-address-btn').onclick = ()=>{ el('new-address-form').classList.remove('hidden'); };
-el('cancel-address-btn').onclick = ()=>{ el('new-address-form').classList.add('hidden'); };
-
-el('new-address-form').onsubmit = e => {
-  e.preventDefault();
-  const name = el('address-name').value.trim();
-  const phone = el('address-phone').value.trim();
-  const pincode = el('address-pincode').value.trim();
-  const city = el('address-city').value.trim();
-  const street = el('address-street').value.trim();
-  const landmark = el('address-landmark').value.trim();
-  addresses.push({ name, phone, pincode, city, street, landmark });
-  selectedAddressIndex = addresses.length - 1;
-  renderAddresses();
-  el('new-address-form').classList.add('hidden');
-  e.target.reset();
-  saveAddresses();
-};
-
-// Login/logout behaviour (address based)
-function toggleLogin(){
-  if (addresses.length > 0) {
-    // logout
-    localStorage.removeItem('addresses');
-    localStorage.removeItem('selectedAddressIndex');
-    addresses = [];
-    selectedAddressIndex = null;
-    alert("You have been logged out.");
-    updateLoginState();
-  } else {
-    // show address form (simulate login)
-    el('add-address-btn').click();
-  }
-}
-el('login-btn').onclick = toggleLogin;
-
-// Render order summary
-function renderOrderSummary(){
-  const summaryDiv = el('order-summary');
-  const items = cartItems().map(i => `${getShortTitle(i.title)} × ${i.qty} = ₹${formatPrice(i.price*i.qty)}`).join('<br>');
-  summaryDiv.innerHTML = `${items}<hr><strong>Total: ₹${formatPrice(cartTotal())}</strong>`;
-}
-
-// Place order handler: tries Firestore (if enabled), else uses EmailJS
-el('place-order-btn').onclick = async () => {
-  if (selectedAddressIndex === null) { alert("Select an address before placing order!"); return; }
-  if (Object.keys(cart).length === 0) { alert("Your cart is empty!"); return; }
-
-  const addr = addresses[selectedAddressIndex];
-  const items = cartItems().map(i => ({ id: i.id, title: getShortTitle(i.title, 80), qty: i.qty, unitPrice: formatPrice(i.price), total: formatPrice(i.price * i.qty) }));
-  const notes = el('order-notes').value || 'No special instructions.';
-  const orderObj = {
-    createdAt: new Date().toISOString(),
-    customer: { name: addr.name, phone: addr.phone, pincode: addr.pincode, city: addr.city, street: addr.street, landmark: addr.landmark || '' },
-    items,
-    total: formatPrice(cartTotal()),
-    paymentMethod: 'COD',
-    notes
-  };
-
-  // If firebase enabled, save order to Firestore
-  if (firebaseEnabled && typeof db !== 'undefined') {
-    try {
-      await db.collection('orders').add(orderObj);
-      showSuccessAndReset();
-      return;
-    } catch(err) {
-      console.error('Firestore save error:', err);
-      // fallback to EmailJS below
-    }
-  }
-
-  // fallback: send email via EmailJS (existing flow)
-  try {
-    // construct simple text summary
-    const itemsText = items.map(it => `${it.title} × ${it.qty} = ₹${it.total}`).join('\n');
-    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-      customer_name: addr.name,
-      customer_phone: addr.phone,
-      customer_address: `${addr.street}, ${addr.landmark || ''}, ${addr.city}, ${addr.pincode}`,
-      order_summary: itemsText,
-      order_total: formatPrice(cartTotal()),
-      full_message: `Order from ${addr.name}\n${itemsText}\nTotal: ₹${formatPrice(cartTotal())}\nNotes: ${notes}`,
-      special_notes: notes
-    }, EMAILJS_PUBLIC_KEY)
-    .then(()=> {
-      showSuccessAndReset();
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Error sending order. Check EmailJS setup.");
-    });
-  } catch (err) {
-    console.error("EmailJS error", err);
-    alert("Could not place order. Try again later.");
-  }
-};
-
-// Show success overlay then reset cart & UI
-function showSuccessAndReset(){
-  el('order-success').classList.remove('hidden');
-  setTimeout(()=>{
-    el('order-success').classList.add('hidden');
-    cart = {};
-    updateCartUI();
-    el('checkout-form').classList.add('hidden');
-    el('products').classList.remove('hidden');
-    el('order-notes').value = '';
-  }, 2200);
-}
-
-// ====== Reviews ======
-function renderReviews(){
-  const container = el('reviews-container');
-  container.innerHTML = '';
-  const savedReviews = localStorage.getItem('reviews');
-  if (savedReviews) {
-    try { REVIEWS = JSON.parse(savedReviews); } catch(e) { /* ignore */ }
-  }
-  REVIEWS.forEach(review => {
-    const div = document.createElement('div'); div.className = 'review-card';
-    const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-    div.innerHTML = `
-      <div class="review-header">
-        <strong>${review.name}</strong>
-        <span class="stars">${stars}</span>
+  el('cart-total').textContent = cartTotal().toFixed(2);
+  if(!items.length){ wrap.innerHTML="<p>Your cart is empty.</p>"; return; }
+  items.forEach(it=>{
+    const div=document.createElement('div'); div.className='cart-item';
+    div.innerHTML=`
+      <img src="${it.images[0]}" alt="">
+      <div style="flex:1">
+        <strong>${it.title}</strong><br>₹${it.price}
       </div>
-      <p>"${review.text}"</p>
-    `;
-    container.appendChild(div);
+      <div>
+        <button class="small" onclick="addToCart('${it.id}',-1)">-</button>
+        <span>${it.qty}</span>
+        <button class="small" onclick="addToCart('${it.id}',1)">+</button>
+        <button class="small" onclick="removeFromCart('${it.id}')">x</button>
+      </div>`;
+    wrap.appendChild(div);
   });
 }
 
-el('toggle-review-form-btn').onclick = () => {
-  const form = el('add-review-form');
-  const button = el('toggle-review-form-btn');
-  if (form.classList.contains('hidden')) {
-    form.classList.remove('hidden');
-    button.textContent = "Cancel";
-  } else {
-    form.classList.add('hidden');
-    button.textContent = "+ Add a Review";
-  }
-};
-
-el('cancel-review-btn').onclick = () => {
-  el('add-review-form').classList.add('hidden');
-  el('toggle-review-form-btn').textContent = "+ Add a Review";
-};
-
-el('add-review-form').onsubmit = e => {
-  e.preventDefault();
-  const name = el('review-name').value || 'Anonymous';
-  const text = el('review-text').value || '';
-  const rating = parseInt(el('add-review-form').querySelector('input[name="rating"]:checked').value, 10) || 5;
-  REVIEWS.push({ name, text, rating });
-  localStorage.setItem('reviews', JSON.stringify(REVIEWS));
-  renderReviews();
-  el('add-review-form').classList.add('hidden');
-  el('toggle-review-form-btn').textContent = "+ Add a Review";
-  e.target.reset();
-};
-
-// Navigation & initialization
-document.addEventListener('DOMContentLoaded', ()=>{
-  // init emailjs (if included)
-  if (typeof emailjs !== 'undefined' && emailjs.init) {
-    try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e){ console.warn('EmailJS init error', e); }
-  }
-
-  loadAddresses();
-  renderProducts();
-  updateCartUI();
-
-  el('view-products').onclick = ()=>{ el('products').classList.remove('hidden'); el('cart').classList.add('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
-  el('view-cart').onclick = ()=>{ el('products').classList.add('hidden'); el('cart').classList.remove('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
-  el('back-to-products').onclick = ()=>{ el('product-detail').classList.add('hidden'); el('products').classList.remove('hidden'); };
-  el('checkout-btn').onclick = showCheckoutForm;
-  el('cancel-checkout').onclick = hideCheckoutForm;
-});
-
+// Reviews
+function renderReviews(){
+  const c=el('reviews-container'); c.innerHTML='';
+  REVIEWS.forEach(r=>{
