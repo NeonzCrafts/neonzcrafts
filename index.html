@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NeonzCrafts — Modern Store</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="navbar" role="banner">
+    <div class="brand">
+      <h1>NeonzCrafts</h1>
+      <span style="color:#fff; opacity:0.8; font-weight:600; font-size:0.95rem;">Handmade • Crafted • Local</span>
+    </div>
+
+    <div class="nav-actions" role="navigation" aria-label="Main">
+      <button id="view-products" class="small">Products</button>
+
+      <!-- Cart pill: icon + badge -->
+      <div class="cart-pill nav-actions" style="display:flex;align-items:center;">
+        <button id="view-cart" class="small" title="Cart">
+          <!-- simple cart SVG -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; margin-right:6px;">
+            <path d="M6 6h15l-1.5 9h-12z" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="10" cy="20" r="1.5" fill="#fff"></circle>
+            <circle cx="18" cy="20" r="1.5" fill="#fff"></circle>
+          </svg>
+          Cart <span id="cart-count" class="cart-badge">0</span>
+        </button>
+      </div>
+
+      <button id="login-btn" class="small">Log In</button>
+      <div id="user-display" class="small hidden" style="background:rgba(255,255,255,0.06); padding:8px 12px; border-radius:999px;">Welcome</div>
+    </div>
+  </header>
+
+  <!-- LOCATION BAR -->
+  <div class="location-bar" role="region" aria-label="Delivery">
+    <div class="left">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:0.8; margin-right:6px;">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#444" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="9" r="2" fill="#444"></circle>
+      </svg>
+      <div style="display:flex;flex-direction:column;">
+        <div id="location-text" style="font-weight:700;">Select a delivery location</div>
+        <div id="delivery-info" style="font-size:0.9rem;color:var(--muted);">Delivery estimate will appear here</div>
+      </div>
+    </div>
+    <div>
+      <button id="change-location-btn" class="small">Change</button>
+    </div>
+  </div>
+
+  <main class="container" role="main">
+    <!-- PRODUCTS PANEL -->
+    <section id="products" class="panel" aria-labelledby="products-title">
+      <h2 id="products-title" class="page-title">Products</h2>
+      <div id="products-grid" class="grid" aria-live="polite"></div>
+    </section>
+
+    <!-- PRODUCT DETAIL -->
+    <section id="product-detail" class="panel hidden" aria-hidden="true">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+        <button id="back-to-products" class="small btn-secondary">← Back</button>
+      </div>
+
+      <div id="product-detail-content"></div>
+
+      <!-- Reviews -->
+      <div id="reviews-area" style="margin-top:18px;">
+        <h3 style="margin-bottom:8px;">Customer Reviews</h3>
+        <div id="reviews-container"></div>
+        <div style="margin-top:8px;">
+          <button id="toggle-review-form-btn" class="small btn-secondary">+ Add a Review</button>
+        </div>
+
+        <form id="add-review-form" class="hidden" style="margin-top:10px;">
+          <input id="review-name" placeholder="Your name (optional)" />
+          <textarea id="review-text" placeholder="Write a short review" rows="3"></textarea>
+          <div style="display:flex; gap:8px; align-items:center; margin-top:6px;">
+            <label style="font-size:0.9rem;">Rating:</label>
+            <label><input type="radio" name="rating" value="5" checked />5</label>
+            <label><input type="radio" name="rating" value="4" />4</label>
+            <label><input type="radio" name="rating" value="3" />3</label>
+            <label><input type="radio" name="rating" value="2" />2</label>
+            <label><input type="radio" name="rating" value="1" />1</label>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button type="submit" class="btn btn-primary" style="flex:1;">Submit</button>
+            <button id="cancel-review-btn" class="btn btn-secondary" style="flex:0 0 auto;">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- CART PANEL -->
+    <section id="cart" class="panel hidden" aria-hidden="true">
+      <h2 class="page-title">Your Cart</h2>
+      <div id="cart-items" style="margin-top:12px;"></div>
+
+      <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <div style="font-weight:700; font-size:1.05rem;">Total: <span id="cart-total">0.00</span></div>
+        <div style="display:flex; gap:8px;">
+          <button id="back-to-products-from-cart" class="btn btn-secondary">Continue Shopping</button>
+          <button id="checkout-btn" class="btn btn-primary">Proceed to Checkout</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHECKOUT / ADDRESS PANEL -->
+    <section id="checkout-form" class="panel hidden" aria-hidden="true">
+      <h2 class="page-title">Checkout</h2>
+
+      <div class="checkout-grid" style="margin-top:12px;">
+        <!-- Left: Shipping & Details -->
+        <div>
+          <div class="checkout-card">
+            <h3 style="margin-top:0;">Shipping Address</h3>
+            <div id="addresses-container" style="margin-top:8px;"></div>
+            <div style="margin-top:8px;">
+              <button id="add-address-btn" class="btn btn-secondary">+ Add New Address</button>
+            </div>
+
+            <!-- New Address Form -->
+            <form id="new-address-form" class="hidden" style="margin-top:12px;">
+              <input id="address-name" placeholder="Full name" required />
+              <input id="address-phone" placeholder="Phone (10 digits)" required />
+              <input id="address-street" placeholder="Street / Locality" />
+              <input id="address-city" placeholder="City" />
+              <input id="address-pincode" placeholder="Pincode (6 digits)" required />
+              <input id="address-landmark" placeholder="Landmark (optional)" />
+              <div style="display:flex; gap:8px; margin-top:10px;">
+                <button type="submit" class="btn btn-primary">Save Address</button>
+                <button id="cancel-address-btn" class="btn btn-secondary">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="checkout-card" style="margin-top:12px;">
+            <h3 style="margin-top:0;">Order special instructions</h3>
+            <textarea id="order-notes" placeholder="e.g., Leave at the door, call before delivery." rows="3"></textarea>
+          </div>
+        </div>
+
+        <!-- Right: Order summary & payment -->
+        <aside>
+          <div class="checkout-card">
+            <h3 style="margin-top:0;">Order Summary</h3>
+            <div id="order-summary" style="margin-top:10px;"></div>
+            <div style="margin-top:12px;">
+              <h4 style="margin:0 0 8px 0;">Payment Method</h4>
+              <label><input type="radio" name="payment" value="cod" checked /> Cash on Delivery (COD)</label>
+            </div>
+
+            <div style="margin-top:14px; display:flex; gap:8px;">
+              <button id="place-order-btn" class="btn btn-primary" style="flex:1;">Place Order (COD)</button>
+              <button id="cancel-checkout-btn" class="btn btn-secondary">Cancel</button>
+            </div>
+
+            <div id="order-success" class="hidden" style="margin-top:12px; padding:10px; background: #e8f5e9; border-radius:8px; color:var(--success); font-weight:700;">
+              Order placed successfully!
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <!-- LOCATION POPUP -->
+  <div id="location-popup" class="popup hidden" role="dialog" aria-modal="true" aria-hidden="true">
+    <h3 style="margin-top:0;">Select Delivery Address</h3>
+    <div style="margin-top:8px;">
+      <input id="pincode-input" placeholder="Enter pincode" />
+    </div>
+    <div style="margin-top:10px; display:flex; gap:8px;">
+      <button id="pincode-submit" class="btn btn-primary" style="flex:1;">Submit</button>
+      <button id="use-current-location" class="btn btn-secondary">Use current</button>
+    </div>
+    <div style="margin-top:10px;">
+      <button id="close-location-popup" class="btn btn-secondary" style="width:100%;">Close</button>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 NeonzCrafts. All rights reserved.
+  </footer>
+
+  <!-- Script (same functional script.js required to run the app) -->
+  <script src="script.js"></script>
+</body>
+</html>
