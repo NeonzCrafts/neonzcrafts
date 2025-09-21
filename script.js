@@ -58,6 +58,7 @@ function updateCartUI(){
 function showCheckoutForm(){
   if(Object.keys(cart).length===0){ alert("Your cart is empty!"); return; }
   el('products').classList.add('hidden'); el('cart').classList.add('hidden'); el('checkout-form').classList.remove('hidden');
+  el('new-address-form').classList.add('hidden'); // Hide form on load
   renderAddresses(); renderOrderSummary();
 }
 function hideCheckoutForm(){ el('checkout-form').classList.add('hidden'); el('products').classList.remove('hidden'); }
@@ -74,16 +75,24 @@ function renderAddresses(){
   container.querySelectorAll('.remove-address').forEach(b=>b.onclick=e=>{ addresses.splice(parseInt(e.currentTarget.dataset.idx),1); if(selectedAddressIndex!==null && selectedAddressIndex>=addresses.length) selectedAddressIndex=addresses.length-1; renderAddresses(); });
 }
 
-// Add new address
-el('add-address-btn').onclick=()=>{
-  const name=prompt("Full Name"); if(!name)return;
-  const phone=prompt("Phone Number"); if(!phone)return;
-  const pincode=prompt("Pincode"); if(!pincode)return;
-  const city=prompt("City"); if(!city)return;
-  const street=prompt("Street / Area"); if(!street)return;
-  const landmark=prompt("Landmark / Notes");
+// Add new address (using the form)
+el('add-address-btn').onclick=()=>{ el('new-address-form').classList.remove('hidden'); };
+el('cancel-address-btn').onclick=()=>{ el('new-address-form').classList.add('hidden'); };
+
+el('new-address-form').onsubmit=e=>{
+  e.preventDefault();
+  const name=el('address-name').value;
+  const phone=el('address-phone').value;
+  const pincode=el('address-pincode').value;
+  const city=el('address-city').value;
+  const street=el('address-street').value;
+  const landmark=el('address-landmark').value;
+  
   addresses.push({name,phone,pincode,city,street,landmark});
-  selectedAddressIndex=addresses.length-1; renderAddresses();
+  selectedAddressIndex=addresses.length-1; 
+  renderAddresses(); 
+  el('new-address-form').classList.add('hidden');
+  e.target.reset(); // Clear the form
 };
 
 // Render order summary
