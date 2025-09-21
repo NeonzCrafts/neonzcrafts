@@ -1,15 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>NeonzCrafts</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <!-- EmailJS already in your project -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <!-- ===== Optional: Firebase (CDN compat) =====
+         1) Create a Firebase project and register a web app in the Firebase console.
+         2) Replace the placeholder firebaseConfig in script.js with the object from Firebase console.
+         3) The CDN 'compat' build below works without bundlers for quick setup.
+         Docs: Add Firebase to your web app. 1
+    -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <header>
@@ -118,13 +129,22 @@
                 <p>Welcome to NeonzCrafts, your destination for unique, handcrafted products. We are dedicated to providing high-quality items with a personal touch. Each piece is crafted with care to bring joy and color to your life. Thank you for supporting our small business!</p>
             </div>
         </section>
-
     </main>
 
     <footer>
         <p>&copy; 2025 NeonzCrafts. All rights reserved.</p>
     </footer>
 
-    <script src="script.js?v=2"></script>
+    <!-- Order success overlay -->
+    <div id="order-success" class="hidden" aria-hidden="true">
+      <div class="success-content" role="status" aria-live="polite">
+        <div class="tick-mark">✔</div>
+        <h2>Order Placed Successfully!</h2>
+        <p>You will be contacted shortly.</p>
+      </div>
+    </div>
+
+    <!-- Your site JS -->
+    <script src="script.js?v=3"></script>
 </body>
-</html>
+                        </html>
