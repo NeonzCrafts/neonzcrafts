@@ -1,0 +1,162 @@
+From: <Saved by Blink>
+Snapshot-Content-Location: https://neonzcrafts.github.io/neonzcrafts/#cart
+Subject: =?utf-8?Q?NeonzCrafts=20=E2=80=93=20Home?=
+Date: Sun, 21 Sep 2025 19:12:41 +0530
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----MultipartBoundary--nNL5IGS7YeglIBkgPi8y0PlA0TyVy3wTsk4Y5GY38V----"
+
+
+------MultipartBoundary--nNL5IGS7YeglIBkgPi8y0PlA0TyVy3wTsk4Y5GY38V----
+Content-Type: text/html
+Content-ID: <frame-ABAC6095D5A627C49DD34D03FE45763E@mhtml.blink>
+Content-Transfer-Encoding: binary
+Content-Location: https://neonzcrafts.github.io/neonzcrafts/#cart
+
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeonzCrafts – Home</title>
+  <link rel="stylesheet" href="https://neonzcrafts.github.io/neonzcrafts/styles.css">
+  
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <h1 class="brand">NeonzCrafts</h1>
+    <nav class="nav-right">
+      <a href="https://neonzcrafts.github.io/neonzcrafts/cart.html" class="nav-btn">🛒 <span id="cart-count">0</span></a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h2 class="page-title">Products</h2>
+    <div id="products-panel" class="products-grid"></div>
+  </main>
+
+  <footer>
+    <p>© 2025 NeonzCrafts. All rights reserved.</p>
+  </footer>
+
+</body></html>
+------MultipartBoundary--nNL5IGS7YeglIBkgPi8y0PlA0TyVy3wTsk4Y5GY38V----
+Content-Type: text/css
+Content-Transfer-Encoding: binary
+Content-Location: https://neonzcrafts.github.io/neonzcrafts/styles.css
+
+@charset "utf-8";
+
+:root { --primary: #ff6f00; --primary-dark: #e65c00; --success: #2e7d32; --navbar: #212121; --bg: #f5f5f5; --card: #ffffff; --text: #212121; --muted: #757575; --shadow: 0 6px 20px rgba(33,33,33,0.06); --radius: 12px; --gutter: 16px; }
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; margin: 0px; font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; background: var(--bg); color: var(--text); }
+
+a { color: inherit; text-decoration: none; }
+
+.navbar { background: var(--navbar); color: white; padding: 14px var(--gutter); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0px; z-index: 40; box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 10px; }
+
+.navbar .brand { display: flex; align-items: center; gap: 12px; }
+
+.brand h1 { font-size: 1.5rem; margin: 0px; font-weight: 700; letter-spacing: -0.5px; }
+
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+
+.nav-actions button, .nav-actions .info-pill { background: rgba(255, 255, 255, 0.08); color: rgb(255, 255, 255); border-radius: 999px; padding: 8px 12px; font-weight: 600; border: none; }
+
+.nav-actions .cart-pill { display: flex; align-items: center; gap: 8px; }
+
+.cart-badge { display: inline-block; background: var(--primary); color: white; font-weight: 700; padding: 4px 8px; border-radius: 999px; font-size: 0.85rem; }
+
+.location-bar { background: rgb(255, 255, 255); margin: 12px var(--gutter) 0 var(--gutter); padding: 12px; border-radius: 10px; display: flex; align-items: center; gap: 12px; box-shadow: rgba(0, 0, 0, 0.04) 0px 4px 18px; }
+
+.location-bar .left { display: flex; align-items: center; gap: 10px; flex: 1 1 0%; }
+
+.location-bar button { background: transparent; border: 1px solid rgba(0, 0, 0, 0.06); padding: 8px 10px; border-radius: 8px; cursor: pointer; color: var(--text); }
+
+.container { max-width: 1100px; margin: 18px auto; padding: 0 var(--gutter); }
+
+.panel { margin-bottom: 18px; }
+
+.page-title { font-size: 1.4rem; margin: 12px 0px; font-weight: 700; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 12px; }
+
+.card { background: var(--card); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); transition: transform 0.18s, box-shadow 0.18s; display: flex; flex-direction: column; align-items: stretch; }
+
+.card:hover { transform: translateY(-6px); box-shadow: rgba(33, 33, 33, 0.08) 0px 14px 40px; }
+
+.card-img { width: 100%; height: 200px; border-radius: 8px; overflow: hidden; background: linear-gradient(90deg, rgb(240, 240, 240), rgb(250, 250, 250)); display: flex; align-items: center; justify-content: center; }
+
+.card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.card-body { padding: 10px 2px 2px; text-align: center; display: flex; flex-direction: column; gap: 10px; }
+
+.card h3 { margin: 0px; font-size: 1.05rem; font-weight: 700; color: var(--text); }
+
+.price-row { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; color: var(--muted); }
+
+.price-current { color: var(--text); font-weight: 800; }
+
+.original-price { text-decoration: line-through; color: rgb(189, 189, 189); font-weight: 600; }
+
+.btn { border: none; border-radius: 10px; padding: 10px 14px; font-weight: 700; cursor: pointer; display: inline-block; text-align: center; }
+
+.btn-primary { background: var(--primary); color: white; box-shadow: rgba(255, 111, 0, 0.12) 0px 6px 18px; }
+
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+.btn-secondary { background: rgb(243, 243, 243); color: var(--text); border: 1px solid rgba(0, 0, 0, 0.04); }
+
+.card-actions { display: flex; gap: 10px; justify-content: center; padding-bottom: 6px; }
+
+.product-details-container { display: flex; gap: 20px; align-items: flex-start; margin-top: 12px; }
+
+.product-image-section { flex: 0 0 420px; max-width: 100%; border-radius: 12px; overflow: hidden; background: rgb(255, 255, 255); }
+
+.product-image-section img { width: 100%; height: auto; display: block; }
+
+.product-info-section { flex: 1 1 0%; }
+
+.cart-item { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 10px; background: var(--card); box-shadow: var(--shadow); }
+
+.cart-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
+
+.checkout-grid { display: grid; grid-template-columns: 1fr 360px; gap: 18px; }
+
+.checkout-card { background: var(--card); padding: 14px; border-radius: 12px; box-shadow: var(--shadow); }
+
+.address-card { background: rgb(255, 255, 255); border-radius: 10px; padding: 10px; border: 1px solid rgba(0, 0, 0, 0.04); margin-bottom: 10px; }
+
+.address-card.selected { border: 1px solid var(--primary); box-shadow: rgba(255, 111, 0, 0.06) 0px 8px 24px; }
+
+input, textarea { border: 1px solid rgba(0, 0, 0, 0.08); padding: 10px; border-radius: 8px; font-size: 0.95rem; }
+
+textarea { resize: vertical; }
+
+.review-card { background: rgb(255, 255, 255); padding: 10px; border-radius: 8px; box-shadow: rgba(0, 0, 0, 0.04) 0px 6px 18px; margin-bottom: 8px; }
+
+.popup { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 120; max-width: 420px; width: 94%; padding: 16px; border-radius: 12px; background: rgb(255, 255, 255); box-shadow: rgba(0, 0, 0, 0.28) 0px 20px 60px; }
+
+footer { margin-top: 28px; padding: 18px var(--gutter); background: rgb(17, 17, 17); color: rgb(255, 255, 255); text-align: center; border-top-left-radius: 12px; border-top-right-radius: 12px; }
+
+.hidden { display: none !important; }
+
+.row { display: flex; gap: 10px; align-items: center; }
+
+.center { text-align: center; }
+
+@media (max-width: 980px) {
+  .product-image-section { flex-basis: 100%; }
+  .checkout-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px) {
+  .card-img { height: 170px; }
+  .nav-actions { gap: 6px; }
+  .nav-actions button { padding: 8px 10px; }
+  .cart-badge { padding: 3px 8px; font-size: 0.8rem; }
+  .brand h1 { font-size: 1.2rem; }
+}
+------MultipartBoundary--nNL5IGS7YeglIBkgPi8y0PlA0TyVy3wTsk4Y5GY38V------
