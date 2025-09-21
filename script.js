@@ -112,64 +112,7 @@ function renderProductsPage(){
 }
 
 /* -------- PRODUCT MODAL -------- */
-function openProductModal(product){
-  // create modal container
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.innerHTML = `
-    <div class="modal-dialog" role="dialog" aria-modal="true" aria-label="${product.title}">
-      <header class="modal-header">
-        <h2>${product.title}</h2>
-        <button class="modal-close" aria-label="Close">×</button>
-      </header>
-      <div class="modal-body">
-        <div class="modal-carousel">
-          ${product.images.map(src => `<img src="${src}" alt="${product.title}">`).join('')}
-        </div>
-        <p class="muted">${product.desc}</p>
-        <div class="modal-price-row">
-          ${product.originalPrice ? `<div class="price-original">${formatCurrency(product.originalPrice)}</div>` : ''}
-          <div class="price-current">${formatCurrency(product.price)}</div>
-        </div>
-        <div class="modal-actions">
-          <input class="mini-qty" type="number" min="1" value="1" aria-label="Quantity">
-          <button class="btn btn-primary btn-add">Add to Cart</button>
-          <button class="btn btn-secondary btn-buy">Buy Now</button>
-        </div>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
 
-  // close handler
-  q('.modal-close', modal).addEventListener('click', () => modal.remove());
-  modal.addEventListener('click', (ev) => { if (ev.target === modal) modal.remove(); });
-
-  // carousel simple: show first image only with ability to click to cycle
-  const imgs = qAll('.modal-carousel img', modal);
-  let idx = 0;
-  function show(i){
-    imgs.forEach((im, j)=>im.style.display = j===i ? 'block' : 'none');
-  }
-  show(0);
-  q('.modal-carousel', modal).addEventListener('click', () => { idx = (idx+1) % imgs.length; show(idx); });
-
-  // add to cart
-  q('.btn-add', modal).addEventListener('click', () => {
-    const qty = Number(q('.mini-qty', modal).value) || 1;
-    addToCart(product.id, qty);
-    // close modal and open cart
-    modal.remove();
-    window.location.href = 'cart.html';
-  });
-
-  // buy now -> add then go to checkout
-  q('.btn-buy', modal).addEventListener('click', () => {
-    const qty = Number(q('.mini-qty', modal).value) || 1;
-    addToCart(product.id, qty);
-    modal.remove();
-    window.location.href = 'checkout.html';
-  });
 }
 
 /* -------- RENDER CART (cart.html) -------- */
@@ -217,7 +160,46 @@ function renderCartPage(){
   ensureCheckoutBlocked(false);
 }
 
-/* -------- UPDATE TOTALS (works across pages) -------- */
+/* -------- UPDATE TOTALS (works acrfunction openProductModal(product) {
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <div class="modal-dialog">
+      <button class="modal-close">&times;</button>
+      <img src="${product.images[0]}" alt="${product.title}" class="modal-img">
+      <h2>${product.title}</h2>
+      <p>${product.desc}</p>
+      <div class="price-row">
+        ${product.originalPrice ? `<span class="price-original">₹${product.originalPrice}</span>` : ''}
+        <span class="price-current">₹${product.price}</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="add-to-cart">Add to Cart</button>
+        <button class="btn btn-secondary" id="buy-now">Buy Now</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  // ✅ Close modal on clicking X or outside dialog
+  modal.querySelector('.modal-close').addEventListener('click', () => modal.remove());
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.remove();
+  });
+
+  // ✅ Add-to-cart and buy-now functionality
+  modal.querySelector('#add-to-cart').addEventListener('click', () => {
+    addToCart(product.id, 1);
+    modal.remove();
+    window.location.href = "cart.html"; // Auto open cart after adding
+  });
+
+  modal.querySelector('#buy-now').addEventListener('click', () => {
+    addToCart(product.id, 1);
+    modal.remove();
+    window.location.href = "checkout.html";
+  });
+}oss pages) -------- */
 function updateCartTotals(subtotal){
   const shippingText = 'Free';
   const total = subtotal;
@@ -384,3 +366,4 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('Init error', err);
   }
 });
+
