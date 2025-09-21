@@ -1,72 +1,81 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NeonzCrafts — Checkout</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - NeonzCrafts</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="navbar">
-    <div class="navbar-left">
-      <a class="brand" href="index.html" id="brand-link">NeonzCrafts</a>
-    </div>
-    <div class="navbar-right">
-      <a class="nav-icon" href="cart.html" aria-label="View cart">🛒 <span id="cart-count">0</span></a>
+
+  <!-- Header -->
+  <header class="header">
+    <a href="index.html" class="brand">NeonzCrafts</a>
+    <div class="header-icons">
+      <a href="cart.html" class="cart-icon">
+        🛒 <span id="cart-count">0</span>
+      </a>
     </div>
   </header>
 
+  <!-- Main Checkout Section -->
   <main class="container">
     <h1 class="page-title">Checkout</h1>
 
-    <section class="checkout-grid">
-      <!-- ADDRESS (form or summary) -->
-      <div class="checkout-card" id="address-area">
-        <h2>Shipping Address</h2>
+    <!-- Shipping Address -->
+    <section class="card">
+      <h2>Shipping Address</h2>
 
-        <div id="address-summary" class="address-summary" style="display:none">
-          <div class="saved-line" id="saved-address-text"></div>
-          <div style="margin-top:12px;">
-            <button id="edit-address" class="btn btn-secondary">Edit</button>
-            <button id="clear-address" class="btn btn-sm">Remove</button>
-          </div>
+      <!-- Saved Address Summary -->
+      <div id="address-summary" style="display:none;">
+        <p id="saved-address-text"></p>
+        <div class="address-actions">
+          <button id="edit-address" class="btn btn-secondary btn-sm">Edit</button>
+          <button id="clear-address" class="btn btn-danger btn-sm">Remove</button>
         </div>
-
-        <form id="address-form" class="address-form" novalidate>
-          <label>Full name <input type="text" name="name" required></label>
-          <label>Phone (10 digits) <input type="tel" name="phone" pattern="\d{10}" required></label>
-          <label>Street / Locality <input type="text" name="street" required></label>
-          <label>City <input type="text" name="city" required></label>
-          <label>Pincode (6 digits) <input type="text" name="pincode" pattern="\d{6}" required></label>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <button type="reset" class="btn btn-secondary">Clear</button>
-          </div>
-        </form>
       </div>
 
-      <!-- ORDER SUMMARY -->
-      <div class="checkout-card">
-        <h2>Order Summary</h2>
-        <div class="totals-row"><span>Subtotal</span><strong id="subtotal">₹0</strong></div>
-        <div class="totals-row"><span>Shipping</span><strong id="shipping">Free</strong></div>
-        <div class="totals-row totals-grand"><span>Total</span><strong id="total">₹0</strong></div>
-        <div class="divider"></div>
+      <!-- Address Form -->
+      <form id="address-form">
+        <input type="text" name="name" placeholder="Full name" required>
+        <input type="tel" name="phone" placeholder="Phone (10 digits)" pattern="[0-9]{10}" required>
+        <input type="text" name="street" placeholder="Street / Locality" required>
+        <input type="text" name="city" placeholder="City" required>
+        <input type="text" name="pincode" placeholder="Pincode (6 digits)" pattern="[0-9]{6}" required>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </form>
+    </section>
 
-        <label style="display:block;margin:8px 0"><input id="cod-radio" type="radio" name="payment" checked> Cash on Delivery (COD)</label>
+    <!-- Order Summary -->
+    <section class="card">
+      <h2>Order Summary</h2>
+      <p>Subtotal: <span id="subtotal">₹0</span></p>
+      <p>Shipping: <span id="shipping">Free</span></p>
+      <p><strong>Total: <span id="total">₹0</span></strong></p>
 
-        <button id="place-order" class="btn btn-primary full-width">Place Order</button>
-      </div>
+      <label class="payment-option">
+        <input type="radio" name="payment" value="cod" checked>
+        Cash on Delivery (COD)
+      </label>
+
+      <button id="place-order" class="btn btn-primary" disabled>Place Order</button>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
+  <footer class="footer">
+    <p>© 2025 NeonzCrafts. All rights reserved.</p>
   </footer>
 
-  <!-- EmailJS SDK and app script (emailjs must be loaded before script.js so init runs) -->
-  <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
-<script src="script.js" defer></script>
+  <!-- ✅ EmailJS SDK (Load BEFORE script.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    (function() {
+      emailjs.init("CRkybtSL0tLoJJ71X"); // ✅ your public key
+      console.log("✅ EmailJS initialized");
+    })();
+  </script>
+
+  <!-- ✅ Your main JS file -->
+  <script src="script.js" defer></script>
 </body>
 </html>
-
