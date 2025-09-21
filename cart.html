@@ -26,26 +26,18 @@
 
     <!-- CART SUMMARY -->
     <aside class="cart-summary">
-      <h2 class="summary-title">Order Summary</h2>
+  <h2 class="summary-title">Order Summary</h2>
 
-      <div class="checkout-card">
-  <h2>Order Summary</h2>
-  <div class="totals-row"><span>Subtotal</span><strong id="subtotal">₹0</strong></div>
-  <div class="totals-row"><span>Shipping</span><strong id="shipping">Free</strong></div>
-  <div class="totals-row totals-grand"><span>Total</span><strong id="total">₹0</strong></div>
-  <div class="divider"></div>
-  <label><input type="radio" checked> Cash on Delivery (COD)</label>
-  <button id="place-order" class="btn btn-primary full-width">Place Order</button>
-      </div>
-      
-      <div style="margin-top:12px;">
-        <a id="continue-shopping" class="btn btn-secondary full-width" href="index.html">
-          Continue Shopping
-        </a>
-        <a id="to-checkout" class="btn btn-primary full-width" href="checkout.html">
-          Proceed to Checkout
-        </a>
-      </div>
+  <div class="cart-totals">
+    <p>Subtotal: <span id="subtotal">₹0</span></p>
+    <p>Shipping: <span id="shipping">Free</span></p>
+    <p><strong>Total: <span id="total">₹0</span></strong></p>
+  </div>
+
+  <div style="margin-top:12px;">
+    <a href="index.html" class="btn btn-secondary full-width">Continue Shopping</a>
+    <a href="checkout.html" class="btn btn-primary full-width">Proceed to Checkout</a>
+  </div>
     </aside>
   </section>
 </main>
@@ -60,6 +52,7 @@
 </body>
 
 </html>
+
 
 
 
