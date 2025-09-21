@@ -3,33 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NeonzCrafts — Order Confirmed</title>
+  <title>Order Placed — NeonzCrafts</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="script.js" defer></script>
 </head>
 <body>
-  <header class="navbar">
-    <div class="navbar-left">
-      <a class="brand" href="index.html" aria-label="NeonzCrafts homepage">NeonzCrafts</a>
-    </div>
-  </header>
-
-  <main class="container center">
+  <main class="container success-container">
     <div class="success-card">
-      <div class="success-icon">✅</div>
-      <h2>Thank you — your order is placed!</h2>
-      <p class="muted">We'll send updates when your order ships. You can track orders from your account.</p>
-      <div style="margin-top:14px;">
-        <a class="btn btn-primary" href="index.html">Continue Shopping</a>
-      </div>
+      <div class="checkmark">✅</div>
+      <h1>Thank you — your order is placed!</h1>
+      <p>We'll send updates when your order ships.</p>
+      <button class="btn btn-primary" onclick="window.location.href='index.html'">
+        Continue Shopping
+      </button>
     </div>
   </main>
-
-  <footer class="site-footer">
-    <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
-  </footer>
-  
-<!-- ✅ Scripts at the bottom -->
-  <script src="script.js" defer></script>
 </body>
 </html>
