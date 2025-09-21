@@ -38,16 +38,57 @@ const el = id => document.getElementById(id);
 let cart = {};
 let addresses = [], selectedAddressIndex = null;
 let loggedInUser = null;
+let userLocation = null;
 
 // ===== Login/User Functions =====
 function handleLogin() {
-    // This is a placeholder for actual login logic.
-    // In a real application, you would use a service like Firebase Auth.
-    loggedInUser = "TestUser"; // Set a dummy user for demonstration
+    loggedInUser = "TestUser";
     el('login-btn').classList.add('hidden');
     el('user-display').classList.remove('hidden');
     el('user-display').textContent = `Welcome, ${loggedInUser}!`;
     alert("Logged in as TestUser. (This is a placeholder)");
+}
+
+// ===== Location Functions =====
+function showLocationPopup() {
+    el('location-popup').classList.remove('hidden');
+}
+
+function closeLocationPopup() {
+    el('location-popup').classList.add('hidden');
+}
+
+function updateLocation(pincode, locationText) {
+    userLocation = { pincode, locationText };
+    el('location-text').textContent = locationText;
+    el('delivery-info').textContent = `Delivery by ${getDeliveryDate()} for pincode ${pincode}`;
+    closeLocationPopup();
+}
+
+function getDeliveryDate() {
+    const today = new Date();
+    today.setDate(today.getDate() + 3); // 3-day delivery
+    const options = { weekday: 'long', day: 'numeric', month: 'short' };
+    return today.toLocaleDateString('en-US', options);
+}
+
+function getPincodeFromGeolocation(latitude, longitude) {
+    // This is a placeholder for a real API call.
+    // In a production app, you would use a service like Google Maps Geocoding API.
+    console.log("Getting location for:", latitude, longitude);
+
+    // Simulate API response
+    const dummyPincodes = {
+        'Mumbai': '400001',
+        'Delhi': '110001',
+        'Bangalore': '560001',
+        'Chennai': '600001'
+    };
+    const randomCity = Object.keys(dummyPincodes)[Math.floor(Math.random() * Object.keys(dummyPincodes).length)];
+    return {
+        pincode: dummyPincodes[randomCity],
+        locationText: randomCity
+    };
 }
 
 // ===== Render Products =====
@@ -109,8 +150,8 @@ function changeQtyOnDetail(c){
 function addToCartAndCheckout(id){ addToCart(id,+el('detail-qty').textContent); showCheckout(); }
 
 // ===== Cart =====
-function addToCart(id,qty=1){ 
-  cart[id]=(cart[id]||0)+qty; 
+function addToCart(id,qty=1){
+  cart[id]=(cart[id]||0)+qty;
   if (cart[id] < 1) {
     delete cart[id];
   }
@@ -149,7 +190,7 @@ function showCheckout() {
     el('cart').classList.add('hidden');
     el('product-detail').classList.add('hidden');
     el('checkout-form').classList.remove('hidden');
-    
+
     renderOrderSummary();
     renderAddresses();
 }
@@ -250,7 +291,7 @@ el('new-address-form').onsubmit = (e) => {
         alert("Please enter a valid 6-digit pincode.");
         return;
     }
-    
+
     addresses.push(newAddress);
     selectedAddressIndex = addresses.length - 1;
     renderAddresses();
@@ -264,7 +305,7 @@ el('place-order-btn').onclick = (e) => {
         alert("Your cart is empty. Please add items before placing an order.");
         return;
     }
-    
+
     const form = el('new-address-form');
     if (!form.classList.contains('hidden')) {
         const phone = el('address-phone').value;
@@ -386,18 +427,18 @@ document.addEventListener('DOMContentLoaded', () => {
         el('product-detail').classList.add('hidden');
         el('checkout-form').classList.add('hidden');
     };
-    
+
     el('checkout-btn').onclick = () => {
         showCheckout();
     };
-    
+
     el('cancel-checkout').onclick = () => {
         el('products').classList.add('hidden');
         el('cart').classList.remove('hidden');
         el('product-detail').classList.add('hidden');
         el('checkout-form').classList.add('hidden');
     };
-    
+
     el('back-to-products').onclick = () => {
         el('product-detail').classList.add('hidden');
         el('products').classList.remove('hidden');
@@ -409,6 +450,38 @@ document.addEventListener('DOMContentLoaded', () => {
         el('product-detail').classList.add('hidden');
         el('checkout-form').classList.add('hidden');
     };
-    
+
     el('login-btn').onclick = handleLogin;
+
+    // New Location Event Listeners
+    el('change-location-btn').onclick = showLocationPopup;
+    el('close-location-popup').onclick = closeLocationPopup;
+
+    el('use-current-location').onclick = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    const location = getPincodeFromGeolocation(latitude, longitude);
+                    updateLocation(location.pincode, `Delivery to ${location.locationText}`);
+                },
+                (error) => {
+                    console.error("Geolocation Error:", error);
+                    alert("Unable to get your location. Please enter your pincode manually.");
+                }
+            );
+        } else {
+            alert("Geolocation is not supported by your browser.");
+        }
+    };
+
+    el('pincode-submit').onclick = () => {
+        const pincode = el('pincode-input').value;
+        if (pincode.length === 6 && /^\d+$/.test(pincode)) {
+            // Placeholder: A real app would validate this pincode with an API.
+            updateLocation(pincode, `Delivery to ${pincode}`);
+        } else {
+            alert("Please enter a valid 6-digit pincode.");
+        }
+    };
 });
