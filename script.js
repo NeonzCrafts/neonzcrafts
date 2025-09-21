@@ -9,6 +9,14 @@ const PRODUCTS = [
     images: ['1000069559.jpg','1000069560.jpg','1000069561.jpg'],
     desc: 'Interactive and colorful shape toy to improve cognitive skills for toddlers.'
   }
+  {
+    id: 'p2',
+    title: 'Educational Geometric Shape Toy',
+    price: 199,
+    originalPrice: 399,
+    images: ['1000069559.jpg','1000069560.jpg','1000069561.jpg'],
+    desc: 'Interactive and colorful shape toy to improve cognitive skills for toddlers.'
+}
 ];
 
 function $(id){ return document.getElementById(id); }
