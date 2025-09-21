@@ -201,41 +201,49 @@ function initCheckoutHandlers(){
   $("edit-address")?.addEventListener("click",()=>{ $("address-form").style.display=""; $("address-summary").style.display="none"; });
   $("clear-address")?.addEventListener("click",()=>{ localStorage.removeItem(STORAGE_KEYS.address); $("address-form").reset(); $("address-form").style.display=""; $("address-summary").style.display="none"; });
   $("place-order")?.addEventListener("click", async () => {
-  const btn = $("place-order");
-  const cart = loadCart();
+    const btn = $("place-order");
+    const cart = loadCart();
 
-  if (!cart.length) return alert("Your cart is empty.");
-  const addr = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
-  if (!addr) return alert("Please save your shipping address.");
+    if (!cart.length) return alert("Your cart is empty.");
+    const addr = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
+    if (!addr) return alert("Please save your shipping address.");
 
-  // Prevent multiple clicks
-  btn.disabled = true;
-  btn.textContent = "Placing...";
-  btn.style.opacity = "0.7";
+    btn.disabled = true;
+    btn.textContent = "Placing...";
+    btn.style.opacity = "0.7";
 
-  try {
-    await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-      order_items: cart.map(it => {
-        const p = PRODUCTS.find(pr => pr.id === it.id) || {};
-        return `${p.title} × ${it.qty} = ${formatCurrency((p.price||0) * it.qty)}`;
-      }).join("\n"),
-      order_total: formatCurrency(cart.reduce((s,it)=>{
-        const p=PRODUCTS.find(pr=>pr.id===it.id)||{price:0};
-        return s+p.price*it.qty;
-      },0)),
-      customer_name: addr.name,
-      customer_phone: addr.phone,
-      customer_address: `${addr.street}, ${addr.city} - ${addr.pincode}`
-    });
+    try {
+      await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+        order_items: cart.map(it => {
+          const p = PRODUCTS.find(pr=>pr.id===it.id)||{};
+          return `${p.title} × ${it.qty} = ${formatCurrency((p.price||0)*it.qty)}`;
+        }).join("\n"),
+        order_total: formatCurrency(cart.reduce((s,it)=>{
+          const p=PRODUCTS.find(pr=>pr.id===it.id)||{price:0};
+          return s+p.price*it.qty;
+        },0)),
+        customer_name: addr.name,
+        customer_phone: addr.phone,
+        customer_address: `${addr.street}, ${addr.city} - ${addr.pincode}`
+      });
 
-    clearCart();
-    window.location.href = "order-success.html";
-  } catch (err) {
-    console.error("EmailJS error", err);
-    alert("Failed to send order confirmation. Please try again.");
-    btn.disabled = false;
-    btn.textContent = "Place Order";
-    btn.style.opacity = "1";
-  }
+      clearCart();
+      window.location.href = "order-success.html";
+    } catch (err) {
+      console.error("EmailJS error", err);
+      alert("Failed to send order confirmation. Please try again.");
+      btn.disabled = false;
+      btn.textContent = "Place Order";
+      btn.style.opacity = "1";
+    }
+  });
+}
+
+/* ---------- INIT ON DOM READY ---------- */
+document.addEventListener("DOMContentLoaded",()=>{
+  updateCartBadge(loadCart());
+  renderProductsPage();
+  renderCartPage();
+  renderCheckoutPage();
+  initCheckoutHandlers();
 });
-  
