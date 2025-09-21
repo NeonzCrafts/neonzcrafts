@@ -157,4 +157,13 @@ a{color:inherit;text-decoration:none}
   .brand{padding-left:12px}
   .navbar-right{padding-right:12px}
 }
+.totals-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+.totals-grand strong {
+  font-size: 1.2rem;
+  color: var(--primary);
+}
 
