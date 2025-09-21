@@ -9,11 +9,10 @@
 <body>
   <header class="navbar">
     <div class="navbar-left">
-      <a class="brand" href="index.html">NeonzCrafts</a>
+      <a class="brand" href="index.html" id="brand-link">NeonzCrafts</a>
     </div>
     <div class="navbar-right">
-      <button id="theme-toggle" class="icon-btn">🌓</button>
-      <a class="nav-icon" href="cart.html">🛒 <span id="cart-count">0</span></a>
+      <a class="nav-icon" href="cart.html" aria-label="View cart">🛒 <span id="cart-count">0</span></a>
     </div>
   </header>
 
@@ -21,10 +20,19 @@
     <h1 class="page-title">Checkout</h1>
 
     <section class="checkout-grid">
-      <!-- Address Form -->
-      <div class="checkout-card">
+      <!-- ADDRESS (form or summary) -->
+      <div class="checkout-card" id="address-area">
         <h2>Shipping Address</h2>
-        <form id="address-form" class="address-form">
+
+        <div id="address-summary" class="address-summary" style="display:none">
+          <div class="saved-line" id="saved-address-text"></div>
+          <div style="margin-top:12px;">
+            <button id="edit-address" class="btn btn-secondary">Edit</button>
+            <button id="clear-address" class="btn btn-sm">Remove</button>
+          </div>
+        </div>
+
+        <form id="address-form" class="address-form" novalidate>
           <label>Full name <input type="text" name="name" required></label>
           <label>Phone (10 digits) <input type="tel" name="phone" pattern="\d{10}" required></label>
           <label>Street / Locality <input type="text" name="street" required></label>
@@ -35,21 +43,19 @@
             <button type="reset" class="btn btn-secondary">Clear</button>
           </div>
         </form>
-        <div id="saved-address" class="hidden">
-          <p id="saved-address-text"></p>
-          <button class="btn btn-secondary" onclick="editAddress()">Edit</button>
-        </div>
       </div>
 
-      <!-- Order Summary -->
+      <!-- ORDER SUMMARY -->
       <div class="checkout-card">
         <h2>Order Summary</h2>
         <div class="totals-row"><span>Subtotal</span><strong id="subtotal">₹0</strong></div>
         <div class="totals-row"><span>Shipping</span><strong id="shipping">Free</strong></div>
         <div class="totals-row totals-grand"><span>Total</span><strong id="total">₹0</strong></div>
         <div class="divider"></div>
-        <label><input type="radio" checked> Cash on Delivery (COD)</label>
-        <button class="btn btn-primary full-width" id="place-order">Place Order</button>
+
+        <label style="display:block;margin:8px 0"><input id="cod-radio" type="radio" name="payment" checked> Cash on Delivery (COD)</label>
+
+        <button id="place-order" class="btn btn-primary full-width">Place Order</button>
       </div>
     </section>
   </main>
@@ -58,10 +64,8 @@
     <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-  <script>
-    (function(){ emailjs.init("CRkybtSL0tLoJJ71X"); })();
-  </script>
-  <script src="script.js" defer></script>
+  <!-- EmailJS SDK and app script (emailjs must be loaded before script.js so init runs) -->
+  <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
