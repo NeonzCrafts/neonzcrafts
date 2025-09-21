@@ -5,8 +5,14 @@ const EMAILJS_PUBLIC_KEY = "CRkybtSL0tLoJJ71X";
 
 // Sample product list
 const PRODUCTS = [
-  { id:'p1', title:'Wireless Earbuds', price:799, image:'https://via.placeholder.com/400x300?text=Earbuds', description:'Lightweight earbuds with good battery life.' },
-  { id:'p2', title:'Phone Stand', price:249, image:'https://via.placeholder.com/400x300?text=Phone+Stand', description:'Adjustable phone stand for desk.' }
+  // Your product
+  { 
+    id:'p3', 
+    title:'Educational Geometric Shape Sorting & Stacking Toys for 1 2 3 Year Old, Montessori Toys for Toddlers, Preschool Educational Color Shape Learning Toy Gift for Kids Girls Boys', 
+    price:219, 
+    image:'./51Vgahd2ZEL._AC_UF894,1000_QL80_FMwebp_.webp', 
+    description:'A perfect educational toy for toddlers to learn colors, shapes, and improve motor skills. Made from safe, durable materials.' 
+  }
 ];
 
 // Sample reviews (You can edit these later)
@@ -198,75 +204,3 @@ document.addEventListener('DOMContentLoaded',()=>{
   el('checkout-btn').onclick=showCheckoutForm;
   el('cancel-checkout').onclick=hideCheckoutForm;
 });
-}
-function hideCheckoutForm(){ el('checkout-form').classList.add('hidden'); el('products').classList.remove('hidden'); }
-
-// Render addresses
-function renderAddresses(){
-  const container=el('addresses-container'); container.innerHTML='';
-  addresses.forEach((addr,idx)=>{
-    const div=document.createElement('div'); div.className='address-card';
-    div.innerHTML=`<input type="radio" name="selected-address" ${selectedAddressIndex===idx?'checked':''} data-idx="${idx}"><label><strong>${addr.name}</strong></label><div>${addr.phone}</div><div>${addr.pincode}, ${addr.city}</div><div>${addr.street}</div><div>${addr.landmark}</div><button class="small remove-address" data-idx="${idx}">Remove</button>`;
-    container.appendChild(div);
-  });
-  container.querySelectorAll('input[name="selected-address"]').forEach(r=>r.onchange=e=>selectedAddressIndex=parseInt(e.currentTarget.dataset.idx));
-  container.querySelectorAll('.remove-address').forEach(b=>b.onclick=e=>{ addresses.splice(parseInt(e.currentTarget.dataset.idx),1); if(selectedAddressIndex!==null && selectedAddressIndex>=addresses.length) selectedAddressIndex=addresses.length-1; renderAddresses(); });
-}
-
-// Add new address (using the form)
-el('add-address-btn').onclick=()=>{ el('new-address-form').classList.remove('hidden'); };
-el('cancel-address-btn').onclick=()=>{ el('new-address-form').classList.add('hidden'); };
-
-el('new-address-form').onsubmit=e=>{
-  e.preventDefault();
-  const name=el('address-name').value;
-  const phone=el('address-phone').value;
-  const pincode=el('address-pincode').value;
-  const city=el('address-city').value;
-  const street=el('address-street').value;
-  const landmark=el('address-landmark').value;
-  
-  addresses.push({name,phone,pincode,city,street,landmark});
-  selectedAddressIndex=addresses.length-1; 
-  renderAddresses(); 
-  el('new-address-form').classList.add('hidden');
-  e.target.reset(); // Clear the form
-};
-
-// Render order summary
-function renderOrderSummary(){
-  const summaryDiv=el('order-summary');
-  const items=cartItems().map(i=>`${i.title} × ${i.qty} = ₹${formatPrice(i.price*i.qty)}`).join('<br>');
-  summaryDiv.innerHTML=`${items}<hr><strong>Total: ₹${formatPrice(cartTotal())}</strong>`;
-}
-
-// Place order via EmailJS
-el('place-order-btn').onclick=()=>{
-  if(selectedAddressIndex===null){ alert("Select an address before placing order!"); return; }
-  const addr=addresses[selectedAddressIndex];
-  const items=cartItems().map(i=>`${i.title} × ${i.qty} = ₹${formatPrice(i.price*i.qty)}`).join('\n');
-  const notes = el('order-notes').value || 'No special instructions.';
-  const message=`New COD Order:\n\nName: ${addr.name}\nPhone: ${addr.phone}\nAddress:\n${addr.street}, ${addr.landmark}, ${addr.city}, ${addr.pincode}\n\nItems:\n${items}\n\nTotal: ₹${formatPrice(cartTotal())}\n\nSpecial Instructions:\n${notes}`;
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-    customer_name: addr.name,
-    customer_phone: addr.phone,
-    customer_address:`${addr.street}, ${addr.landmark}, ${addr.city}, ${addr.pincode}`,
-    order_summary: items,
-    order_total: formatPrice(cartTotal()),
-    full_message: message,
-    special_notes: notes
-  }, EMAILJS_PUBLIC_KEY)
-  .then(()=>{ alert("Order placed successfully! You'll be contacted soon."); cart={}; updateCartUI(); addresses=[]; selectedAddressIndex=null; hideCheckoutForm(); })
-  .catch(err=>{ console.error(err); alert("Error sending order. Check EmailJS setup."); });
-};
-
-// Navigation
-document.addEventListener('DOMContentLoaded',()=>{
-  renderProducts(); updateCartUI();
-  el('view-products').onclick=()=>{ el('products').classList.remove('hidden'); el('cart').classList.add('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
-  el('view-cart').onclick=()=>{ el('products').classList.add('hidden'); el('cart').classList.remove('hidden'); el('product-detail').classList.add('hidden'); el('checkout-form').classList.add('hidden'); };
-  el('back-to-products').onclick=()=>{ el('product-detail').classList.add('hidden'); el('products').classList.remove('hidden'); };
-  el('checkout-btn').onclick=showCheckoutForm;
-  el('cancel-checkout').onclick=hideCheckoutForm;
-});
-
