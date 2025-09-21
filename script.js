@@ -4,7 +4,7 @@ const PRODUCTS = [
   { 
     id: 'p1', 
     title: 'Educational Geometric Shape Toy', 
-    price: 299, 
+    price: 199, 
     originalPrice: 399, 
     images: ['1000069559.jpg','1000069560.jpg','1000069561.jpg'], 
     desc: 'Interactive and colorful shape toy to improve cognitive skills for toddlers.'
@@ -74,7 +74,7 @@ function renderProductsPage(){
   const btn = card.querySelector('.add-js');
   btn.addEventListener('click', () => {
     addToCart(p.id, Number(qty.value) || 1);
-    alert('Added to cart');
+    alert('✅ Added to cart!');
   });
 }
 
@@ -115,7 +115,7 @@ function renderCartPage(){
 }
 
 function updateCartTotals(subtotal){
-  const shipping = 0; // ✅ Always free
+  const shipping = 0; // Always free
   if ($('subtotal')) $('subtotal').textContent = `₹${subtotal}`;
   if ($('shipping')) $('shipping').textContent = `Free`;
   if ($('total')) $('total').textContent = `₹${subtotal}`;
@@ -156,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const form = document.getElementById('address-form');
   if (form) {
+    // Save Address
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       if (!form.checkValidity()) {
@@ -163,48 +164,49 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       const addressData = {
-        name: form.name.value.trim(),
-        phone: form.phone.value.trim(),
-        street: form.street.value.trim(),
-        city: form.city.value.trim(),
-        pincode: form.pincode.value.trim(),
+        name: form.elements['name'].value.trim(),
+        phone: form.elements['phone'].value.trim(),
+        street: form.elements['street'].value.trim(),
+        city: form.elements['city'].value.trim(),
+        pincode: form.elements['pincode'].value.trim(),
       };
       localStorage.setItem('neon_address', JSON.stringify(addressData));
       alert('✅ Address saved!');
     });
-  }
 
-  const form = document.getElementById('address-form');
-if (form) {
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
+    // Auto-fill saved address if exists
+    const saved = localStorage.getItem('neon_address');
+    if (saved) {
+      try {
+        const addr = JSON.parse(saved);
+        form.elements['name'].value = addr.name || '';
+        form.elements['phone'].value = addr.phone || '';
+        form.elements['street'].value = addr.street || '';
+        form.elements['city'].value = addr.city || '';
+        form.elements['pincode'].value = addr.pincode || '';
+      } catch {}
     }
-
-    const addressData = {
-      name: form.elements['name'].value.trim(),
-      phone: form.elements['phone'].value.trim(),
-      street: form.elements['street'].value.trim(),
-      city: form.elements['city'].value.trim(),
-      pincode: form.elements['pincode'].value.trim(),
-    };
-
-    localStorage.setItem('neon_address', JSON.stringify(addressData));
-    alert('✅ Address saved!');
-  });
-
-  // ✅ Auto-fill saved address if exists
-  const saved = localStorage.getItem('neon_address');
-  if (saved) {
-    try {
-      const addr = JSON.parse(saved);
-      form.elements['name'].value = addr.name || '';
-      form.elements['phone'].value = addr.phone || '';
-      form.elements['street'].value = addr.street || '';
-      form.elements['city'].value = addr.city || '';
-      form.elements['pincode'].value = addr.pincode || '';
-    } catch {}
   }
-}
+
+  // Place Order Validation
+  const placeOrderBtn = document.getElementById('place-order');
+  if (placeOrderBtn) {
+    placeOrderBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      const cart = loadCart();
+      if (cart.length === 0) {
+        alert('Your cart is empty! Please add items before placing order.');
+        return;
+      }
+
+      const savedAddress = localStorage.getItem('neon_address');
+      if (!savedAddress) {
+        alert('Please save your shipping address before placing order.');
+        return;
+      }
+
+      window.location.href = 'order-success.html';
+    });
+  }
+});
