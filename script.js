@@ -35,16 +35,15 @@ function loadAddresses(){
   const savedAddresses = localStorage.getItem('addresses');
   if(savedAddresses){
     addresses = JSON.parse(savedAddresses);
-    selectedAddressIndex = parseInt(localStorage.getItem('selectedAddressIndex')); // Ensure it's a number
-    if(isNaN(selectedAddressIndex)) selectedAddressIndex = null;
+    selectedAddressIndex = localStorage.getItem('selectedAddressIndex');
   }
-  updateLoginState(); // Call update state here to reflect initial login status
+  updateLoginState();
 }
 // Save addresses to local storage
 function saveAddresses(){
   localStorage.setItem('addresses', JSON.stringify(addresses));
   localStorage.setItem('selectedAddressIndex', selectedAddressIndex);
-  updateLoginState(); // Call update state every time addresses are saved
+  updateLoginState();
 }
 
 // New function to manage login/logout UI state
@@ -53,10 +52,12 @@ function updateLoginState() {
     el('user-display').textContent = `Welcome, ${addresses[0].name}!`;
     el('user-display').classList.remove('hidden');
     el('login-btn').textContent = "Log Out";
+    el('login-btn').classList.remove('small'); // Make sure it looks like a button
   } else {
     el('user-display').textContent = "";
     el('user-display').classList.add('hidden');
     el('login-btn').textContent = "Log In";
+    el('login-btn').classList.add('small'); // Make sure it looks like a button
   }
 }
 
@@ -211,16 +212,11 @@ function renderAddresses(){
   const container=el('addresses-container'); container.innerHTML='';
   addresses.forEach((addr,idx)=>{
     const div=document.createElement('div'); div.className='address-card';
-    div.innerHTML=`<input type="radio" name="selected-address" ${selectedAddressIndex===idx?'checked':''} data-idx="${idx}"><label><strong>${addr.name}</strong></label><div>${addr.phone}</div><div>${addr.pincode}, ${addr.city}</div><div>${addr.street}</div><div>${addr.landmark}</div><button class="small remove-address" data-idx="${idx}">Remove</button>`; // Corrected data attribute to data-idx
+    div.innerHTML=`<input type="radio" name="selected-address" ${selectedAddressIndex===idx?'checked':''} data-idx="${idx}"><label><strong>${addr.name}</strong></label><div>${addr.phone}</div><div>${addr.pincode}, ${addr.city}</div><div>${addr.street}</div><div>${addr.landmark}</div><button class="small remove-address" data-idx="${idx}">Remove</button>`;
     container.appendChild(div);
   });
   container.querySelectorAll('input[name="selected-address"]').forEach(r=>r.onchange=e=>selectedAddressIndex=parseInt(e.currentTarget.dataset.idx));
-  container.querySelectorAll('.remove-address').forEach(b=>b.onclick=e=>{ 
-    addresses.splice(parseInt(e.currentTarget.dataset.idx),1); // Corrected this line to use data-idx
-    if(selectedAddressIndex!==null && selectedAddressIndex>=addresses.length) selectedAddressIndex=addresses.length-1; 
-    renderAddresses(); 
-    saveAddresses(); // Added this line to save changes to local storage
-  });
+  container.querySelectorAll('.remove-address').forEach(b=>b.onclick=e=>{ addresses.splice(parseInt(e.currentTarget.dataset.id),1); if(selectedAddressIndex!==null && selectedAddressIndex>=addresses.length) selectedAddressIndex=addresses.length-1; renderAddresses(); });
 }
 
 // Add new address (using the form)
@@ -270,28 +266,7 @@ function renderOrderSummary(){
   summaryDiv.innerHTML=`${items}<hr><strong>Total: ₹${formatPrice(cartTotal())}</strong>`;
 }
 
-// Show the full-page order success animation
-function showOrderSuccessScreen() {
-    // Hide all other sections
-    document.querySelectorAll('.panel').forEach(panel => panel.classList.add('hidden'));
-    document.querySelector('header').classList.add('hidden');
-    document.querySelector('footer').classList.add('hidden');
-    
-    // Show the success overlay
-    el('order-success-overlay').classList.remove('hidden');
-    
-    // Clear the cart and reset after a delay
-    setTimeout(() => {
-        cart = {};
-        updateCartUI();
-        el('order-success-overlay').classList.add('hidden');
-        document.querySelector('header').classList.remove('hidden');
-        document.querySelector('footer').classList.remove('hidden');
-        el('products').classList.remove('hidden');
-    }, 4000); // Wait for 4 seconds before returning to products page
-}
-
-// Place order via EmailJS
+// Place order via EmailJS and display a simple alert
 el('place-order-btn').onclick=()=>{
   if(selectedAddressIndex===null){ alert("Select an address before placing order!"); return; }
   const addr=addresses[selectedAddressIndex];
@@ -307,7 +282,13 @@ el('place-order-btn').onclick=()=>{
     full_message: message,
     special_notes: notes
   }, EMAILJS_PUBLIC_KEY)
-  .then(()=>{ showOrderSuccessScreen(); })
+  .then(()=>{ 
+    alert("Order Placed! You will be contacted by the store owner soon.");
+    cart = {};
+    updateCartUI();
+    el('checkout-form').classList.add('hidden');
+    el('products').classList.remove('hidden');
+  })
   .catch(err=>{ console.error(err); alert("Error sending order. Check EmailJS setup."); });
 };
 
