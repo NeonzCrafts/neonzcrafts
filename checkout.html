@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NeonzCrafts — Checkout</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-left">
+      <a class="brand" href="index.html" aria-label="NeonzCrafts homepage">NeonzCrafts</a>
+    </div>
+    <div class="navbar-right">
+      <a class="nav-icon" href="cart.html" aria-label="View cart">🛒 <span id="cart-count">0</span></a>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 class="page-title">Checkout</h1>
+
+    <div class="checkout-grid">
+      <section class="checkout-card">
+        <h2>Shipping Address</h2>
+        <form id="address-form" class="address-form" autocomplete="on">
+          <label>Full name <input id="address-name" name="name" required /></label>
+          <label>Phone (10 digits) <input id="address-phone" name="phone" required pattern="\\d{10}" /></label>
+          <label>Street / Locality <input id="address-street" name="street" /></label>
+          <label>City <input id="address-city" name="city" /></label>
+          <label>Pincode (6 digits) <input id="address-pincode" name="pincode" required pattern="\\d{6}" /></label>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Address</button>
+            <button id="address-clear" type="button" class="btn btn-secondary">Clear</button>
+          </div>
+        </form>
+
+        <div id="saved-addresses" class="saved-addresses" aria-live="polite"></div>
+      </section>
+
+      <aside class="checkout-card">
+        <h2>Order Summary</h2>
+        <div id="checkout-items" class="checkout-items" aria-live="polite"></div>
+        <div class="divider"></div>
+        <div class="totals">
+          <div class="totals-row"><span>Subtotal</span><strong id="co-subtotal">₹0</strong></div>
+          <div class="totals-row"><span>Shipping</span><strong id="co-shipping">₹0</strong></div>
+          <div class="totals-row totals-grand"><span>Total</span><strong id="co-grand">₹0</strong></div>
+        </div>
+        <div style="margin-top:12px;">
+          <label class="muted"><input type="radio" name="payment" value="cod" checked /> Cash on Delivery (COD)</label>
+        </div>
+        <div style="margin-top:12px;">
+          <button id="place-order" class="btn btn-primary full-width">Place Order</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
+  </footer>
+</body>
+</html>

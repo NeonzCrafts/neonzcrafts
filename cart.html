@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NeonzCrafts — Cart</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-left">
+      <a class="brand" href="index.html" aria-label="NeonzCrafts homepage">NeonzCrafts</a>
+    </div>
+    <div class="navbar-right">
+      <a class="nav-icon" href="cart.html" aria-label="View cart">🛒 <span id="cart-count">0</span></a>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 class="page-title">Your Cart</h1>
+
+    <section class="cart-wrapper">
+      <div id="cart-items" class="cart-items" aria-live="polite"></div>
+
+      <aside class="cart-summary">
+        <div id="cart-empty" class="muted center">Your cart is empty.</div>
+        <div id="cart-totals" class="totals hidden">
+          <div class="totals-row"><span>Subtotal</span><strong id="subtotal-amt">₹0</strong></div>
+          <div class="totals-row"><span>Shipping</span><strong id="shipping-amt">₹0</strong></div>
+          <div class="totals-row totals-grand"><span>Total</span><strong id="grand-amt">₹0</strong></div>
+          <div style="margin-top:12px;">
+            <a id="continue-shopping" class="btn btn-secondary" href="index.html">Continue Shopping</a>
+            <a id="to-checkout" class="btn btn-primary full-width" href="checkout.html">Proceed to Checkout</a>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
+  </footer>
+</body>
+</html>
