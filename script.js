@@ -16,8 +16,16 @@ function safeParse(raw,fallback){ try{ return JSON.parse(raw||'null')||fallback 
 
 function loadCart(){ return safeParse(localStorage.getItem(STORAGE_KEYS.cart),[]); }
 function saveCart(c){ localStorage.setItem(STORAGE_KEYS.cart,JSON.stringify(c)); updateCartBadge(c); }
-function updateCartBadge(c){ const cnt=c.reduce((s,i)=>s+i.qty,0); document.querySelectorAll('#cart-count').forEach(el=>el.textContent=cnt); }
-function addToCart(id,qty=1){ let c=loadCart(); const i=c.findIndex(x=>x.id===id); i>=0?c[i].qty+=qty:c.push({id,qty}); saveCart(c); }
+function updateCartBadge(c){ 
+  const cnt = c.reduce((s,i)=>s+i.qty,0); 
+  document.querySelectorAll('#cart-count').forEach(el=>el.textContent=cnt); 
+}
+function addToCart(id,qty=1){ 
+  let c = loadCart(); 
+  const i = c.findIndex(x=>x.id===id); 
+  i>=0 ? c[i].qty+=qty : c.push({id,qty}); 
+  saveCart(c); 
+}
 
 // ---------- PRODUCT RENDER ----------
 function renderProductsPage(){
@@ -107,50 +115,47 @@ function renderCartPage(){
 }
 
 function updateCartTotals(subtotal){
-  const shipping = subtotal > 0 ? 50 : 0;
+  const shipping = 0; // ✅ Always free
   if ($('subtotal')) $('subtotal').textContent = `₹${subtotal}`;
-  if ($('shipping')) $('shipping').textContent = shipping > 0 ? `₹${shipping}` : 'Free';
-  if ($('total')) $('total').textContent = `₹${subtotal + shipping}`;
+  if ($('shipping')) $('shipping').textContent = `Free`;
+  if ($('total')) $('total').textContent = `₹${subtotal}`;
 }
 
-function removeFromCart(id){
-  let cart = loadCart();
-  cart = cart.filter(c => c.id !== id);
-  saveCart(cart);
-  renderCartPage();
+// ---------- CHECKOUT PAGE RENDER ----------
+function renderCheckoutPage(){
+  const subtotalEl = $('subtotal');
+  const shippingEl = $('shipping');
+  const totalEl = $('total');
+  if (!subtotalEl || !totalEl) return;
+
+  const cart = loadCart();
+  let subtotal = 0;
+  cart.forEach(item => {
+    const p = PRODUCTS.find(pr => pr.id === item.id);
+    if (p) subtotal += p.price * item.qty;
+  });
+
+  subtotalEl.textContent = `₹${subtotal}`;
+  shippingEl.textContent = 'Free';
+  totalEl.textContent = `₹${subtotal}`;
 }
 
 // ---------- INITIALIZATION ----------
 document.addEventListener('DOMContentLoaded', () => {
-  // Always update cart badge first
   updateCartBadge(loadCart());
-
-  // Render products if we are on index.html
   renderProductsPage();
-
-  // Render cart if we are on cart.html
   renderCartPage();
+  renderCheckoutPage();
 
-  // Attach place order validation if we are on checkout.html
   const placeOrderBtn = document.getElementById('place-order');
   if (placeOrderBtn) {
     placeOrderBtn.addEventListener('click', (e) => {
       e.preventDefault();
       const form = document.getElementById('address-form');
-      if (!form.checkValidity()) {
+      if (form && !form.checkValidity()) {
         form.reportValidity();
         return;
       }
-
-      const addressData = {
-        name: form.name.value.trim(),
-        phone: form.phone.value.trim(),
-        street: form.street.value.trim(),
-        city: form.city.value.trim(),
-        pincode: form.pincode.value.trim(),
-      };
-      localStorage.setItem('neon_address', JSON.stringify(addressData));
-
       window.location.href = 'order-success.html';
     });
   }
