@@ -400,14 +400,14 @@ function initCheckoutHandlers(){
 
       try {
         if (!window.emailjs) throw new Error('EmailJS not available');
-        await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams);
+        await emailjs.send(service_al4zpdb, template_vimeo5m, CRkybtSL0tLoJJ71X);
         // success: clear cart & go to success page
         localStorage.removeItem(STORAGE_KEYS.cart);
         updateCartBadge([]);
         window.location.href = 'order-success.html';
       } catch (err) {
-        console.error('Failed to send order via EmailJS', err);
-        alert('Failed to send order confirmation. Please try again later.');
+  console.error('EmailJS error details:', err);
+  alert('Failed to send order confirmation. See console for details.');
       }
     });
   }
@@ -460,3 +460,4 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('Init error', err);
   }
 });
+
