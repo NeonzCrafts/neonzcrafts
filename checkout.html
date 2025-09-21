@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeonzCrafts – Checkout</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="navbar">
+    <h1 class="brand" onclick="goHome()">NeonzCrafts</h1>
+    <nav class="nav-right">
+      <a href="cart.html" class="nav-btn">🛒 <span id="cart-count">0</span></a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h2 class="page-title">Checkout</h2>
+    <div class="checkout-grid">
+      <!-- Address Form -->
+      <section class="checkout-card">
+        <h3>Shipping Address</h3>
+        <form id="address-form">
+          <input id="address-name" placeholder="Full Name" required>
+          <input id="address-phone" placeholder="Phone (10 digits)" required>
+          <input id="address-street" placeholder="Street Address">
+          <input id="address-city" placeholder="City">
+          <input id="address-pincode" placeholder="Pincode" required>
+          <button type="submit" class="btn-primary full-width">Save Address</button>
+        </form>
+      </section>
+
+      <!-- Order Summary -->
+      <section class="checkout-card">
+        <h3>Order Summary</h3>
+        <div id="order-summary"></div>
+        <button id="place-order" class="btn-primary full-width">Place Order</button>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 NeonzCrafts. All rights reserved.</p>
+  </footer>
+</body>
+</html>
