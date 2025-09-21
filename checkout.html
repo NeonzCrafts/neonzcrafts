@@ -23,16 +23,16 @@
       <!-- ADDRESS FORM -->
       <div class="checkout-card">
         <h2>Shipping Address</h2>
-        <form class="address-form">
-          <label>Full name <input type="text" required></label>
-          <label>Phone (10 digits) <input type="tel" required></label>
-          <label>Street / Locality <input type="text" required></label>
-          <label>City <input type="text" required></label>
-          <label>Pincode (6 digits) <input type="number" required></label>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save Address</button>
-            <button type="reset" class="btn btn-secondary">Clear</button>
-          </div>
+        <form id="address-form" class="address-form">
+  <label>Full name <input type="text" name="name" required></label>
+  <label>Phone (10 digits) <input type="tel" name="phone" pattern="\d{10}" required></label>
+  <label>Street / Locality <input type="text" name="street" required></label>
+  <label>City <input type="text" name="city" required></label>
+  <label>Pincode (6 digits) <input type="text" name="pincode" pattern="\d{6}" required></label>
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Save Address</button>
+    <button type="reset" class="btn btn-secondary">Clear</button>
+  </div>
         </form>
       </div>
 
@@ -61,4 +61,5 @@
   <script src="script.js" defer></script>
 </body>
 </html>
+
 
