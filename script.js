@@ -35,15 +35,16 @@ function loadAddresses(){
   const savedAddresses = localStorage.getItem('addresses');
   if(savedAddresses){
     addresses = JSON.parse(savedAddresses);
-    selectedAddressIndex = localStorage.getItem('selectedAddressIndex');
+    selectedAddressIndex = parseInt(localStorage.getItem('selectedAddressIndex')); // Ensure it's a number
+    if(isNaN(selectedAddressIndex)) selectedAddressIndex = null;
   }
-  updateLoginState();
+  updateLoginState(); // Call update state here to reflect initial login status
 }
 // Save addresses to local storage
 function saveAddresses(){
   localStorage.setItem('addresses', JSON.stringify(addresses));
   localStorage.setItem('selectedAddressIndex', selectedAddressIndex);
-  updateLoginState();
+  updateLoginState(); // Call update state every time addresses are saved
 }
 
 // New function to manage login/logout UI state
@@ -52,12 +53,10 @@ function updateLoginState() {
     el('user-display').textContent = `Welcome, ${addresses[0].name}!`;
     el('user-display').classList.remove('hidden');
     el('login-btn').textContent = "Log Out";
-    el('login-btn').classList.remove('small'); // Make sure it looks like a button
   } else {
     el('user-display').textContent = "";
     el('user-display').classList.add('hidden');
     el('login-btn').textContent = "Log In";
-    el('login-btn').classList.add('small'); // Make sure it looks like a button
   }
 }
 
@@ -212,11 +211,16 @@ function renderAddresses(){
   const container=el('addresses-container'); container.innerHTML='';
   addresses.forEach((addr,idx)=>{
     const div=document.createElement('div'); div.className='address-card';
-    div.innerHTML=`<input type="radio" name="selected-address" ${selectedAddressIndex===idx?'checked':''} data-idx="${idx}"><label><strong>${addr.name}</strong></label><div>${addr.phone}</div><div>${addr.pincode}, ${addr.city}</div><div>${addr.street}</div><div>${addr.landmark}</div><button class="small remove-address" data-idx="${idx}">Remove</button>`;
+    div.innerHTML=`<input type="radio" name="selected-address" ${selectedAddressIndex===idx?'checked':''} data-idx="${idx}"><label><strong>${addr.name}</strong></label><div>${addr.phone}</div><div>${addr.pincode}, ${addr.city}</div><div>${addr.street}</div><div>${addr.landmark}</div><button class="small remove-address" data-idx="${idx}">Remove</button>`; // Corrected data attribute to data-idx
     container.appendChild(div);
   });
   container.querySelectorAll('input[name="selected-address"]').forEach(r=>r.onchange=e=>selectedAddressIndex=parseInt(e.currentTarget.dataset.idx));
-  container.querySelectorAll('.remove-address').forEach(b=>b.onclick=e=>{ addresses.splice(parseInt(e.currentTarget.dataset.id),1); if(selectedAddressIndex!==null && selectedAddressIndex>=addresses.length) selectedAddressIndex=addresses.length-1; renderAddresses(); });
+  container.querySelectorAll('.remove-address').forEach(b=>b.onclick=e=>{ 
+    addresses.splice(parseInt(e.currentTarget.dataset.idx),1); // Corrected this line to use data-idx
+    if(selectedAddressIndex!==null && selectedAddressIndex>=addresses.length) selectedAddressIndex=addresses.length-1; 
+    renderAddresses(); 
+    saveAddresses(); // Added this line to save changes to local storage
+  });
 }
 
 // Add new address (using the form)
