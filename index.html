@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body>
     <header>
@@ -92,17 +93,17 @@
                 <div id="order-summary"></div>
             </div>
 
+            <div class="notes-section">
+                <h3>Order special instructions</h3>
+                <textarea id="order-notes" placeholder="e.g., Leave at the door, call before delivery."></textarea>
+            </div>
+
             <div class="payment-section">
                 <h3>Payment Method</h3>
                 <div class="payment-option">
                     <input type="radio" id="cod" name="payment-method" value="cod" checked>
                     <label for="cod">Cash on Delivery (COD)</label>
                 </div>
-            </div>
-
-            <div class="notes-section">
-                <h3>Special Instructions (Optional)</h3>
-                <textarea id="order-notes" placeholder="e.g., Leave at the door, call before delivery."></textarea>
             </div>
 
             <button class="checkout-btn" id="place-order-btn">Place Order (COD)</button>

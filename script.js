@@ -9,17 +9,28 @@ const PRODUCTS = [
     id:'p1', 
     title:'Educational Geometric Shape Sorting & Stacking Toys for 1 2 3 Year Old, Montessori Toys for Toddlers, Preschool Educational Color Shape Learning Toy Gift for Kids Girls Boys', 
     price:219, 
-    // Now an array of images for the gallery
     images:[
       './51Vgahd2ZEL._AC_UF894,1000_QL80_FMwebp_.webp',
       './61WMeKDIQGL._AC_SL1500_.jpg',
       './61WjJh4UQ6L._AC_SL1500_.jpg'
     ], 
     description:'A perfect educational toy for toddlers to learn colors, shapes, and improve motor skills. Made from safe, durable materials.' 
+  },
+  {
+    id: 'p2',
+    title: 'Traditional Thekua',
+    originalPrice: 599,
+    price: 299,
+    images: [
+        './1000069559.jpg',
+        './1000069560.jpg',
+        './1000069561.jpg'
+    ],
+    description: 'A traditional sweet snack from India, made with wheat flour, jaggery, and coconut. Perfect for festivals and daily treats.'
   }
 ];
 
-// Sample reviews (You can edit these or let customers add them)
+// Sample reviews (These will be static now to avoid bugs)
 let REVIEWS = [
   { name: 'Priya S.', text: 'The product quality is amazing! I am so happy with my purchase.', rating: 5 },
   { name: 'Amit V.', text: 'Fast delivery and excellent customer service. Highly recommend!', rating: 5 },
@@ -70,7 +81,16 @@ function renderProducts(){
   PRODUCTS.forEach(p=>{
     const card=document.createElement('div'); card.className='card';
     card.setAttribute('onclick', `showProductDetail('${p.id}')`); // Make entire card clickable
-    card.innerHTML=`<img src="${p.images[0]}" alt="${p.title}"/><h3>${p.title}</h3><p>${p.description}</p><div class="price">₹${formatPrice(p.price)}</div>`;
+    
+    // Add logic for displaying sale price or regular price
+    let priceDisplay = '';
+    if (p.originalPrice) {
+      priceDisplay = `<span class="original-price">₹${formatPrice(p.originalPrice)}</span> ₹${formatPrice(p.price)} <span class="sale-tag">Sale</span>`;
+    } else {
+      priceDisplay = `₹${formatPrice(p.price)}`;
+    }
+
+    card.innerHTML=`<img src="${p.images[0]}" alt="${p.title}"/><h3>${p.title}</h3><p>${p.description}</p><div class="price">${priceDisplay}</div>`;
     grid.appendChild(card);
   });
   container.innerHTML='<h2>Products</h2>'; container.appendChild(grid);
@@ -89,6 +109,14 @@ function showProductDetail(id){
     // Create the image gallery HTML
     const galleryHtml = product.images.map(imgUrl => `<img src="${imgUrl}" alt="Product thumbnail" onclick="changeMainImage('${imgUrl}')">`).join('');
     
+    // Add logic for displaying sale price or regular price on detail page
+    let priceDisplay = '';
+    if (product.originalPrice) {
+      priceDisplay = `<span class="original-price">₹${formatPrice(product.originalPrice)}</span> ₹${formatPrice(product.price)} <span class="sale-tag">Sale</span>`;
+    } else {
+      priceDisplay = `₹${formatPrice(product.price)}`;
+    }
+
     contentDiv.innerHTML = `
       <div class="product-details-container">
         <div class="product-image-section">
@@ -97,15 +125,15 @@ function showProductDetail(id){
         </div>
         <div class="product-info-section">
           <h2>${product.title}</h2>
-          <div class="price">₹${formatPrice(product.price)}</div>
+          <div class="price">${priceDisplay}</div>
           <p>${product.description}</p>
-          <div class="quantity-selector">
-            <button class="small" onclick="changeQtyOnDetail(-1)">-</button>
-            <input type="number" id="detail-qty" value="1" min="1">
-            <button class="small" onclick="changeQtyOnDetail(1)">+</button>
+          <div class="quantity-selector-pill">
+            <button onclick="changeQtyOnDetail(-1)">-</button>
+            <span id="detail-qty">1</span>
+            <button onclick="changeQtyOnDetail(1)">+</button>
           </div>
           <button class="checkout-btn" onclick="addToCartAndCheckout('${product.id}')">BUY NOW</button>
-          <button class="add-to-cart-btn" onclick="addToCart('${product.id}', Number(el('detail-qty').value))">Add to cart</button>
+          <button class="add-to-cart-btn" onclick="addToCart('${product.id}', Number(el('detail-qty').textContent))">Add to cart</button>
         </div>
       </div>
     `;
@@ -126,15 +154,15 @@ function changeMainImage(imgUrl) {
 }
 
 function changeQtyOnDetail(change){
-    const qtyInput = el('detail-qty');
-    let currentQty = Number(qtyInput.value);
+    const qtySpan = el('detail-qty');
+    let currentQty = Number(qtySpan.textContent);
     currentQty += change;
     if (currentQty < 1) currentQty = 1;
-    qtyInput.value = currentQty;
+    qtySpan.textContent = currentQty;
 }
 
 function addToCartAndCheckout(id){
-  const qty = Number(el('detail-qty').value);
+  const qty = Number(el('detail-qty').textContent);
   addToCart(id, qty);
   el('view-cart').click();
 }
@@ -150,16 +178,29 @@ function updateCartUI(){
   el('cart-count').textContent=Object.values(cart).reduce((a,b)=>a+b,0);
   const itemsDiv=el('cart-items'); itemsDiv.innerHTML='';
   const items=cartItems();
+  el('cart-total').textContent = formatPrice(cartTotal());
   if(items.length===0){ itemsDiv.innerHTML='<p>Your cart is empty.</p>'; }
   else{
     items.forEach(it=>{
       const div=document.createElement('div'); div.className='cart-item';
-      div.innerHTML=`<img src="${it.images[0]}" alt="${it.title}"><div style="flex:1"><div><strong>${it.title}</strong></div><div>₹${formatPrice(it.price)} × <span class="qty">${it.qty}</span></div><div class="cart-qty"><button class="small dec" data-id="${it.id}">-</button><button class="small inc" data-id="${it.id}">+</button><button class="small rem" data-id="${it.id}">Remove</button></div></div>`;
+      div.innerHTML=`
+          <img src="${it.images[0]}" alt="${it.title}">
+          <div style="flex:1">
+              <div><strong>${it.title}</strong></div>
+              <div class="price">₹${formatPrice(it.price)}</div>
+          </div>
+          <div class="cart-quantity-pill">
+              <button class="small dec" data-id="${it.id}">-</button>
+              <span class="qty">${it.qty}</span>
+              <button class="small inc" data-id="${it.id}">+</button>
+              <button class="remove-from-cart-btn" data-id="${it.id}"><span class="material-symbols-outlined">delete</span></button>
+          </div>
+      `;
       itemsDiv.appendChild(div);
     });
     itemsDiv.querySelectorAll('.inc').forEach(b=>b.onclick=e=>changeQty(e.currentTarget.dataset.id,cart[e.currentTarget.dataset.id]+1));
     itemsDiv.querySelectorAll('.dec').forEach(b=>b.onclick=e=>changeQty(e.currentTarget.dataset.id,cart[e.currentTarget.dataset.id]-1));
-    itemsDiv.querySelectorAll('.rem').forEach(b=>b.onclick=e=>removeFromCart(e.currentTarget.dataset.id));
+    itemsDiv.querySelectorAll('.remove-from-cart-btn').forEach(b=>b.onclick=e=>removeFromCart(e.currentTarget.dataset.id));
   }
 }
 
@@ -302,7 +343,7 @@ el('add-review-form').onsubmit = e => {
     // Add the new review to the array
     REVIEWS.push({ name, text, rating });
     
-    // Save the updated reviews to local storage
+    // Save the updated reviews to local storage (THIS IS TEMPORARY, DO NOT RELY ON THIS)
     localStorage.setItem('reviews', JSON.stringify(REVIEWS));
     
     // Re-render the reviews section

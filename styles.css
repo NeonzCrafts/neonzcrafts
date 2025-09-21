@@ -135,12 +135,32 @@ h2 {
     flex-grow: 1;
 }
 
+/* Updated pricing styles */
 .price {
     font-size: 1.2rem;
     color: var(--primary-color);
     font-weight: 600;
     margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+
+.original-price {
+    font-size: 0.9rem;
+    color: #888;
+    text-decoration: line-through;
+}
+
+.sale-tag {
+    background-color: #D32F2F;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
 
 button {
     background-color: var(--primary-color);
@@ -161,6 +181,7 @@ button:hover {
     width: 100%;
     padding: 12px;
     margin-top: 16px;
+    border-radius: 50px;
 }
 
 .cancel-btn {
@@ -202,6 +223,57 @@ button:hover {
     display: flex;
     gap: 8px;
     margin-top: 8px;
+}
+
+/* Pill-shaped quantity selector */
+.quantity-selector-pill {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--dark-accent);
+    border-radius: 50px;
+    background-color: var(--bg-color);
+    overflow: hidden;
+}
+
+.quantity-selector-pill button {
+    background-color: transparent;
+    color: var(--text-color);
+    border-radius: 0;
+    padding: 8px 12px;
+}
+
+.quantity-selector-pill span {
+    padding: 0 12px;
+}
+
+/* Cart item quantity selector */
+.cart-quantity-pill {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--dark-accent);
+    border-radius: 50px;
+    background-color: var(--bg-color);
+}
+.cart-quantity-pill button {
+    background-color: transparent;
+    color: var(--text-color);
+    border-radius: 0;
+    padding: 8px 12px;
+}
+.cart-quantity-pill span {
+    padding: 0 12px;
+}
+
+.remove-from-cart-btn {
+    background-color: transparent;
+    color: #FF5252;
+    padding: 8px;
+    border-radius: 50%;
+    margin-left: 8px;
+}
+
+.remove-from-cart-btn:hover {
+    background-color: rgba(255, 82, 82, 0.2);
 }
 
 .cart-summary {
@@ -251,7 +323,7 @@ button:hover {
 /* Changed font sizes to be more minimal */
 .product-info-section h2 {
     border-bottom: none;
-    font-size: 1.0rem;
+    font-size: 1.2rem;
     margin-bottom: 0;
 }
 
@@ -422,6 +494,26 @@ button:hover {
     display: flex;
     gap: 8px;
 }
+
+/* Google Pay button styling */
+.gpay-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: white;
+    color: black;
+    border: 1px solid #757575;
+    border-radius: 50px;
+    padding: 12px 20px;
+    cursor: pointer;
+    margin-top: 8px;
+    width: 100%;
+}
+.gpay-btn:hover {
+    background-color: #f0f0f0;
+}
+
 /* About Section */
 .about-content {
     background-color: var(--card-bg);
@@ -468,4 +560,3 @@ footer {
         transform: translateY(0);
     }
 }
-
