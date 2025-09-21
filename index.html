@@ -60,16 +60,29 @@
       <h3>Order Summary</h3>
       <div id="order-summary"></div>
 
-      <button id="place-order-btn" class="checkout-btn">Place Order (COD)</button>
+      <button id="place-order-btn" class="checkout-btn">Place Order (Cash On Delivery)</button>
       <button type="button" id="cancel-checkout">Cancel</button>
 
-      <p class="note">After you confirm, your order details will be emailed to the store owner.</p>
+      <p class="note">After you confirm, your order details will be submitted .</p>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <small>Built for learning — replace images and product data with your supplier info.</small>
-  </footer>
+  <section class="reviews-section">
+    <h2>Customer Reviews</h2>
+    <div id="reviews-container" class="reviews-grid"></div>
+  </section>
+
+  <section class="about-us-section">
+    <h2>About Our Store</h2>
+    <div class="store-details">
+      <p><strong>Established:</strong> <span id="store-established">21 SEPTEMBER 2025</span></p>
+      <p><strong>Owner:</strong> <span id="store-owner">SAVAI GIRI</span></p>
+      <p><strong>Location:</strong> <span id="store-location">RANIWARA RAJASTHAN</span></p>
+    </div>
+    <blockquote>
+      <p id="store-quote">"More than a store, it's a treasure trove for growing hearts and brilliant minds. - NeonzCrafts"</p>
+    </blockquote>
+  </section>
 
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script src="script.js" defer></script>
