@@ -23,7 +23,7 @@ const PRODUCTS = [
 /* ---------- HELPERS ---------- */
 function $(id){ return document.getElementById(id); }
 function q(sel, ctx=document){ return ctx.querySelector(sel); }
-function qAll(sel, ctx=document){ return Array.from((ctx||document).querySelectorAll(sel)); }
+function qAll(sel, ctx=document){ return Array.from(ctx.querySelectorAll(sel)); }
 function safeParse(raw, fallback){ try { return JSON.parse(raw||'null') || fallback } catch { return fallback; } }
 function formatCurrency(n){ return `₹${Number(n||0).toFixed(0)}`; }
 
@@ -46,11 +46,18 @@ function saveCart(cart){
 }
 function clearCart(){ saveCart([]); }
 
-/* ---------- CART UI ---------- */
+/* ---------- CART BADGE ---------- */
 function updateCartBadge(cart){
   const cnt = (cart||[]).reduce((s,i)=>s+(i.qty||0),0);
-  qAll("#cart-count").forEach(el => el.textContent = cnt);
+  qAll("#cart-count").forEach(el => {
+    el.textContent = cnt;
+    el.classList.remove("bump");
+    void el.offsetWidth; // restart animation
+    el.classList.add("bump");
+  });
 }
+
+/* ---------- CART OPS ---------- */
 function addToCart(id, qty=1){
   const cart = loadCart();
   const idx = cart.findIndex(i=>i.id===id);
@@ -112,7 +119,6 @@ function openProductModal(p){
         <div class="carousel-images" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory">
           ${p.images.map(src=>`<img src="${src}" style="min-width:100%;scroll-snap-align:center;">`).join("")}
         </div>
-        <div class="carousel-dots"></div>
       </div>
       <div class="modal-info">
         <div class="modal-price">${formatCurrency(p.price)}</div>
@@ -160,14 +166,12 @@ function renderCartPage(){
   updateCartTotals(subtotal); setCheckoutEnabled(true);
 }
 
-function updateCartBadge(cart){
-  const cnt = (cart||[]).reduce((s,i)=>s+(i.qty||0),0);
-  qAll("#cart-count").forEach(el => {
-    el.textContent = cnt;
-    el.classList.remove("bump");
-    void el.offsetWidth; // 🔄 restart animation
-    el.classList.add("bump");
-  });
+function setCheckoutEnabled(enabled){
+  const checkoutBtn = $("to-checkout");
+  if (checkoutBtn) {
+    checkoutBtn.style.pointerEvents = enabled ? "" : "none";
+    checkoutBtn.style.opacity = enabled ? "1" : "0.5";
+  }
 }
 
 /* ---------- CHECKOUT ---------- */
@@ -189,14 +193,16 @@ function renderCheckoutPage(){
 
   const saved=safeParse(localStorage.getItem(STORAGE_KEYS.address),null);
   const form=$("address-form"), summary=$("address-summary"), savedText=$("saved-address-text");
-  if(saved && saved.name){
-    form.style.display="none"; summary.style.display="block";
-    savedText.innerHTML=`<strong>${saved.name}</strong><br>${saved.street}, ${saved.city} - ${saved.pincode}<br>📞 ${saved.phone}`;
-  } else { form.style.display=""; summary.style.display="none"; }
+  if(form){
+    if(saved && saved.name){
+      form.style.display="none"; summary.style.display="block";
+      if(savedText) savedText.innerHTML=`<strong>${saved.name}</strong><br>${saved.street}, ${saved.city} - ${saved.pincode}<br>📞 ${saved.phone}`;
+    } else { form.style.display=""; if(summary) summary.style.display="none"; }
+  }
 }
 
 function initCheckoutHandlers(){
-  if(window.emailjs) try{emailjs.init(EMAILJS_PUBLIC_KEY);}catch(e){console.warn("EmailJS init error",e);}
+  if(window.emailjs) try{emailjs.init(EMAILJS_PUBLIC_KEY);}catch(e){}
   const form=$("address-form");
   if(form){
     const saved=safeParse(localStorage.getItem(STORAGE_KEYS.address),null);
@@ -205,18 +211,18 @@ function initCheckoutHandlers(){
       e.preventDefault();
       const data={name:form.name.value.trim(),phone:form.phone.value.trim(),street:form.street.value.trim(),city:form.city.value.trim(),pincode:form.pincode.value.trim()};
       localStorage.setItem(STORAGE_KEYS.address,JSON.stringify(data));
-      alert("Address saved"); renderCheckoutPage();
+      renderCheckoutPage(); // auto-refresh UI
     });
   }
   $("edit-address")?.addEventListener("click",()=>{ $("address-form").style.display=""; $("address-summary").style.display="none"; });
-  $("clear-address")?.addEventListener("click",()=>{ localStorage.removeItem(STORAGE_KEYS.address); $("address-form").reset(); $("address-form").style.display=""; $("address-summary").style.display="none"; });
+  $("clear-address")?.addEventListener("click",()=>{ localStorage.removeItem(STORAGE_KEYS.address); $("address-form").reset(); renderCheckoutPage(); });
   $("place-order")?.addEventListener("click", async () => {
     const btn = $("place-order");
     const cart = loadCart();
-
     if (!cart.length) return alert("Your cart is empty.");
     const addr = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
     if (!addr) return alert("Please save your shipping address.");
+    if(btn.disabled) return;
 
     btn.disabled = true;
     btn.textContent = "Placing...";
@@ -257,4 +263,3 @@ document.addEventListener("DOMContentLoaded",()=>{
   renderCheckoutPage();
   initCheckoutHandlers();
 });
-
