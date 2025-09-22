@@ -23,7 +23,7 @@ const PRODUCTS = [
 /* ---------- HELPERS ---------- */
 function $(id){ return document.getElementById(id); }
 function q(sel, ctx=document){ return ctx.querySelector(sel); }
-function qAll(sel, ctx=document){ return Array.from(ctx.querySelectorAll(sel)); }
+function qAll(sel, ctx=document){ return Array.from((ctx||document).querySelectorAll(sel)); }
 function safeParse(raw, fallback){ try { return JSON.parse(raw||'null') || fallback } catch { return fallback; } }
 function formatCurrency(n){ return `₹${Number(n||0).toFixed(0)}`; }
 
@@ -46,41 +46,48 @@ function saveCart(cart){
 }
 function clearCart(){ saveCart([]); }
 
-/* ---------- CART BADGE ---------- */
+/* ---------- CART UI ---------- */
 function updateCartBadge(cart){
   const cnt = (cart||[]).reduce((s,i)=>s+(i.qty||0),0);
-  qAll("#cart-count").forEach(el => {
-    el.textContent = cnt;
+  qAll("#cart-count").forEach(el=>{
+    el.textContent=cnt;
     el.classList.remove("bump");
-    void el.offsetWidth; // restart animation
+    void el.offsetWidth;
     el.classList.add("bump");
   });
 }
-
-/* ---------- CART OPS ---------- */
 function addToCart(id, qty=1){
-  const cart = loadCart();
-  const idx = cart.findIndex(i=>i.id===id);
-  if (idx>=0) cart[idx].qty += qty;
-  else cart.push({id, qty});
+  const cart=loadCart();
+  const idx=cart.findIndex(i=>i.id===id);
+  if(idx>=0) cart[idx].qty+=qty;
+  else cart.push({id,qty});
   saveCart(cart);
+}
+function updateQty(id, delta){
+  const cart=loadCart();
+  const idx=cart.findIndex(i=>i.id===id);
+  if(idx>=0){
+    cart[idx].qty+=delta;
+    if(cart[idx].qty<=0) cart.splice(idx,1);
+    saveCart(cart);
+    renderCartPage();
+  }
 }
 function removeFromCart(id){
   saveCart(loadCart().filter(i=>i.id!==id));
+  renderCartPage();
 }
 
 /* ---------- PRODUCT LIST ---------- */
 function renderProductsPage(){
-  const panel = $("products-panel");
-  if (!panel) return;
-  panel.innerHTML = "";
+  const panel=$("products-panel");
+  if(!panel) return;
+  panel.innerHTML="";
   PRODUCTS.forEach(p=>{
     const card=document.createElement("article");
     card.className="product-card";
     card.innerHTML=`
-      <div class="product-media" role="button">
-        <img src="${p.images[0]}" alt="${p.title}">
-      </div>
+      <div class="product-media"><img src="${p.images[0]}" alt="${p.title}"></div>
       <div class="product-body">
         <div class="product-title">${p.title}</div>
         <div class="price-row">
@@ -94,14 +101,10 @@ function renderProductsPage(){
       </div>
     `;
     panel.appendChild(card);
-
-    q(".btn-add", card).addEventListener("click",()=>{
-      addToCart(p.id,1);
-      window.location.href="cart.html";
-    });
+    q(".btn-add",card).addEventListener("click",()=>{addToCart(p.id,1);window.location.href="cart.html";});
     const openModal=()=>openProductModal(p);
-    q(".btn-view", card).addEventListener("click",openModal);
-    q(".product-media", card).addEventListener("click",openModal);
+    q(".btn-view",card).addEventListener("click",openModal);
+    q(".product-media",card).addEventListener("click",openModal);
   });
 }
 
@@ -111,10 +114,7 @@ function openProductModal(p){
   overlay.className="modal-overlay";
   overlay.innerHTML=`
     <div class="modal-dialog">
-      <div class="modal-header">
-        <h2>${p.title}</h2>
-        <button class="modal-close">×</button>
-      </div>
+      <div class="modal-header"><h2>${p.title}</h2><button class="modal-close">×</button></div>
       <div class="carousel-container">
         <div class="carousel-images" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory">
           ${p.images.map(src=>`<img src="${src}" style="min-width:100%;scroll-snap-align:center;">`).join("")}
@@ -123,7 +123,11 @@ function openProductModal(p){
       <div class="modal-info">
         <div class="modal-price">${formatCurrency(p.price)}</div>
         <p>${p.desc}</p>
-        <input id="modal-qty" type="number" value="1" min="1">
+        <div class="qty-stepper">
+          <button id="qty-minus">−</button>
+          <span id="qty-value">1</span>
+          <button id="qty-plus">+</button>
+        </div>
         <button class="btn btn-primary" id="modal-add">Add to Cart</button>
         <button class="btn btn-secondary" id="modal-buy">Buy Now</button>
       </div>
@@ -132,57 +136,57 @@ function openProductModal(p){
   document.body.appendChild(overlay);
   q(".modal-close",overlay).addEventListener("click",()=>overlay.remove());
   overlay.addEventListener("click",e=>{if(e.target===overlay)overlay.remove();});
-  q("#modal-add",overlay).addEventListener("click",()=>{
-    addToCart(p.id,Number(q("#modal-qty",overlay).value)||1);
-    overlay.remove(); window.location.href="cart.html";
-  });
-  q("#modal-buy",overlay).addEventListener("click",()=>{
-    addToCart(p.id,Number(q("#modal-qty",overlay).value)||1);
-    overlay.remove(); window.location.href="checkout.html";
-  });
+
+  let qty=1;
+  const qtyValue=q("#qty-value",overlay);
+  q("#qty-minus",overlay).addEventListener("click",()=>{if(qty>1){qty--;qtyValue.textContent=qty;}});
+  q("#qty-plus",overlay).addEventListener("click",()=>{qty++;qtyValue.textContent=qty;});
+  q("#modal-add",overlay).addEventListener("click",()=>{addToCart(p.id,qty);overlay.remove();window.location.href="cart.html";});
+  q("#modal-buy",overlay).addEventListener("click",()=>{addToCart(p.id,qty);overlay.remove();window.location.href="checkout.html";});
 }
 
 /* ---------- CART PAGE ---------- */
 function renderCartPage(){
   const panel=$("cart-items");
   if(!panel) return;
-  const cart=loadCart(); panel.innerHTML="";
-  if(!cart.length){ panel.innerHTML="<p>Your cart is empty.</p>"; updateCartTotals(0); setCheckoutEnabled(false); return; }
+  const cart=loadCart();panel.innerHTML="";
+  if(!cart.length){panel.innerHTML="<p>Your cart is empty.</p>";updateCartTotals(0);return;}
   let subtotal=0;
   cart.forEach(item=>{
-    const p=PRODUCTS.find(pr=>pr.id===item.id); if(!p)return;
+    const p=PRODUCTS.find(pr=>pr.id===item.id);if(!p)return;
     subtotal+=p.price*item.qty;
     const row=document.createElement("div");
     row.className="cart-item";
     row.innerHTML=`
       <img src="${p.images[0]}" class="cart-thumb">
-      <div class="cart-details"><h4>${p.title}</h4>
-      <div>${formatCurrency(p.price)} × ${item.qty} = <strong>${formatCurrency(p.price*item.qty)}</strong></div></div>
+      <div class="cart-details">
+        <h4>${p.title}</h4>
+        <div class="qty-controls">
+          <button class="qty-btn minus">−</button>
+          <span>${item.qty}</span>
+          <button class="qty-btn plus">+</button>
+        </div>
+        <div>${formatCurrency(p.price*item.qty)}</div>
+      </div>
       <button class="remove-btn btn-sm">Remove</button>
     `;
-    q(".remove-btn",row).addEventListener("click",()=>{removeFromCart(item.id);renderCartPage();});
+    q(".minus",row).addEventListener("click",()=>updateQty(item.id,-1));
+    q(".plus",row).addEventListener("click",()=>updateQty(item.id,1));
+    q(".remove-btn",row).addEventListener("click",()=>removeFromCart(item.id));
     panel.appendChild(row);
   });
-  updateCartTotals(subtotal); setCheckoutEnabled(true);
+  updateCartTotals(subtotal);
 }
 
-function setCheckoutEnabled(enabled){
-  const checkoutBtn = $("to-checkout");
-  if (checkoutBtn) {
-    checkoutBtn.style.pointerEvents = enabled ? "" : "none";
-    checkoutBtn.style.opacity = enabled ? "1" : "0.5";
-  }
-}
-
-/* ---------- CHECKOUT ---------- */
 function updateCartTotals(subtotal){
   const shipping=0;
   const set=(id,val)=>{$(id)&&($(id).textContent=val);};
   set("subtotal-amt",formatCurrency(subtotal));
-  set("shipping-amt",shipping===0?"Free":formatCurrency(shipping));
-  set("grand-amt",formatCurrency(subtotal+shipping));
+  set("shipping-amt","Free");
+  set("grand-amt",formatCurrency(subtotal));
 }
 
+/* ---------- CHECKOUT ---------- */
 function renderCheckoutPage(){
   const cart=loadCart();
   const subtotal=cart.reduce((s,it)=>{
@@ -190,15 +194,12 @@ function renderCheckoutPage(){
     return s+p.price*it.qty;
   },0);
   updateCartTotals(subtotal);
-
   const saved=safeParse(localStorage.getItem(STORAGE_KEYS.address),null);
-  const form=$("address-form"), summary=$("address-summary"), savedText=$("saved-address-text");
-  if(form){
-    if(saved && saved.name){
-      form.style.display="none"; summary.style.display="block";
-      if(savedText) savedText.innerHTML=`<strong>${saved.name}</strong><br>${saved.street}, ${saved.city} - ${saved.pincode}<br>📞 ${saved.phone}`;
-    } else { form.style.display=""; if(summary) summary.style.display="none"; }
-  }
+  const form=$("address-form"),summary=$("address-summary"),savedText=$("saved-address-text");
+  if(saved && saved.name){
+    form.style.display="none";summary.style.display="block";
+    savedText.innerHTML=`<strong>${saved.name}</strong><br>${saved.street}, ${saved.city} - ${saved.pincode}<br>📞 ${saved.phone}`;
+  } else {form.style.display="";summary.style.display="none";}
 }
 
 function initCheckoutHandlers(){
@@ -211,55 +212,27 @@ function initCheckoutHandlers(){
       e.preventDefault();
       const data={name:form.name.value.trim(),phone:form.phone.value.trim(),street:form.street.value.trim(),city:form.city.value.trim(),pincode:form.pincode.value.trim()};
       localStorage.setItem(STORAGE_KEYS.address,JSON.stringify(data));
-      renderCheckoutPage(); // auto-refresh UI
+      alert("Address saved");renderCheckoutPage();
     });
   }
-  $("edit-address")?.addEventListener("click",()=>{ $("address-form").style.display=""; $("address-summary").style.display="none"; });
-  $("clear-address")?.addEventListener("click",()=>{ localStorage.removeItem(STORAGE_KEYS.address); $("address-form").reset(); renderCheckoutPage(); });
-  $("place-order")?.addEventListener("click", async () => {
-    const btn = $("place-order");
-    const cart = loadCart();
-    if (!cart.length) return alert("Your cart is empty.");
-    const addr = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
-    if (!addr) return alert("Please save your shipping address.");
-    if(btn.disabled) return;
-
-    btn.disabled = true;
-    btn.textContent = "Placing...";
-    btn.style.opacity = "0.7";
-
-    try {
-      await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-        order_items: cart.map(it => {
-          const p = PRODUCTS.find(pr=>pr.id===it.id)||{};
-          return `${p.title} × ${it.qty} = ${formatCurrency((p.price||0)*it.qty)}`;
-        }).join("\n"),
-        order_total: formatCurrency(cart.reduce((s,it)=>{
-          const p=PRODUCTS.find(pr=>pr.id===it.id)||{price:0};
-          return s+p.price*it.qty;
-        },0)),
-        customer_name: addr.name,
-        customer_phone: addr.phone,
-        customer_address: `${addr.street}, ${addr.city} - ${addr.pincode}`
+  $("place-order")?.addEventListener("click",async()=>{
+    const btn=$("place-order");
+    const cart=loadCart();
+    if(!cart.length) return alert("Your cart is empty.");
+    const addr=safeParse(localStorage.getItem(STORAGE_KEYS.address),null);
+    if(!addr) return alert("Please save your shipping address.");
+    btn.disabled=true;btn.textContent="Placing...";btn.style.opacity="0.7";
+    try{
+      await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{
+        order_items:cart.map(it=>`${PRODUCTS.find(pr=>pr.id===it.id).title} × ${it.qty}`).join("\n"),
+        order_total:formatCurrency(cart.reduce((s,it)=>s+(PRODUCTS.find(pr=>pr.id===it.id)||{price:0}).price*it.qty,0)),
+        customer_name:addr.name,
+        customer_phone:addr.phone,
+        customer_address:`${addr.street}, ${addr.city} - ${addr.pincode}`
       });
-
       clearCart();
-      window.location.href = "order-success.html";
-    } catch (err) {
-      console.error("EmailJS error", err);
-      alert("Failed to send order confirmation. Please try again.");
-      btn.disabled = false;
-      btn.textContent = "Place Order";
-      btn.style.opacity = "1";
+      window.location.href="order-success.html";
+    }catch(e){
+      alert("Failed to send order confirmation.");btn.disabled=false;btn.textContent="Place Order";btn.style.opacity="1";
     }
   });
-}
-
-/* ---------- INIT ON DOM READY ---------- */
-document.addEventListener("DOMContentLoaded",()=>{
-  updateCartBadge(loadCart());
-  renderProductsPage();
-  renderCartPage();
-  renderCheckoutPage();
-  initCheckoutHandlers();
-});
