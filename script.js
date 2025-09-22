@@ -187,53 +187,114 @@ function updateCartTotals(subtotal){
 }
 
 /* ---------- CHECKOUT ---------- */
-function renderCheckoutPage(){
-  const cart=loadCart();
-  const subtotal=cart.reduce((s,it)=>{
-    const p=PRODUCTS.find(pr=>pr.id===it.id)||{price:0};
-    return s+p.price*it.qty;
-  },0);
+function renderCheckoutPage() {
+  const cart = loadCart();
+  const subtotal = cart.reduce((s, it) => {
+    const p = PRODUCTS.find(pr => pr.id === it.id) || { price: 0 };
+    return s + p.price * it.qty;
+  }, 0);
   updateCartTotals(subtotal);
-  const saved=safeParse(localStorage.getItem(STORAGE_KEYS.address),null);
-  const form=$("address-form"),summary=$("address-summary"),savedText=$("saved-address-text");
-  if(saved && saved.name){
-    form.style.display="none";summary.style.display="block";
-    savedText.innerHTML=`<strong>${saved.name}</strong><br>${saved.street}, ${saved.city} - ${saved.pincode}<br>📞 ${saved.phone}`;
-  } else {form.style.display="";summary.style.display="none";}
+
+  const saved = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
+  const form = $("address-form"),
+        summary = $("address-summary"),
+        savedText = $("saved-address-text");
+
+  if (saved && saved.name) {
+    form.style.display = "none";
+    summary.style.display = "block";
+    savedText.innerHTML = `<strong>${saved.name}</strong><br>${saved.street}, ${saved.city} - ${saved.pincode}<br>📞 ${saved.phone}`;
+  } else {
+    form.style.display = "";
+    summary.style.display = "none";
+  }
 }
 
-function initCheckoutHandlers(){
-  if(window.emailjs) try{emailjs.init(EMAILJS_PUBLIC_KEY);}catch(e){}
-  const form=$("address-form");
-  if(form){
-    const saved=safeParse(localStorage.getItem(STORAGE_KEYS.address),null);
-    if(saved){["name","phone","street","city","pincode"].forEach(f=>form.elements[f].value=saved[f]||"");}
-    form.addEventListener("submit",e=>{
+function initCheckoutHandlers() {
+  if (window.emailjs) {
+    try { emailjs.init(EMAILJS_PUBLIC_KEY); }
+    catch (e) { console.warn("EmailJS init error", e); }
+  }
+
+  const form = $("address-form");
+  const summary = $("address-summary");
+  const savedText = $("saved-address-text");
+
+  if (form) {
+    // Prefill if saved
+    const saved = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
+    if (saved) {
+      ["name", "phone", "street", "city", "pincode"].forEach(
+        f => form.elements[f].value = saved[f] || ""
+      );
+    }
+
+    form.addEventListener("submit", e => {
       e.preventDefault();
-      const data={name:form.name.value.trim(),phone:form.phone.value.trim(),street:form.street.value.trim(),city:form.city.value.trim(),pincode:form.pincode.value.trim()};
-      localStorage.setItem(STORAGE_KEYS.address,JSON.stringify(data));
-      alert("Address saved");renderCheckoutPage();
+      const data = {
+        name: form.name.value.trim(),
+        phone: form.phone.value.trim(),
+        street: form.street.value.trim(),
+        city: form.city.value.trim(),
+        pincode: form.pincode.value.trim()
+      };
+      localStorage.setItem(STORAGE_KEYS.address, JSON.stringify(data));
+
+      // ✅ Instantly update UI without refresh
+      form.style.display = "none";
+      summary.style.display = "block";
+      savedText.innerHTML = `<strong>${data.name}</strong><br>${data.street}, ${data.city} - ${data.pincode}<br>📞 ${data.phone}`;
     });
   }
-  $("place-order")?.addEventListener("click",async()=>{
-    const btn=$("place-order");
-    const cart=loadCart();
-    if(!cart.length) return alert("Your cart is empty.");
-    const addr=safeParse(localStorage.getItem(STORAGE_KEYS.address),null);
-    if(!addr) return alert("Please save your shipping address.");
-    btn.disabled=true;btn.textContent="Placing...";btn.style.opacity="0.7";
-    try{
-      await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{
-        order_items:cart.map(it=>`${PRODUCTS.find(pr=>pr.id===it.id).title} × ${it.qty}`).join("\n"),
-        order_total:formatCurrency(cart.reduce((s,it)=>s+(PRODUCTS.find(pr=>pr.id===it.id)||{price:0}).price*it.qty,0)),
-        customer_name:addr.name,
-        customer_phone:addr.phone,
-        customer_address:`${addr.street}, ${addr.city} - ${addr.pincode}`
+
+  $("edit-address")?.addEventListener("click", () => {
+    form.style.display = "block";
+    summary.style.display = "none";
+  });
+
+  $("clear-address")?.addEventListener("click", () => {
+    localStorage.removeItem(STORAGE_KEYS.address);
+    form.reset();
+    form.style.display = "block";
+    summary.style.display = "none";
+  });
+
+  $("place-order")?.addEventListener("click", async () => {
+    const btn = $("place-order");
+    const cart = loadCart();
+    if (!cart.length) return alert("Your cart is empty.");
+
+    const addr = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
+    if (!addr) return alert("Please save your shipping address.");
+
+    btn.disabled = true;
+    btn.textContent = "Placing...";
+    btn.style.opacity = "0.7";
+
+    try {
+      await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+        order_items: cart.map(it => {
+          const p = PRODUCTS.find(pr => pr.id === it.id) || {};
+          return `${p.title} × ${it.qty} = ${formatCurrency((p.price || 0) * it.qty)}`;
+        }).join("\n"),
+        order_total: formatCurrency(cart.reduce((s, it) => {
+          const p = PRODUCTS.find(pr => pr.id === it.id) || { price: 0 };
+          return s + p.price * it.qty;
+        }, 0)),
+        customer_name: addr.name,
+        customer_phone: addr.phone,
+        customer_address: `${addr.street}, ${addr.city} - ${addr.pincode}`
       });
+
       clearCart();
-      window.location.href="order-success.html";
-    }catch(e){
-      alert("Failed to send order confirmation.");btn.disabled=false;btn.textContent="Place Order";btn.style.opacity="1";
+      window.location.href = "order-success.html";
+    } catch (err) {
+      console.error("EmailJS error", err);
+      alert("Failed to send order confirmation. Please try again.");
+      btn.disabled = false;
+      btn.textContent = "Place Order";
+      btn.style.opacity = "1";
     }
   });
+}
 
