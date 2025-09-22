@@ -225,6 +225,44 @@ body {
 }
 #place-order:hover { background: #ff8b33; }
 
+/* ✅ Checkout Product Summary */
+.product-summary-card {
+  margin-bottom: 16px;
+}
+
+.checkout-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.checkout-item:last-child {
+  border-bottom: none;
+}
+.checkout-thumb {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.checkout-info {
+  flex: 1;
+}
+.checkout-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.checkout-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.checkout-price {
+  font-weight: 600;
+}
+
 /* ✅ Modal (With Animation) */
 @keyframes modalFadeIn {
   from { opacity: 0; transform: translateY(20px) scale(0.95); }
@@ -325,3 +363,4 @@ footer {
   color: var(--muted);
   text-align: center;
 }
+
