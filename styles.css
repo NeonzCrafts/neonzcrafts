@@ -261,3 +261,36 @@ footer {
   font-size: 0.85rem;
   color: var(--muted);
 }
+
+/* Section Styling */
+.products-section, .about-section {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.about-section {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.about-section h2 {
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.about-section p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--muted);
+  text-align: center;
+}
