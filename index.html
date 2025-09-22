@@ -7,37 +7,42 @@
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 </head>
-<body>
+<body class="dark">
   <!-- HEADER -->
   <header class="navbar">
-  <div class="brand" id="brand">NeonzCrafts</div>
-  <div class="nav-actions">
-    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme">🌙</button>
-    <a href="cart.html" class="cart-link">
-      🛒 <span id="cart-count">0</span>
-    </a>
-  </div>
+    <div class="brand" id="brand">NeonzCrafts</div>
+    <div class="nav-actions">
+      <a href="cart.html" class="cart-link">
+        🛒 <span id="cart-count">0</span>
+      </a>
+    </div>
   </header>
 
-  <!-- PRODUCTS PANEL -->
-  <main>
+  <!-- MAIN -->
+  <main class="container">
+    <!-- PRODUCTS PANEL -->
     <section class="products-section">
-      <h2>Our Featured Product</h2>
-      <div id="products-panel"></div> <!-- This is CRUCIAL -->
+      <h2 class="section-title">Our Featured Product</h2>
+      <div id="products-panel" class="products-grid"></div>
     </section>
 
+    <!-- ABOUT SECTION -->
     <section class="about-section">
-      <h2>About NeonzCrafts</h2>
-      <p>Handmade • Crafted • Local — We design playful, educational toys that spark curiosity and support early learning.</p>
+      <h2 class="section-title">About NeonzCrafts</h2>
+      <p class="about-text">
+        Handmade • Crafted • Local — We design playful, educational toys that spark curiosity
+        and support early learning. Our mission is to bring safe, sustainable and innovative
+        toys to every home.
+      </p>
     </section>
   </main>
 
+  <!-- FOOTER -->
   <footer class="site-footer">
-    <p>© 2025 NeonzCrafts. All rights reserved.</p>
+    <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
   </footer>
 
-  <!-- Your Script -->
+  <!-- SCRIPTS -->
   <script src="script.js"></script>
 </body>
 </html>
-
