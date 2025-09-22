@@ -13,7 +13,7 @@ const PRODUCTS = [
   {
     id: "p1",
     title: "Educational Geometric Shape Toy",
-    price: 299,
+    price: 199,
     originalPrice: 399,
     images: ["1000069559.jpg","1000069560.jpg","1000069561.jpg"],
     desc: "Interactive and colorful shape toy to improve cognitive skills for toddlers."
@@ -338,3 +338,4 @@ document.addEventListener("DOMContentLoaded",()=>{
   renderCheckoutPage();
   initCheckoutHandlers();
 });
+
