@@ -71,11 +71,13 @@ function updateQty(id, delta){
     if(cart[idx].qty<=0) cart.splice(idx,1);
     saveCart(cart);
     renderCartPage();
+    renderCheckoutPage(); // ✅ live update checkout product list
   }
 }
 function removeFromCart(id){
   saveCart(loadCart().filter(i=>i.id!==id));
   renderCartPage();
+  renderCheckoutPage();
 }
 
 /* ---------- PRODUCT LIST ---------- */
@@ -116,24 +118,24 @@ function renderProductsPage(){
 /* ---------- PRODUCT MODAL ---------- */
 function openProductModal(p){
   const overlay=document.createElement("div");
-  overlay.className="modal-overlay";
+  overlay.className="modal-overlay show"; // show triggers animation
   overlay.innerHTML=`
     <div class="modal-dialog">
       <div class="modal-header"><h2>${p.title}</h2><button class="modal-close">×</button></div>
       <div class="carousel-container">
-        <div class="carousel-images" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory">
-          ${p.images.map(src=>`<img src="${src}" style="min-width:100%;scroll-snap-align:center;">`).join("")}
+        <div class="carousel-images">
+          ${p.images.map(src=>`<img src="${src}" class="modal-image">`).join("")}
         </div>
       </div>
       <div class="modal-info">
         <div class="modal-price">${formatCurrency(p.price)}</div>
         <p>${p.desc}</p>
-        <div class="qty-stepper" style="display:flex;gap:10px;align-items:center;justify-content:center;margin:10px 0;">
-          <button id="qty-minus" style="padding:6px 10px;font-size:18px;border-radius:6px;">−</button>
-          <span id="qty-value" style="min-width:24px;text-align:center;font-weight:bold;">1</span>
-          <button id="qty-plus" style="padding:6px 10px;font-size:18px;border-radius:6px;">+</button>
+        <div class="qty-stepper">
+          <button id="qty-minus">−</button>
+          <span id="qty-value">1</span>
+          <button id="qty-plus">+</button>
         </div>
-        <div style="display:flex;gap:10px;justify-content:center;margin-top:10px;">
+        <div class="modal-actions">
           <button class="btn btn-primary" id="modal-add">Add to Cart</button>
           <button class="btn btn-secondary" id="modal-buy">Buy Now</button>
         </div>
@@ -141,6 +143,7 @@ function openProductModal(p){
     </div>
   `;
   document.body.appendChild(overlay);
+
   q(".modal-close",overlay).addEventListener("click",()=>overlay.remove());
   overlay.addEventListener("click",e=>{if(e.target===overlay)overlay.remove();});
 
@@ -168,7 +171,7 @@ function renderCartPage(){
       <img src="${p.images[0]}" class="cart-thumb">
       <div class="cart-details">
         <h4>${p.title}</h4>
-        <div class="qty-controls" style="display:flex;gap:8px;align-items:center;margin:6px 0;">
+        <div class="qty-controls">
           <button class="qty-btn minus">−</button>
           <span>${item.qty}</span>
           <button class="qty-btn plus">+</button>
@@ -186,7 +189,6 @@ function renderCartPage(){
 }
 
 function updateCartTotals(subtotal){
-  const shipping=0;
   const set=(id,val)=>{$(id)&&($(id).textContent=val);};
   set("subtotal-amt",formatCurrency(subtotal));
   set("shipping-amt","Free");
@@ -201,6 +203,32 @@ function renderCheckoutPage() {
     return s + p.price * it.qty;
   }, 0);
   updateCartTotals(subtotal);
+
+  // ✅ Show product list dynamically
+  const productPanel = $("checkout-products");
+  if (productPanel) {
+    productPanel.innerHTML = "";
+    if (!cart.length) {
+      productPanel.innerHTML = "<p>Your cart is empty.</p>";
+    } else {
+      cart.forEach(item => {
+        const p = PRODUCTS.find(pr => pr.id === item.id);
+        if (!p) return;
+        const row = document.createElement("div");
+        row.className = "checkout-item";
+        row.innerHTML = `
+          <img src="${p.images[0]}" class="checkout-thumb">
+          <div class="checkout-info">
+            <div class="checkout-title">${p.title}</div>
+            <div class="checkout-meta">Qty: ${item.qty}</div>
+          </div>
+          <div class="checkout-price">${formatCurrency(p.price * item.qty)}</div>
+        `;
+        row.querySelector(".checkout-thumb").addEventListener("click",()=>openProductModal(p));
+        productPanel.appendChild(row);
+      });
+    }
+  }
 
   const saved = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
   const form = $("address-form"), summary = $("address-summary"), savedText = $("saved-address-text");
@@ -269,17 +297,13 @@ function initCheckoutHandlers() {
           const p = PRODUCTS.find(pr => pr.id === it.id) || {};
           return `${p.title} × ${it.qty} = ${formatCurrency((p.price || 0) * it.qty)}`;
         }).join("\n"),
-        order_total: formatCurrency(cart.reduce((s, it) => {
-          const p = PRODUCTS.find(pr => pr.id === it.id) || { price: 0 };
-          return s + p.price * it.qty;
-        }, 0)),
+        order_total: formatCurrency(subtotal),
         customer_name: addr.name,
         customer_phone: addr.phone,
         customer_address: `${addr.street}, ${addr.city} - ${addr.pincode}`
       });
 
       clearCart();
-      alert("✅ Order placed successfully!");
       window.location.href = "order-success.html";
     } catch (err) {
       alert("Failed to send order confirmation. Please try again.");
