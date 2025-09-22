@@ -36,6 +36,7 @@ body {
 .brand {
   font-size: 1.5rem;
   font-weight: 700;
+  letter-spacing: 0.5px;
   user-select: none;
 }
 
@@ -80,7 +81,7 @@ body {
 #products-panel {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px;
+  gap: 16px;
   padding: 16px;
   margin-bottom: 30px;
 }
@@ -101,11 +102,12 @@ body {
   width: 100%;
   display: block;
 }
-.product-body { padding: 8px; }
+.product-body { padding: 10px; }
 .product-title {
   font-size: 0.95rem;
   font-weight: 600;
   margin: 4px 0;
+  min-height: 36px;
 }
 .price-row {
   display: flex;
@@ -161,7 +163,8 @@ body {
 .qty-controls {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  margin: 6px 0;
 }
 .qty-btn {
   background: var(--border);
@@ -171,7 +174,9 @@ body {
   border-radius: 50%;
   font-weight: bold;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
+.qty-btn:hover { background: #dcdcdc; }
 .remove-btn {
   background: #f44336;
   color: white;
@@ -188,6 +193,7 @@ body {
   border-radius: 10px;
   padding: 14px;
   margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 .address-form label {
   display: flex;
@@ -240,18 +246,20 @@ body {
 .qty-stepper {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 12px;
 }
 .qty-stepper button {
   background: var(--border);
   border: none;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   font-size: 1.2rem;
   cursor: pointer;
 }
+.qty-stepper button:hover { background: #dcdcdc; }
 
 /* ✅ Footer */
 footer {
