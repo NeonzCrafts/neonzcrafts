@@ -197,39 +197,11 @@ body {
   margin-bottom: 16px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
-.address-form label {
-  display: flex;
-  flex-direction: column;
-  font-weight: 500;
-  font-size: 0.9rem;
-  margin-bottom: 8px;
-}
-.address-form input {
-  margin-top: 4px;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-}
-#place-order {
-  width: 100%;
-  padding: 12px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  background: var(--accent);
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-#place-order:hover { background: #ff8b33; }
 
 /* ✅ Checkout Product Summary */
 .product-summary-card {
   margin-bottom: 16px;
 }
-
 .checkout-item {
   display: flex;
   align-items: center;
@@ -239,35 +211,18 @@ body {
   padding: 8px;
   border-bottom: 1px solid var(--border);
 }
-.checkout-item:last-child {
-  border-bottom: none;
-}
+.checkout-item:last-child { border-bottom: none; }
 .checkout-thumb {
   width: 50px;
   height: 50px;
   object-fit: cover;
   border-radius: 6px;
 }
-.checkout-info {
-  flex: 1;
-}
-.checkout-title {
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-.checkout-meta {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-.checkout-price {
-  font-weight: 600;
-}
+.checkout-title { font-weight: 600; font-size: 0.9rem; }
+.checkout-meta { font-size: 0.8rem; color: var(--muted); }
+.checkout-price { font-weight: 600; }
 
-/* ✅ Modal (With Animation) */
-@keyframes modalFadeIn {
-  from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
+/* ✅ Modal (Horizontal Carousel) */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0;
@@ -277,117 +232,37 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeBg 0.25s ease forwards;
-}
-@keyframes fadeBg {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 .modal-dialog {
   background: var(--bg);
   border-radius: 16px;
   max-width: 95%;
   max-height: 90%;
-  overflow-y: auto;
+  overflow: hidden;
   padding: 16px;
-  animation: modalFadeIn 0.3s ease forwards;
+  animation: modalFadeIn 0.3s ease;
   box-shadow: 0 6px 20px rgba(0,0,0,0.25);
 }
-.modal-header h2 {
-  margin: 0 0 10px 0;
-}
-/* ✅ Fix huge product image in modal */
-.modal-dialog img {
-  max-width: 90vw;
-  max-height: 80vh;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto;
-}
-
-.carousel-images img {
-  max-width: 90vw;
-  max-height: 80vh;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-}
-.modal-header .modal-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-.modal-info { margin-top: 10px; }
-.qty-stepper {
+.carousel-container {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  justify-content: center;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 12px;
   margin-bottom: 12px;
 }
-.qty-stepper button {
-  background: var(--border);
-  border: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-.qty-stepper button:hover { background: #dcdcdc; }
-.carousel-images img {
-  display: block;
+.carousel-container img {
+  flex: 0 0 90%;
   max-width: 90%;
-  margin: 10px auto;
-  border-radius: 8px;
+  border-radius: 10px;
+  object-fit: contain;
+  scroll-snap-align: center;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-
-/* ✅ Footer */
-footer {
-  text-align: center;
-  margin-top: auto;
-  padding: 10px;
-  font-size: 0.85rem;
-  color: var(--muted);
+.carousel-container::-webkit-scrollbar {
+  display: none;
 }
 
-/* Section Styling */
-.products-section, .about-section {
-  padding: 20px;
-  max-width: 1000px;
-  margin: 0 auto;
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
-
-.section-title {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-  text-align: center;
-}
-
-.about-section {
-  background: var(--surface);
-  border-radius: 10px;
-  padding: 20px;
-  margin-top: 20px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}
-.about-section h2 {
-  font-size: 1.3rem;
-  margin-bottom: 10px;
-  text-align: center;
-}
-.about-section p {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--muted);
-  text-align: center;
-}
-
-
-
