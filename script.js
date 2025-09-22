@@ -160,6 +160,16 @@ function renderCartPage(){
   updateCartTotals(subtotal); setCheckoutEnabled(true);
 }
 
+function updateCartBadge(cart){
+  const cnt = (cart||[]).reduce((s,i)=>s+(i.qty||0),0);
+  qAll("#cart-count").forEach(el => {
+    el.textContent = cnt;
+    el.classList.remove("bump");
+    void el.offsetWidth; // 🔄 restart animation
+    el.classList.add("bump");
+  });
+}
+
 /* ---------- CHECKOUT ---------- */
 function updateCartTotals(subtotal){
   const shipping=0;
@@ -247,3 +257,4 @@ document.addEventListener("DOMContentLoaded",()=>{
   renderCheckoutPage();
   initCheckoutHandlers();
 });
+
