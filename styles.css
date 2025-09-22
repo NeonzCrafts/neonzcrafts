@@ -339,6 +339,13 @@ body {
   transition: background 0.2s ease;
 }
 .qty-stepper button:hover { background: #dcdcdc; }
+.carousel-images img {
+  display: block;
+  max-width: 90%;
+  margin: 10px auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
 
 /* ✅ Footer */
 footer {
@@ -381,5 +388,6 @@ footer {
   color: var(--muted);
   text-align: center;
 }
+
 
 
