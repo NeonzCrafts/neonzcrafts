@@ -1,35 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NeonzCrafts — Home</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeonzCrafts - Shop</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <!-- ✅ Navbar -->
   <header class="navbar">
     <div class="brand">NeonzCrafts</div>
     <div class="nav-actions">
-      <a class="cart-link" href="cart.html" aria-label="Cart">
-        <div class="icon-badge">🛒</div><span id="cart-count">0</span>
+      <a href="cart.html" class="cart-link">
+        🛒 <span id="cart-count">0</span>
       </a>
     </div>
   </header>
 
-  <main class="container">
-    <section class="products-section">
-      <h2 class="section-title">Our Featured Product</h2>
-      <div id="products-panel" class="products-grid"></div>
-    </section>
-
-    <section class="about-section container">
-      <h2>About NeonzCrafts</h2>
-      <p class="kicker">We source and resell high-quality educational toys and playsets for early learning. Competitive prices & fast shipping.</p>
-    </section>
+  <!-- ✅ Products Section -->
+  <main class="products-section">
+    <h1 class="section-title">Our Products</h1>
+    <div id="products-panel"></div>
   </main>
 
-  <footer class="container center" style="padding:18px 8px;">
-    <small class="muted">© 2025 NeonzCrafts. All rights reserved.</small>
+  <!-- ✅ About / Footer Section -->
+  <section class="about-section">
+    <h2>About Us</h2>
+    <p>We provide safe, high-quality educational toys for kids. Build, play, and learn — all in one place.</p>
+  </section>
+
+  <footer>
+    &copy; 2025 NeonzCrafts. All Rights Reserved.
   </footer>
 
   <script src="script.js"></script>
