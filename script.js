@@ -83,6 +83,11 @@ function renderProductsPage(){
   const panel=$("products-panel");
   if(!panel) return;
   panel.innerHTML="";
+  if (!PRODUCTS.length) {
+    panel.innerHTML = `<p style="text-align:center;color:gray">No products available</p>`;
+    return;
+  }
+
   PRODUCTS.forEach(p=>{
     const card=document.createElement("article");
     card.className="product-card";
@@ -123,13 +128,15 @@ function openProductModal(p){
       <div class="modal-info">
         <div class="modal-price">${formatCurrency(p.price)}</div>
         <p>${p.desc}</p>
-        <div class="qty-stepper">
-          <button id="qty-minus">−</button>
-          <span id="qty-value">1</span>
-          <button id="qty-plus">+</button>
+        <div class="qty-stepper" style="display:flex;gap:10px;align-items:center;justify-content:center;margin:10px 0;">
+          <button id="qty-minus" style="padding:6px 10px;font-size:18px;border-radius:6px;">−</button>
+          <span id="qty-value" style="min-width:24px;text-align:center;font-weight:bold;">1</span>
+          <button id="qty-plus" style="padding:6px 10px;font-size:18px;border-radius:6px;">+</button>
         </div>
-        <button class="btn btn-primary" id="modal-add">Add to Cart</button>
-        <button class="btn btn-secondary" id="modal-buy">Buy Now</button>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:10px;">
+          <button class="btn btn-primary" id="modal-add">Add to Cart</button>
+          <button class="btn btn-secondary" id="modal-buy">Buy Now</button>
+        </div>
       </div>
     </div>
   `;
@@ -161,12 +168,12 @@ function renderCartPage(){
       <img src="${p.images[0]}" class="cart-thumb">
       <div class="cart-details">
         <h4>${p.title}</h4>
-        <div class="qty-controls">
+        <div class="qty-controls" style="display:flex;gap:8px;align-items:center;margin:6px 0;">
           <button class="qty-btn minus">−</button>
           <span>${item.qty}</span>
           <button class="qty-btn plus">+</button>
         </div>
-        <div>${formatCurrency(p.price*item.qty)}</div>
+        <div><strong>${formatCurrency(p.price*item.qty)}</strong></div>
       </div>
       <button class="remove-btn btn-sm">Remove</button>
     `;
@@ -196,10 +203,7 @@ function renderCheckoutPage() {
   updateCartTotals(subtotal);
 
   const saved = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
-  const form = $("address-form"),
-        summary = $("address-summary"),
-        savedText = $("saved-address-text");
-
+  const form = $("address-form"), summary = $("address-summary"), savedText = $("saved-address-text");
   if (saved && saved.name) {
     form.style.display = "none";
     summary.style.display = "block";
@@ -211,24 +215,15 @@ function renderCheckoutPage() {
 }
 
 function initCheckoutHandlers() {
-  if (window.emailjs) {
-    try { emailjs.init(EMAILJS_PUBLIC_KEY); }
-    catch (e) { console.warn("EmailJS init error", e); }
-  }
+  if (window.emailjs) try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch (e) {}
 
   const form = $("address-form");
   const summary = $("address-summary");
   const savedText = $("saved-address-text");
 
   if (form) {
-    // Prefill if saved
     const saved = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
-    if (saved) {
-      ["name", "phone", "street", "city", "pincode"].forEach(
-        f => form.elements[f].value = saved[f] || ""
-      );
-    }
-
+    if (saved) ["name","phone","street","city","pincode"].forEach(f => form.elements[f].value = saved[f] || "");
     form.addEventListener("submit", e => {
       e.preventDefault();
       const data = {
@@ -239,8 +234,6 @@ function initCheckoutHandlers() {
         pincode: form.pincode.value.trim()
       };
       localStorage.setItem(STORAGE_KEYS.address, JSON.stringify(data));
-
-      // ✅ Instantly update UI without refresh
       form.style.display = "none";
       summary.style.display = "block";
       savedText.innerHTML = `<strong>${data.name}</strong><br>${data.street}, ${data.city} - ${data.pincode}<br>📞 ${data.phone}`;
@@ -263,7 +256,6 @@ function initCheckoutHandlers() {
     const btn = $("place-order");
     const cart = loadCart();
     if (!cart.length) return alert("Your cart is empty.");
-
     const addr = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
     if (!addr) return alert("Please save your shipping address.");
 
@@ -287,9 +279,9 @@ function initCheckoutHandlers() {
       });
 
       clearCart();
+      alert("✅ Order placed successfully!");
       window.location.href = "order-success.html";
     } catch (err) {
-      console.error("EmailJS error", err);
       alert("Failed to send order confirmation. Please try again.");
       btn.disabled = false;
       btn.textContent = "Place Order";
@@ -298,3 +290,11 @@ function initCheckoutHandlers() {
   });
 }
 
+/* ---------- INIT ---------- */
+document.addEventListener("DOMContentLoaded",()=>{
+  updateCartBadge(loadCart());
+  renderProductsPage();
+  renderCartPage();
+  renderCheckoutPage();
+  initCheckoutHandlers();
+});
