@@ -4,14 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout - NeonzCrafts</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-  <!-- ✅ Navbar -->
   <header class="navbar">
-    <button class="back-btn" onclick="window.location.href='cart.html'">⬅</button>
-    <div class="brand">Checkout</div>
+    <a href="cart.html" class="back-link">← Back</a>
     <div class="nav-actions">
       <a href="cart.html" class="cart-link">
         🛒 <span id="cart-count">0</span>
@@ -19,58 +16,41 @@
     </div>
   </header>
 
-  <!-- ✅ Checkout Container -->
-  <main class="container checkout-page">
-    <h1 class="page-title">Checkout</h1>
+  <main>
+    <h2 class="section-title">Checkout</h2>
 
-    <!-- ✅ Product Summary -->
-    <section class="card product-summary-card">
-      <h2>Products in Your Order</h2>
-      <div id="checkout-products"></div>
-    </section>
-
-    <!-- ✅ Shipping Address -->
-    <section class="card address-card">
-      <h2>Shipping Address</h2>
-      <div id="address-summary" style="display:none;">
-        <p id="saved-address-text"></p>
-        <div class="address-actions">
-          <button id="edit-address" class="btn btn-secondary btn-sm">Edit</button>
-          <button id="clear-address" class="btn btn-secondary btn-sm">Remove</button>
-        </div>
-      </div>
-
-      <form id="address-form" class="address-form">
-        <label>Full Name <input type="text" name="name" required></label>
-        <label>Phone (10 digits) <input type="tel" name="phone" pattern="[0-9]{10}" required></label>
-        <label>Street / Locality <input type="text" name="street" required></label>
-        <label>City <input type="text" name="city" required></label>
-        <label>Pincode <input type="text" name="pincode" pattern="[0-9]{6}" required></label>
-        <button type="submit" class="btn btn-primary">Save Address</button>
+    <section id="address-form">
+      <h3>Shipping Address</h3>
+      <form>
+        <label>Full Name<input name="name" required></label>
+        <label>Phone<input name="phone" required maxlength="10"></label>
+        <label>Street<input name="street" required></label>
+        <label>City<input name="city" required></label>
+        <label>Pincode<input name="pincode" required maxlength="6"></label>
+        <button class="btn" type="submit">Save Address</button>
       </form>
     </section>
 
-    <!-- ✅ Order Summary -->
-    <section class="card summary-card">
-      <h2>Order Summary</h2>
-      <div class="summary-row"><span>Subtotal:</span> <span id="subtotal-amt">₹0</span></div>
-      <div class="summary-row"><span>Shipping:</span> <span id="shipping-amt">Free</span></div>
-      <div class="summary-row total"><span>Total:</span> <span id="grand-amt">₹0</span></div>
-      <hr>
-      <label class="payment-option">
-        <input type="radio" name="payment" value="cod" checked>
-        Cash on Delivery (COD)
-      </label>
-      <button id="place-order" class="btn btn-primary full-width" style="margin-top:12px;">
-        Place Order
-      </button>
+    <section id="address-summary" style="display:none;">
+      <p id="saved-address-text"></p>
+      <button id="edit-address" class="btn-secondary">Edit</button>
+      <button id="clear-address" class="btn-secondary">Remove</button>
     </section>
+
+    <section class="product-summary-card">
+      <h3>Your Items</h3>
+      <div id="checkout-products"></div>
+    </section>
+
+    <div class="cart-summary">
+      <p>Subtotal: <span id="subtotal-amt">₹0</span></p>
+      <p>Shipping: <span id="shipping-amt">Free</span></p>
+      <p><strong>Total: <span id="grand-amt">₹0</span></strong></p>
+      <button id="place-order" class="btn">Place Order</button>
+    </div>
   </main>
 
-  <footer>
-    &copy; 2025 NeonzCrafts. All Rights Reserved.
-  </footer>
-
+  <footer>© 2025 NeonzCrafts</footer>
   <script src="script.js"></script>
 </body>
 </html>
