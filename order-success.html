@@ -3,37 +3,41 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Order placed — NeonzCrafts</title>
+  <title>Order Placed — NeonzCrafts</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- HEADER -->
   <header class="navbar">
-  <div class="brand" id="brand">NeonzCrafts</div>
-  <div class="nav-actions">
-    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme">🌙</button>
-    <a href="cart.html" class="cart-link">
-      🛒 <span id="cart-count">0</span>
-    </a>
-  </div>
+    <div class="brand" id="brand">NeonzCrafts</div>
+    <div class="nav-actions">
+      <a href="cart.html" class="cart-link">
+        🛒 <span id="cart-count">0</span>
+      </a>
+    </div>
   </header>
 
+  <!-- MAIN -->
   <main class="container">
     <div class="success-card">
       <div class="success-icon">✅</div>
-      <h2>Thank you — your order is placed!</h2>
-      <p class="muted">We'll send updates when your order ships. You can track orders from your account.</p>
+      <h2 class="success-title">Thank You! Your Order Has Been Placed</h2>
+      <p class="muted">
+        We’ve received your order and will notify you as soon as it ships.  
+        You can continue shopping or check your email for confirmation.
+      </p>
       <div style="margin-top:18px">
         <a class="btn btn-primary" href="index.html">Continue Shopping</a>
       </div>
     </div>
   </main>
 
+  <!-- FOOTER -->
   <footer class="site-footer">
     <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
   </footer>
 
-  <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
+  <!-- SCRIPTS -->
   <script src="script.js"></script>
 </body>
 </html>
-
