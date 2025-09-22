@@ -6,21 +6,22 @@
   <title>Checkout - NeonzCrafts</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="dark">
   <!-- HEADER -->
   <header class="navbar">
-  <div class="brand" id="brand">NeonzCrafts</div>
-  <div class="nav-actions">
-    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme">🌙</button>
-    <a href="cart.html" class="cart-link">
-      🛒 <span id="cart-count">0</span>
-    </a>
-  </div>
+    <div class="brand" id="brand">NeonzCrafts</div>
+    <div class="nav-actions">
+      <a href="cart.html" class="cart-link" aria-label="Cart">
+        🛒 <span id="cart-count">0</span>
+      </a>
+    </div>
   </header>
 
+  <!-- MAIN -->
   <main class="container checkout-page">
     <h1 class="page-title">Checkout</h1>
 
+    <!-- SHIPPING ADDRESS -->
     <section class="card address-card">
       <h2>Shipping Address</h2>
       <div id="address-summary" style="display:none;">
@@ -41,6 +42,7 @@
       </form>
     </section>
 
+    <!-- ORDER SUMMARY -->
     <section class="card summary-card">
       <h2>Order Summary</h2>
       <div class="summary-row"><span>Subtotal:</span> <span id="subtotal-amt">₹0</span></div>
@@ -55,13 +57,13 @@
     </section>
   </main>
 
-  <footer class="footer">
-    <p>© 2025 NeonzCrafts. All rights reserved.</p>
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
   </footer>
 
-  <!-- EmailJS CDN + Script -->
+  <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
-
