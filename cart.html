@@ -4,13 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Cart - NeonzCrafts</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-  <!-- ✅ Navbar -->
   <header class="navbar">
-    <div class="brand">NeonzCrafts</div>
+    <a href="index.html" class="back-link">← Back</a>
     <div class="nav-actions">
       <a href="cart.html" class="cart-link">
         🛒 <span id="cart-count">0</span>
@@ -18,29 +16,23 @@
     </div>
   </header>
 
-  <!-- ✅ Cart Section -->
-  <main class="cart-section">
-    <h1 class="section-title">Your Cart</h1>
+  <main>
+    <h2 class="section-title">Your Cart</h2>
     <div id="cart-items"></div>
 
-    <!-- ✅ Cart Summary -->
     <div class="cart-summary">
-      <div class="summary-row"><span>Subtotal:</span> <span id="subtotal-amt">₹0</span></div>
-      <div class="summary-row"><span>Shipping:</span> <span id="shipping-amt">Free</span></div>
-      <div class="summary-row total"><span>Total:</span> <span id="grand-amt">₹0</span></div>
-      <button class="btn btn-primary checkout-btn" onclick="window.location.href='checkout.html'">
-        Proceed to Checkout
-      </button>
-      <button class="btn btn-secondary" onclick="window.location.href='index.html'">
-        Continue Shopping
-      </button>
+      <p>Subtotal: <span id="subtotal-amt">₹0</span></p>
+      <p>Shipping: <span id="shipping-amt">Free</span></p>
+      <p><strong>Total: <span id="grand-amt">₹0</span></strong></p>
+
+      <div class="cart-actions">
+        <a href="index.html" class="btn-secondary">Continue Shopping</a>
+        <a href="checkout.html" class="btn">Proceed to Checkout</a>
+      </div>
     </div>
   </main>
 
-  <footer>
-    &copy; 2025 NeonzCrafts. All Rights Reserved.
-  </footer>
-
+  <footer>© 2025 NeonzCrafts</footer>
   <script src="script.js"></script>
 </body>
 </html>
