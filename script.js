@@ -1,4 +1,4 @@
-/* ---------- CONFIG ---------- */
+/* --------- CONFIG ---------- */
 const EMAILJS_SERVICE = "service_al4zpdb";
 const EMAILJS_TEMPLATE = "template_vimeo5m";
 const EMAILJS_PUBLIC_KEY = "CRkybtSL0tLoJJ71X";
@@ -348,3 +348,4 @@ document.addEventListener("DOMContentLoaded",()=>{
   renderCheckoutPage();
   initCheckoutHandlers();
 });
+
