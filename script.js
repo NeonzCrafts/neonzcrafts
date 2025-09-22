@@ -236,3 +236,4 @@ function initCheckoutHandlers(){
       alert("Failed to send order confirmation.");btn.disabled=false;btn.textContent="Place Order";btn.style.opacity="1";
     }
   });
+
