@@ -121,20 +121,28 @@ function openProductModal(p){
   overlay.className="modal-overlay show"; // show triggers animation
   overlay.innerHTML=`
     <div class="modal-dialog">
-      <div class="modal-header"><h2>${p.title}</h2><button class="modal-close">×</button></div>
+      <div class="modal-header">
+        <h2>${p.title}</h2>
+        <button class="modal-close">×</button>
+      </div>
+      
+      <!-- Product Images (Stacked Vertically) -->
       <div class="carousel-container">
-        <div class="carousel-images">
+        <div class="carousel-images" style="display:block;text-align:center">
           ${p.images.map(src=>`<img src="${src}" class="modal-image">`).join("")}
         </div>
       </div>
+      
       <div class="modal-info">
         <div class="modal-price">${formatCurrency(p.price)}</div>
         <p>${p.desc}</p>
+        
         <div class="qty-stepper">
           <button id="qty-minus">−</button>
           <span id="qty-value">1</span>
           <button id="qty-plus">+</button>
         </div>
+        
         <div class="modal-actions">
           <button class="btn btn-primary" id="modal-add">Add to Cart</button>
           <button class="btn btn-secondary" id="modal-buy">Buy Now</button>
@@ -142,15 +150,20 @@ function openProductModal(p){
       </div>
     </div>
   `;
+  
   document.body.appendChild(overlay);
 
+  // Close modal on background or close button click
   q(".modal-close",overlay).addEventListener("click",()=>overlay.remove());
   overlay.addEventListener("click",e=>{if(e.target===overlay)overlay.remove();});
 
+  // Quantity logic
   let qty=1;
   const qtyValue=q("#qty-value",overlay);
   q("#qty-minus",overlay).addEventListener("click",()=>{if(qty>1){qty--;qtyValue.textContent=qty;}});
   q("#qty-plus",overlay).addEventListener("click",()=>{qty++;qtyValue.textContent=qty;});
+
+  // Add to Cart / Buy Now
   q("#modal-add",overlay).addEventListener("click",()=>{addToCart(p.id,qty);overlay.remove();window.location.href="cart.html";});
   q("#modal-buy",overlay).addEventListener("click",()=>{addToCart(p.id,qty);overlay.remove();window.location.href="checkout.html";});
 }
@@ -322,3 +335,4 @@ document.addEventListener("DOMContentLoaded",()=>{
   renderCheckoutPage();
   initCheckoutHandlers();
 });
+
