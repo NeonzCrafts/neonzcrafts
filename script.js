@@ -20,11 +20,11 @@ const PRODUCTS = [
   },
   {
     id: "p2",
-    title: "Stacking Rings for Toddlers",
-    price: 349,
-    originalPrice: 449,
-    images: ["1000069560.jpg","1000069559.jpg"],
-    desc: "Classic stacking toy for motor skill development. Safe and non-toxic."
+    title: "Premium Wooden Puzzle Set",
+    price: 499,
+    originalPrice: 699,
+    images: ["1000069559.jpg","1000069560.jpg"],
+    desc: "Eco-friendly wooden puzzle set for fun & learning."
   }
 ];
 
@@ -99,17 +99,19 @@ function renderProductsPage(){
   }
 
   PRODUCTS.forEach(p=>{
-    const card=document.createElement("article");
     const discount = p.originalPrice ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0;
+    const card=document.createElement("article");
     card.className="product-card";
     card.innerHTML=`
-      <div class="product-media"><img src="${p.images[0]}" alt="${p.title}"></div>
+      <div class="product-media">
+        <img src="${p.images[0]}" alt="${p.title}">
+        ${discount>0?`<span class="discount-badge">-${discount}%</span>`:""}
+      </div>
       <div class="product-body">
         <div class="product-title">${p.title}</div>
         <div class="price-row">
           ${p.originalPrice?`<div class="price-original">${formatCurrency(p.originalPrice)}</div>`:""}
           <div class="price-current">${formatCurrency(p.price)}</div>
-          ${discount ? `<span style="color:green;font-size:0.8rem;font-weight:600;">${discount}% OFF</span>` : ""}
         </div>
         <div class="product-actions">
           <button class="btn btn-primary btn-add">Add</button>
@@ -128,31 +130,39 @@ function renderProductsPage(){
 /* ---------- PRODUCT MODAL ---------- */
 function openProductModal(p){
   const overlay=document.createElement("div");
-  overlay.className="modal-overlay";
+  overlay.className="modal-overlay show";
   overlay.innerHTML=`
     <div class="modal-dialog">
       <div class="modal-header">
         <h2>${p.title}</h2>
         <button class="modal-close">×</button>
       </div>
-      <div class="carousel-images">
-        ${p.images.map(src=>`<img src="${src}" class="modal-image">`).join("")}
+      
+      <!-- Horizontal Image Carousel -->
+      <div class="carousel-container">
+        <div class="carousel-images">
+          ${p.images.map(src=>`<img src="${src}" class="modal-image">`).join("")}
+        </div>
       </div>
+      
       <div class="modal-info">
         <div class="modal-price">${formatCurrency(p.price)}</div>
         <p>${p.desc}</p>
+        
         <div class="qty-stepper">
           <button id="qty-minus">−</button>
           <span id="qty-value">1</span>
           <button id="qty-plus">+</button>
         </div>
-        <div style="display:flex;gap:10px;">
+        
+        <div class="modal-actions">
           <button class="btn btn-primary" id="modal-add">Add to Cart</button>
           <button class="btn btn-secondary" id="modal-buy">Buy Now</button>
         </div>
       </div>
     </div>
   `;
+  
   document.body.appendChild(overlay);
 
   q(".modal-close",overlay).addEventListener("click",()=>overlay.remove());
@@ -162,6 +172,7 @@ function openProductModal(p){
   const qtyValue=q("#qty-value",overlay);
   q("#qty-minus",overlay).addEventListener("click",()=>{if(qty>1){qty--;qtyValue.textContent=qty;}});
   q("#qty-plus",overlay).addEventListener("click",()=>{qty++;qtyValue.textContent=qty;});
+
   q("#modal-add",overlay).addEventListener("click",()=>{addToCart(p.id,qty);overlay.remove();window.location.href="cart.html";});
   q("#modal-buy",overlay).addEventListener("click",()=>{addToCart(p.id,qty);overlay.remove();window.location.href="checkout.html";});
 }
@@ -170,8 +181,7 @@ function openProductModal(p){
 function renderCartPage(){
   const panel=$("cart-items");
   if(!panel) return;
-  const cart=loadCart();
-  panel.innerHTML="";
+  const cart=loadCart();panel.innerHTML="";
   if(!cart.length){panel.innerHTML="<p>Your cart is empty.</p>";updateCartTotals(0);return;}
   let subtotal=0;
   cart.forEach(item=>{
@@ -298,6 +308,11 @@ function initCheckoutHandlers() {
     const addr = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
     if (!addr) return alert("Please save your shipping address.");
 
+    const subtotal = cart.reduce((s, it) => {
+      const p = PRODUCTS.find(pr => pr.id === it.id) || { price: 0 };
+      return s + p.price * it.qty;
+    }, 0);
+
     btn.disabled = true;
     btn.textContent = "Placing...";
     btn.style.opacity = "0.7";
@@ -308,10 +323,7 @@ function initCheckoutHandlers() {
           const p = PRODUCTS.find(pr => pr.id === it.id) || {};
           return `${p.title} × ${it.qty} = ${formatCurrency((p.price || 0) * it.qty)}`;
         }).join("\n"),
-        order_total: formatCurrency(cart.reduce((s, it) => {
-          const p = PRODUCTS.find(pr => pr.id === it.id) || { price: 0 };
-          return s + p.price * it.qty;
-        }, 0)),
+        order_total: formatCurrency(subtotal),
         customer_name: addr.name,
         customer_phone: addr.phone,
         customer_address: `${addr.street}, ${addr.city} - ${addr.pincode}`
