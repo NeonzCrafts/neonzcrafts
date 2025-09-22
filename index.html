@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NeonzCrafts</title>
+  <title>NeonzCrafts — Online Store</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 </head>
 <body>
-  <!-- HEADER -->
+  <!-- ✅ Header -->
   <header class="navbar">
-    <div class="brand">NeonzCrafts</div> <!-- NOT CLICKABLE -->
+    <div class="brand">NeonzCrafts</div> <!-- ✅ Not clickable on homepage -->
     <div class="nav-actions">
       <a href="cart.html" class="cart-link">
         🛒 <span id="cart-count">0</span>
@@ -18,19 +18,25 @@
     </div>
   </header>
 
-  <!-- PRODUCTS PANEL -->
+  <!-- ✅ Main Content -->
   <main>
-  <section class="products-section">
-    <h2 class="section-title">Our Featured Product</h2>
-    <div id="products-panel"></div>
-  </section>
+    <!-- ✅ Products Section -->
+    <section class="products-section">
+      <h2 class="section-title">Our Featured Products</h2>
+      <div id="products-panel" aria-live="polite"></div>
+    </section>
 
-  <section class="about-section">
-    <h2>About NeonzCrafts</h2>
-    <p>Handmade • Crafted • Local — We design playful, educational toys that spark curiosity and support early learning.</p>
-  </section>
+    <!-- ✅ About Section -->
+    <section class="about-section">
+      <h2>About NeonzCrafts</h2>
+      <p>
+        We bring you quality products at affordable prices — carefully selected
+        to give you the best shopping experience.
+      </p>
+    </section>
   </main>
 
+  <!-- ✅ Footer -->
   <footer class="site-footer">
     <p>© 2025 NeonzCrafts. All rights reserved.</p>
   </footer>
@@ -38,5 +44,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-
-
