@@ -3,37 +3,27 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Order Placed — NeonzCrafts</title>
+  <title>Order placed — NeonzCrafts</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- ✅ Header -->
   <header class="navbar">
-    <button class="back-btn" onclick="if (history.length > 1) history.back(); else window.location.href='index.html';">⬅</button>
-    <div class="nav-actions">
-      <a href="cart.html" class="cart-link">
-        🛒 <span id="cart-count">0</span>
-      </a>
-    </div>
+    <button class="icon-btn" onclick="location.href='index.html'">← Home</button>
+    <div class="nav-actions"><a class="cart-link" href="cart.html"><div class="icon-badge">🛒</div><span id="cart-count">0</span></a></div>
   </header>
 
-  <!-- ✅ Main Content -->
-  <main class="container" aria-live="polite">
-    <div class="success-card">
-      <div class="success-icon">✅</div>
-      <h2>Thank you — your order has been placed!</h2>
-      <p class="muted">We’ll send you updates when your order ships. You can track orders anytime from your account.</p>
+  <main class="container center" style="padding:40px 18px">
+    <div style="max-width:720px; margin:0 auto; background:var(--panel); padding:28px; border-radius:16px; box-shadow:var(--shadow)">
+      <div style="font-size:48px">✅</div>
+      <h2 style="margin:8px 0 6px">Thank you — your order is placed!</h2>
+      <p class="muted">We'll send updates when your order ships to the address you provided.</p>
       <div style="margin-top:18px">
         <a class="btn btn-primary" href="index.html">Continue Shopping</a>
       </div>
     </div>
   </main>
 
-  <!-- ✅ Footer -->
-  <footer class="site-footer">
-    <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
-  </footer>
-
+  <footer class="container center"><small class="muted">© 2025 NeonzCrafts</small></footer>
   <script src="script.js"></script>
 </body>
 </html>
