@@ -3,44 +3,40 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cart — NeonzCrafts</title>
+  <title>NeonzCrafts — Cart</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="navbar">
-    <button class="back-btn" onclick="history.back()">⬅</button>
+    <button class="icon-btn" onclick="history.back()">← Back</button>
     <div class="nav-actions">
-      <a href="cart.html" class="cart-link">
-        🛒 <span id="cart-count">0</span>
-      </a>
+      <a class="cart-link" href="cart.html"><div class="icon-badge">🛒</div><span id="cart-count">0</span></a>
     </div>
   </header>
 
   <main class="container">
-    <h1 class="page-title">Your Cart</h1>
-
-    <section class="cart-wrapper">
-      <div id="cart-items" class="cart-items" aria-live="polite"></div>
+    <h1 class="section-title">Your Cart</h1>
+    <div class="cart-wrapper">
+      <div class="cart-list card" style="padding:0">
+        <div style="padding:12px" id="cart-items"></div>
+      </div>
 
       <aside class="cart-summary">
-        <h2 class="summary-title">Order Summary</h2>
-        <div class="totals-row"><span>Subtotal</span><strong id="subtotal-amt">₹0</strong></div>
-        <div class="totals-row"><span>Shipping</span><strong id="shipping-amt">Free</strong></div>
-        <div class="totals-row totals-grand"><span>Total</span><strong id="grand-amt">₹0</strong></div>
-
-        <div class="divider"></div>
-        <div style="margin-top:12px;">
-          <a class="btn btn-secondary full-width" href="index.html">Continue Shopping</a>
-          <a class="btn btn-primary full-width" href="checkout.html">Proceed to Checkout</a>
+        <div class="card">
+          <h3 style="margin:0 0 8px">Order Summary</h3>
+          <div class="totals-row"><span>Subtotal</span><strong id="subtotal-amt">₹0</strong></div>
+          <div class="totals-row"><span>Shipping</span><strong id="shipping-amt">Free</strong></div>
+          <div class="totals-row totals-grand"><span>Total</span><strong id="grand-amt">₹0</strong></div>
+          <div style="margin-top:12px; display:flex; gap:8px">
+            <a class="btn btn-outline full-width" href="index.html">Continue Shopping</a>
+            <a class="btn btn-primary full-width" href="checkout.html">Proceed to Checkout</a>
+          </div>
         </div>
       </aside>
-    </section>
+    </div>
   </main>
 
-  <footer class="site-footer">
-    <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
-  </footer>
-
+  <footer class="container center"><small class="muted">© 2025 NeonzCrafts</small></footer>
   <script src="script.js"></script>
 </body>
 </html>
