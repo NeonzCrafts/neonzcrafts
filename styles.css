@@ -296,6 +296,24 @@ body {
 .modal-header h2 {
   margin: 0 0 10px 0;
 }
+/* ✅ Fix huge product image in modal */
+.modal-dialog img {
+  max-width: 90vw;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.carousel-images img {
+  max-width: 90vw;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
 .modal-header .modal-close {
   background: none;
   border: none;
@@ -363,4 +381,5 @@ footer {
   color: var(--muted);
   text-align: center;
 }
+
 
