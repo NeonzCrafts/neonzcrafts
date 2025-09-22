@@ -8,49 +8,53 @@
 </head>
 <body>
   <header class="navbar">
-    <a href="cart.html" class="back-link">← Back</a>
-    <div class="nav-actions">
-      <a href="cart.html" class="cart-link">
-        🛒 <span id="cart-count">0</span>
-      </a>
-    </div>
+    <div class="brand">NeonzCrafts</div>
+    <a href="cart.html" class="cart-link">
+      🛒<span id="cart-count">0</span>
+    </a>
   </header>
 
-  <main>
-    <h2 class="section-title">Checkout</h2>
+  <main class="container">
+    <a href="cart.html" class="back-link">← Back</a>
+    <h1 class="section-title">Checkout</h1>
 
-    <section id="address-form">
-      <h3>Shipping Address</h3>
-      <form>
-        <label>Full Name<input name="name" required></label>
-        <label>Phone<input name="phone" required maxlength="10"></label>
-        <label>Street<input name="street" required></label>
-        <label>City<input name="city" required></label>
-        <label>Pincode<input name="pincode" required maxlength="6"></label>
-        <button class="btn" type="submit">Save Address</button>
+    <!-- ✅ Shipping Address -->
+    <section id="address-section" class="card">
+      <form id="address-form" class="address-form">
+        <input type="text" name="name" placeholder="Full Name" required>
+        <input type="tel" name="phone" placeholder="Phone (10 digits)" required pattern="[0-9]{10}">
+        <input type="text" name="street" placeholder="Street / Locality" required>
+        <input type="text" name="city" placeholder="City" required>
+        <input type="text" name="pincode" placeholder="Pincode" required pattern="[0-9]{6}">
+        <button type="submit" class="btn">Save Address</button>
       </form>
+
+      <!-- ✅ Summary view -->
+      <div id="address-summary" style="display:none;">
+        <p id="saved-address-text"></p>
+        <div class="address-actions">
+          <button id="edit-address" class="btn-secondary">Edit</button>
+          <button id="clear-address" class="btn-secondary danger">Remove</button>
+        </div>
+      </div>
     </section>
 
-    <section id="address-summary" style="display:none;">
-      <p id="saved-address-text"></p>
-      <button id="edit-address" class="btn-secondary">Edit</button>
-      <button id="clear-address" class="btn-secondary">Remove</button>
-    </section>
-
-    <section class="product-summary-card">
-      <h3>Your Items</h3>
+    <!-- ✅ Product List -->
+    <section class="card">
+      <h2>Your Items</h2>
       <div id="checkout-products"></div>
     </section>
 
-    <div class="cart-summary">
+    <!-- ✅ Order Summary -->
+    <section class="card">
+      <h2>Order Summary</h2>
       <p>Subtotal: <span id="subtotal-amt">₹0</span></p>
       <p>Shipping: <span id="shipping-amt">Free</span></p>
       <p><strong>Total: <span id="grand-amt">₹0</span></strong></p>
-      <button id="place-order" class="btn">Place Order</button>
-    </div>
+      <button id="place-order" class="btn full-width">Place Order</button>
+    </section>
   </main>
 
-  <footer>© 2025 NeonzCrafts</footer>
   <script src="script.js"></script>
 </body>
 </html>
