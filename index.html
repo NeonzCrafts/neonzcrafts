@@ -1,44 +1,35 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NeonzCrafts — Online Store</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NeonzCrafts — Home</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 </head>
 <body>
-  <!-- ✅ Header -->
   <header class="navbar">
-    <div class="brand">NeonzCrafts</div> <!-- ✅ Not clickable on homepage -->
+    <div class="brand">NeonzCrafts</div>
     <div class="nav-actions">
-      <a href="cart.html" class="cart-link">
-        🛒 <span id="cart-count">0</span>
+      <a class="cart-link" href="cart.html" aria-label="Cart">
+        <div class="icon-badge">🛒</div><span id="cart-count">0</span>
       </a>
     </div>
   </header>
 
-  <!-- ✅ Main Content -->
-  <main>
-    <!-- ✅ Products Section -->
+  <main class="container">
     <section class="products-section">
-      <h2 class="section-title">Our Featured Products</h2>
-      <div id="products-panel" aria-live="polite"></div>
+      <h2 class="section-title">Our Featured Product</h2>
+      <div id="products-panel" class="products-grid"></div>
     </section>
 
-    <!-- ✅ About Section -->
-    <section class="about-section">
+    <section class="about-section container">
       <h2>About NeonzCrafts</h2>
-      <p>
-        We bring you quality products at affordable prices — carefully selected
-        to give you the best shopping experience.
-      </p>
+      <p class="kicker">We source and resell high-quality educational toys and playsets for early learning. Competitive prices & fast shipping.</p>
     </section>
   </main>
 
-  <!-- ✅ Footer -->
-  <footer class="site-footer">
-    <p>© 2025 NeonzCrafts. All rights reserved.</p>
+  <footer class="container center" style="padding:18px 8px;">
+    <small class="muted">© 2025 NeonzCrafts. All rights reserved.</small>
   </footer>
 
   <script src="script.js"></script>
