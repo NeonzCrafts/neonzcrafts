@@ -71,7 +71,7 @@ function updateQty(id, delta){
     if(cart[idx].qty<=0) cart.splice(idx,1);
     saveCart(cart);
     renderCartPage();
-    renderCheckoutPage(); // ✅ live update checkout product list
+    renderCheckoutPage();
   }
 }
 function removeFromCart(id){
@@ -115,10 +115,10 @@ function renderProductsPage(){
   });
 }
 
-/* ---------- PRODUCT MODAL ---------- */
+/* ---------- PRODUCT MODAL (Horizontal Images) ---------- */
 function openProductModal(p){
   const overlay=document.createElement("div");
-  overlay.className="modal-overlay show"; // show triggers animation
+  overlay.className="modal-overlay show";
   overlay.innerHTML=`
     <div class="modal-dialog">
       <div class="modal-header">
@@ -126,11 +126,8 @@ function openProductModal(p){
         <button class="modal-close">×</button>
       </div>
       
-      <!-- Product Images (Stacked Vertically) -->
       <div class="carousel-container">
-        <div class="carousel-images" style="display:block;text-align:center">
-          ${p.images.map(src=>`<img src="${src}" class="modal-image">`).join("")}
-        </div>
+        ${p.images.map(src=>`<img src="${src}" class="modal-image">`).join("")}
       </div>
       
       <div class="modal-info">
@@ -150,20 +147,20 @@ function openProductModal(p){
       </div>
     </div>
   `;
-  
   document.body.appendChild(overlay);
 
-  // Close modal on background or close button click
   q(".modal-close",overlay).addEventListener("click",()=>overlay.remove());
   overlay.addEventListener("click",e=>{if(e.target===overlay)overlay.remove();});
 
-  // Quantity logic
+  // ✅ Enable smooth horizontal scroll on mobile
+  const carousel = q(".carousel-container", overlay);
+  carousel.style.scrollBehavior = "smooth";
+
   let qty=1;
   const qtyValue=q("#qty-value",overlay);
   q("#qty-minus",overlay).addEventListener("click",()=>{if(qty>1){qty--;qtyValue.textContent=qty;}});
   q("#qty-plus",overlay).addEventListener("click",()=>{qty++;qtyValue.textContent=qty;});
 
-  // Add to Cart / Buy Now
   q("#modal-add",overlay).addEventListener("click",()=>{addToCart(p.id,qty);overlay.remove();window.location.href="cart.html";});
   q("#modal-buy",overlay).addEventListener("click",()=>{addToCart(p.id,qty);overlay.remove();window.location.href="checkout.html";});
 }
@@ -217,7 +214,6 @@ function renderCheckoutPage() {
   }, 0);
   updateCartTotals(subtotal);
 
-  // ✅ Show product list dynamically
   const productPanel = $("checkout-products");
   if (productPanel) {
     productPanel.innerHTML = "";
@@ -300,6 +296,12 @@ function initCheckoutHandlers() {
     const addr = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
     if (!addr) return alert("Please save your shipping address.");
 
+    // ✅ FIX: Calculate subtotal fresh here
+    const subtotal = cart.reduce((s, it) => {
+      const p = PRODUCTS.find(pr => pr.id === it.id) || { price: 0 };
+      return s + p.price * it.qty;
+    }, 0);
+
     btn.disabled = true;
     btn.textContent = "Placing...";
     btn.style.opacity = "0.7";
@@ -319,6 +321,7 @@ function initCheckoutHandlers() {
       clearCart();
       window.location.href = "order-success.html";
     } catch (err) {
+      console.error("EmailJS Error:", err);
       alert("Failed to send order confirmation. Please try again.");
       btn.disabled = false;
       btn.textContent = "Place Order";
@@ -335,4 +338,3 @@ document.addEventListener("DOMContentLoaded",()=>{
   renderCheckoutPage();
   initCheckoutHandlers();
 });
-
