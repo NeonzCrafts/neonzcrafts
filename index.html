@@ -7,46 +7,34 @@
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 </head>
-<body class="dark">
-  
+<body>
   <!-- HEADER -->
-<header class="navbar">
-  <div class="brand">NeonzCrafts</div> <!-- 🔹 NOT clickable -->
-  <div class="nav-actions">
-    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme">🌙</button>
-    <a href="cart.html" class="cart-link">
-      🛒 <span id="cart-count">0</span>
-    </a>
-  </div>
-</header>
+  <header class="navbar">
+    <div class="brand">NeonzCrafts</div> <!-- NOT CLICKABLE -->
+    <div class="nav-actions">
+      <a href="cart.html" class="cart-link">
+        🛒 <span id="cart-count">0</span>
+      </a>
+    </div>
+  </header>
 
-  <!-- MAIN -->
-  <main class="container">
-    <!-- PRODUCTS PANEL -->
+  <!-- PRODUCTS PANEL -->
+  <main>
     <section class="products-section">
-      <h2 class="section-title">Our Featured Product</h2>
-      <div id="products-panel" class="products-grid"></div>
+      <h2>Our Featured Product</h2>
+      <div id="products-panel"></div>
     </section>
 
-    <!-- ABOUT SECTION -->
-    <section class="about-section">
-      <h2 class="section-title">About NeonzCrafts</h2>
-      <p class="about-text">
-        Handmade • Crafted • Local — We design playful, educational toys that spark curiosity
-        and support early learning. Our mission is to bring safe, sustainable and innovative
-        toys to every home.
-      </p>
+    <section class="about-section" style="padding:20px;">
+      <h2>About NeonzCrafts</h2>
+      <p>Handmade • Crafted • Local — We design playful, educational toys that spark curiosity and support early learning.</p>
     </section>
   </main>
 
-  <!-- FOOTER -->
   <footer class="site-footer">
-    <div class="footer-inner">© 2025 NeonzCrafts. All rights reserved.</div>
+    <p>© 2025 NeonzCrafts. All rights reserved.</p>
   </footer>
 
-  <!-- SCRIPTS -->
   <script src="script.js"></script>
 </body>
 </html>
-
-
