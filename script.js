@@ -202,8 +202,36 @@ function renderCheckoutPage() {
   }, 0);
   updateCartTotals(subtotal);
 
+  // ✅ Show product list dynamically
+  const productPanel = $("checkout-products");
+  if (productPanel) {
+    productPanel.innerHTML = "";
+    if (!cart.length) {
+      productPanel.innerHTML = "<p>Your cart is empty.</p>";
+    } else {
+      cart.forEach(item => {
+        const p = PRODUCTS.find(pr => pr.id === item.id);
+        if (!p) return;
+        const row = document.createElement("div");
+        row.className = "checkout-item";
+        row.innerHTML = `
+          <img src="${p.images[0]}" class="checkout-thumb">
+          <div class="checkout-info">
+            <div class="checkout-title">${p.title}</div>
+            <div class="checkout-meta">Qty: ${item.qty}</div>
+          </div>
+          <div class="checkout-price">${formatCurrency(p.price * item.qty)}</div>
+        `;
+        productPanel.appendChild(row);
+      });
+    }
+  }
+
+  // ✅ Address Handling
   const saved = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
-  const form = $("address-form"), summary = $("address-summary"), savedText = $("saved-address-text");
+  const form = $("address-form"),
+        summary = $("address-summary"),
+        savedText = $("saved-address-text");
   if (saved && saved.name) {
     form.style.display = "none";
     summary.style.display = "block";
@@ -213,44 +241,6 @@ function renderCheckoutPage() {
     summary.style.display = "none";
   }
 }
-
-function initCheckoutHandlers() {
-  if (window.emailjs) try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch (e) {}
-
-  const form = $("address-form");
-  const summary = $("address-summary");
-  const savedText = $("saved-address-text");
-
-  if (form) {
-    const saved = safeParse(localStorage.getItem(STORAGE_KEYS.address), null);
-    if (saved) ["name","phone","street","city","pincode"].forEach(f => form.elements[f].value = saved[f] || "");
-    form.addEventListener("submit", e => {
-      e.preventDefault();
-      const data = {
-        name: form.name.value.trim(),
-        phone: form.phone.value.trim(),
-        street: form.street.value.trim(),
-        city: form.city.value.trim(),
-        pincode: form.pincode.value.trim()
-      };
-      localStorage.setItem(STORAGE_KEYS.address, JSON.stringify(data));
-      form.style.display = "none";
-      summary.style.display = "block";
-      savedText.innerHTML = `<strong>${data.name}</strong><br>${data.street}, ${data.city} - ${data.pincode}<br>📞 ${data.phone}`;
-    });
-  }
-
-  $("edit-address")?.addEventListener("click", () => {
-    form.style.display = "block";
-    summary.style.display = "none";
-  });
-
-  $("clear-address")?.addEventListener("click", () => {
-    localStorage.removeItem(STORAGE_KEYS.address);
-    form.reset();
-    form.style.display = "block";
-    summary.style.display = "none";
-  });
 
   $("place-order")?.addEventListener("click", async () => {
     const btn = $("place-order");
@@ -298,3 +288,4 @@ document.addEventListener("DOMContentLoaded",()=>{
   renderCheckoutPage();
   initCheckoutHandlers();
 });
+
